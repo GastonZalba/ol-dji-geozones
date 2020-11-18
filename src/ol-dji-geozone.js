@@ -152,11 +152,11 @@ export default class DjiGeozone {
                 }),
                 zIndex: height
             })
-            
+
         } else if (geomType === 'Point') {
             style = new Style({
                 image: new Icon({
-                    src: markerIcons[feature.get('shape')],
+                    src: markerIcons[feature.get('level')],
                     scale: 0.3
                 }),
                 zIndex: 300
@@ -235,6 +235,7 @@ export default class DjiGeozone {
             const feature = new Feature({
                 name: area.name,
                 shape: area.shape, // this defines the icon
+                level: area.level,
                 radius: area.radius,
                 color: area.color,
                 country: area.country,
