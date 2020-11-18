@@ -24,11 +24,18 @@ module.exports = {
     },
     globals: {
         'ol/Map': 'ol.Map',
-        'ol/format/GeoJSON': 'ol.format.GeoJSON',
         'ol/source/Vector': 'ol.source.Vector',
         'ol/layer/Vector': 'ol.layer.Vector',
+        'ol/geom/Point': 'ol.geom.Point',
+        'ol/geom/Polygon': 'ol.geom.Polygon',
+        'ol/Feature': 'ol.Feature',
+        'ol/style/Style': 'ol.style.Style',
+        'ol/style/Fill': 'ol.style.Fill',
+        'ol/style/Stroke': 'ol.style.Stroke',
+        'ol/style/Icon': 'ol.style.Icon',
         'ol/proj': 'ol.proj',
         'ol/sphere': 'ol.sphere',
+        'ol/color' : 'ol.color',
         'url': 'url'
     }
 };
