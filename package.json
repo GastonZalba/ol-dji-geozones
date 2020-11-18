@@ -1,0 +1,40 @@
+{
+  "name": "ol-dji-geozone",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/ol-dji-geozone.js",
+  "scripts": {
+    "watch": "chokidar 'src/**' --initial --command 'WATCH=1 rollup --config rollup.config.js'",
+    "build": "rollup --config rollup.config.js"
+  },
+  "keywords": [
+    "dji",
+    "uav",
+    "drone",
+    "geozone",
+    "flyzafe",
+    "openlayers",
+    "ol"
+  ],
+  "author": "Gastón Zalba",
+  "license": "ISC",
+  "dependencies": {},
+  "peerDependencies": {
+    "ol": ">=5.0.0"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-plugin-external-helpers": "^6.22.0",
+    "babel-preset-env": "^1.6.1",
+    "chokidar-cli": "^1.2.2",
+    "node-fetch": "^2.6.1",
+    "ol": "^6.1.1",
+    "prettier": "^2.0.4",
+    "rollup": "^0.41.4",
+    "rollup-plugin-babel": "^3.0.3",
+    "rollup-plugin-commonjs": "^7.0.0",
+    "rollup-plugin-node-builtins": "^2.1.2",
+    "rollup-plugin-node-globals": "^1.4.0",
+    "rollup-plugin-node-resolve": "^2.0.0"
+  }
+}
