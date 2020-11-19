@@ -33,9 +33,9 @@ module.exports = {
         'ol/style/Fill': 'ol.style.Fill',
         'ol/style/Stroke': 'ol.style.Stroke',
         'ol/style/Icon': 'ol.style.Icon',
+        'ol/control' : 'ol.control',
         'ol/proj': 'ol.proj',
         'ol/sphere': 'ol.sphere',
-        'ol/color' : 'ol.color',
-        'url': 'url'
+        'ol/color': 'ol.color'
     }
 };

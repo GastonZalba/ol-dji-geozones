@@ -11,13 +11,42 @@ import Fill from 'ol/style/Fill';
 import Stroke from 'ol/style/Stroke';
 import Icon from 'ol/style/Icon';
 import { asArray, asString } from 'ol/color';
+import { Control } from 'ol/control';
 
 import { get } from 'http';
 
 const DEFAULT_DRONE = 'spark';
 const DEFAULT_ZONES_MODE = 'total';
 const DEFAULT_COUNTRY = 'US';
-const DEFAULT_LEVEL = '1,2,4,7';
+const DEFAULT_LEVEL = [
+    0,
+    1,
+    2,
+    3,
+    4,
+    7
+];
+
+const VALID_COUNTRIES = [
+    "US",
+    "CA",
+    "MX",
+    "DE",
+    "FR",
+    "GB",
+    "IE",
+    "IT",
+    "ES",
+    "BE",
+    "NL",
+    "LU",
+    "DK",
+    "CH",
+    "PT",
+    "AD",
+    "AE",
+    "CN"
+];
 
 // 2020/11
 const VALID_DRONES = [
@@ -58,19 +87,25 @@ const VALID_DRONES = [
  * @param {Object} opt_options Control options adding:
  * @param {Number} opt_options.zIndex zIndex of the OpenLayers layer
  * @param {String} opt_options.drone DJI API parameter
- * @param {String} opt_options.zones_mode DJI API parameter
+ * @param {String} opt_options.zonesMode DJI API parameter
  * @param {String} opt_options.country DJI API parameter
- * @param {String} opt_options.level DJI API parameter
+ * @param {Array} opt_options.level DJI API parameter
+ * @param {Boolean} opt_options.addControl Add Open Layers Controller to the map
  */
 export default class DjiGeozone {
 
     constructor(map, url_proxy, opt_options = {}) {
 
+        // API PARAMETERS
         let z_index = opt_options.zIndex || 5;
         this._drone = opt_options.drone || DEFAULT_DRONE;
-        this.zones_mode = opt_options.zones_mode || DEFAULT_ZONES_MODE;
+        this.zones_mode = opt_options.zonesMode || DEFAULT_ZONES_MODE;
         this.country = opt_options.country || DEFAULT_COUNTRY;
         this.level = opt_options.level || DEFAULT_LEVEL;
+
+        let addControl = ('controller' in opt_options) ? opt_options.addControl : true;
+        let targetControl = opt_options.targetControl || '';
+
         this.url_proxy = url_proxy || 'cors-anywhere.herokuapp.com';
 
         this.map = map;
@@ -92,11 +127,84 @@ export default class DjiGeozone {
 
         map.addLayer(this.layer);
 
+        if (addControl)
+            this.addMapControl(targetControl);
+
         this.addMapEvents();
 
         this.idRequest = 0;
 
-        this.support_list = ["US", "CA", "MX", "DE", "FR", "GB", "IE", "IT", "ES", "BE", "NL", "LU", "DK", "CH", "PT", "AD", "AE", "CN"];
+    }
+
+    cleanFeatures() {
+        this.source.clear();
+    }
+
+    addMapControl(targetControl) {
+
+        const handleClick = (btn) => {
+
+            let value = Number(btn.value);
+
+            if (btn.checked == true) {
+                this.level = [...this.level, value];
+            } else {
+                let index = this.level.indexOf(value);
+                if (index !== -1) {
+                    this.level.splice(index, 1);
+                }
+            }
+
+            this.cleanFeatures();
+            this.getData();
+        }
+
+
+        const createButton = (name, value, label) => {
+
+            let labelEl = document.createElement('label');
+            labelEl.htmlFor = name;
+            labelEl.innerHTML = label;
+
+            let btn = document.createElement('input');
+            btn.type = 'checkbox';
+
+            if (this.level.indexOf(value) !== -1)
+                btn.checked = 'checked';
+
+            btn.name = name;
+            btn.id = name;
+            btn.value = value;
+            btn.onclick = () => handleClick(btn);
+
+            let divContainer = document.createElement('div');
+            divContainer.append(btn);
+            divContainer.append(labelEl);
+
+            return divContainer;
+        }
+
+
+        let btnLevel0 = createButton('level0', 0, 'Warning Zones');
+        let btnLevel3 = createButton('level3', 3, 'Enhanced Warning Zones');
+
+        let div = document.createElement('div');
+        div.className = 'ol-dji-geozone ol-control';
+
+        div.append(btnLevel0);
+        div.append(btnLevel3);
+
+        let options = {
+            element: div
+        };
+
+        if (targetControl) {
+            options.target = target;
+        }
+
+        this.control = new Control(options)
+
+        this.map.addControl(this.control);
 
     }
 
@@ -135,7 +243,7 @@ export default class DjiGeozone {
         let geomType = feature.getGeometry().getType();
 
         let style;
-        
+
 
         if (geomType === 'Polygon') {
 
@@ -350,7 +458,7 @@ export default class DjiGeozone {
                 'drone': this._drone,
                 'zones_mode': this.zones_mode,
                 'country': this.country,
-                'level': this.level,
+                'level': this.level.join(),
                 'lng': lng,
                 'lat': lat,
                 'search_radius': searchRadius

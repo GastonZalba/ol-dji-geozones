@@ -1,8 +1,8 @@
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('ol/layer/Vector'), require('ol/source/Vector'), require('ol/proj'), require('ol/sphere'), require('ol/geom/Polygon'), require('ol/geom/Point'), require('ol/Feature'), require('ol/style/Style'), require('ol/style/Fill'), require('ol/style/Stroke'), require('ol/style/Icon'), require('ol/color')) :
-	typeof define === 'function' && define.amd ? define(['ol/layer/Vector', 'ol/source/Vector', 'ol/proj', 'ol/sphere', 'ol/geom/Polygon', 'ol/geom/Point', 'ol/Feature', 'ol/style/Style', 'ol/style/Fill', 'ol/style/Stroke', 'ol/style/Icon', 'ol/color'], factory) :
-	(global.DjiGeozone = factory(global.ol.layer.Vector,global.ol.source.Vector,global.ol.proj,global.ol.sphere,global.ol.geom.Polygon,global.ol.geom.Point,global.ol.Feature,global.ol.style.Style,global.ol.style.Fill,global.ol.style.Stroke,global.ol.style.Icon,global.ol.color));
-}(this, (function (VectorLayer,VectorSource,ol_proj,ol_sphere,Polygon,Point,Feature,Style,Fill,Stroke,Icon,ol_color) { 'use strict';
+	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('ol/layer/Vector'), require('ol/source/Vector'), require('ol/proj'), require('ol/sphere'), require('ol/geom/Polygon'), require('ol/geom/Point'), require('ol/Feature'), require('ol/style/Style'), require('ol/style/Fill'), require('ol/style/Stroke'), require('ol/style/Icon'), require('ol/color'), require('ol/control')) :
+	typeof define === 'function' && define.amd ? define(['ol/layer/Vector', 'ol/source/Vector', 'ol/proj', 'ol/sphere', 'ol/geom/Polygon', 'ol/geom/Point', 'ol/Feature', 'ol/style/Style', 'ol/style/Fill', 'ol/style/Stroke', 'ol/style/Icon', 'ol/color', 'ol/control'], factory) :
+	(global.DjiGeozone = factory(global.ol.layer.Vector,global.ol.source.Vector,global.ol.proj,global.ol.sphere,global.ol.geom.Polygon,global.ol.geom.Point,global.ol.Feature,global.ol.style.Style,global.ol.style.Fill,global.ol.style.Stroke,global.ol.style.Icon,global.ol.color,global.ol.control));
+}(this, (function (VectorLayer,VectorSource,ol_proj,ol_sphere,Polygon,Point,Feature,Style,Fill,Stroke,Icon,ol_color,ol_control) { 'use strict';
 
 VectorLayer = 'default' in VectorLayer ? VectorLayer['default'] : VectorLayer;
 VectorSource = 'default' in VectorSource ? VectorSource['default'] : VectorSource;
@@ -7027,7 +7027,7 @@ function get(opts, cb) {
 const DEFAULT_DRONE = 'spark';
 const DEFAULT_ZONES_MODE = 'total';
 const DEFAULT_COUNTRY = 'US';
-const DEFAULT_LEVEL = '1,2,4,7';
+const DEFAULT_LEVEL = [0, 1, 2, 3, 4, 7];
 
 // 2020/11
 const VALID_DRONES = ["mavic-mini", //  Mavic Mini
@@ -7066,19 +7066,25 @@ const VALID_DRONES = ["mavic-mini", //  Mavic Mini
  * @param {Object} opt_options Control options adding:
  * @param {Number} opt_options.zIndex zIndex of the OpenLayers layer
  * @param {String} opt_options.drone DJI API parameter
- * @param {String} opt_options.zones_mode DJI API parameter
+ * @param {String} opt_options.zonesMode DJI API parameter
  * @param {String} opt_options.country DJI API parameter
- * @param {String} opt_options.level DJI API parameter
+ * @param {Array} opt_options.level DJI API parameter
+ * @param {Boolean} opt_options.addControl Add Open Layers Controller to the map
  */
 class DjiGeozone {
 
     constructor(map, url_proxy, opt_options = {}) {
 
+        // API PARAMETERS
         let z_index = opt_options.zIndex || 5;
         this._drone = opt_options.drone || DEFAULT_DRONE;
-        this.zones_mode = opt_options.zones_mode || DEFAULT_ZONES_MODE;
+        this.zones_mode = opt_options.zonesMode || DEFAULT_ZONES_MODE;
         this.country = opt_options.country || DEFAULT_COUNTRY;
         this.level = opt_options.level || DEFAULT_LEVEL;
+
+        let addControl = 'controller' in opt_options ? opt_options.addControl : true;
+        let targetControl = opt_options.targetControl || '';
+
         this.url_proxy = url_proxy || 'cors-anywhere.herokuapp.com';
 
         this.map = map;
@@ -7100,11 +7106,79 @@ class DjiGeozone {
 
         map.addLayer(this.layer);
 
+        if (addControl) this.addMapControl(targetControl);
+
         this.addMapEvents();
 
         this.idRequest = 0;
+    }
 
-        this.support_list = ["US", "CA", "MX", "DE", "FR", "GB", "IE", "IT", "ES", "BE", "NL", "LU", "DK", "CH", "PT", "AD", "AE", "CN"];
+    cleanFeatures() {
+        this.source.clear();
+    }
+
+    addMapControl(targetControl) {
+
+        const handleClick = btn => {
+
+            let value = Number(btn.value);
+
+            if (btn.checked == true) {
+                this.level = [...this.level, value];
+            } else {
+                let index = this.level.indexOf(value);
+                if (index !== -1) {
+                    this.level.splice(index, 1);
+                }
+            }
+
+            this.cleanFeatures();
+            this.getData();
+        };
+
+        const createButton = (name, value, label) => {
+
+            let labelEl = document.createElement('label');
+            labelEl.htmlFor = name;
+            labelEl.innerHTML = label;
+
+            let btn = document.createElement('input');
+            btn.type = 'checkbox';
+
+            if (this.level.indexOf(value) !== -1) btn.checked = 'checked';
+
+            btn.name = name;
+            btn.id = name;
+            btn.value = value;
+            btn.onclick = () => handleClick(btn);
+
+            let divContainer = document.createElement('div');
+            divContainer.append(btn);
+            divContainer.append(labelEl);
+
+            return divContainer;
+        };
+
+        let btnLevel0 = createButton('level0', 0, 'Warning Zones');
+        let btnLevel3 = createButton('level3', 3, 'Enhanced Warning Zones');
+
+        let div = document.createElement('div');
+        div.className = 'ol-dji-geozone ol-control';
+
+        div.append(btnLevel0);
+        div.append(btnLevel3);
+
+        let options = {
+            element: div
+        };
+
+        if (targetControl) {
+            options.target = target;
+        }
+
+        this.control = new ol_control.Control(options);
+
+        this.map.addControl(this.control);
     }
 
     style(feature, resolution) {
@@ -7337,7 +7411,7 @@ class DjiGeozone {
                 'drone': this._drone,
                 'zones_mode': this.zones_mode,
                 'country': this.country,
-                'level': this.level,
+                'level': this.level.join(),
                 'lng': lng,
                 'lat': lat,
                 'search_radius': searchRadius
