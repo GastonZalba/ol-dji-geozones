@@ -10,10 +10,12 @@ import Style from 'ol/style/Style';
 import Fill from 'ol/style/Fill';
 import Stroke from 'ol/style/Stroke';
 import Icon from 'ol/style/Icon';
-import { asArray, asString } from 'ol/color';
 import { Control } from 'ol/control';
 
 import { get } from 'http';
+import { colorWithAlpha } from './utils';
+
+const MIN_ZOOM = 9;
 
 const DEFAULT_DRONE = 'spark';
 const DEFAULT_ZONES_MODE = 'total';
@@ -24,6 +26,7 @@ const DEFAULT_LEVEL = [
     2,
     3,
     4,
+    6,
     7
 ];
 
@@ -79,7 +82,7 @@ const VALID_DRONES = [
 
 
 /**
- * OpenLayers DJI Geozone Vector Layer.
+ * OpenLayers DJI Geozone Layer.
  * See [the examples](./examples) for usage.
  * @constructor
  * @param {Object} map Class Map
@@ -103,6 +106,7 @@ export default class DjiGeozone {
         this.country = opt_options.country || DEFAULT_COUNTRY;
         this.level = opt_options.level || DEFAULT_LEVEL;
 
+        // MAP 
         let addControl = ('controller' in opt_options) ? opt_options.addControl : true;
         let targetControl = opt_options.targetControl || '';
 
@@ -123,12 +127,11 @@ export default class DjiGeozone {
             style: this.style
         });
 
-        this.projection = this.view.getProjection();
-
         map.addLayer(this.layer);
 
-        if (addControl)
-            this.addMapControl(targetControl);
+        this.projection = this.view.getProjection();
+
+        if (addControl) this.addMapControl(targetControl);
 
         this.addMapEvents();
 
@@ -138,6 +141,21 @@ export default class DjiGeozone {
 
     cleanFeatures() {
         this.source.clear();
+    }
+
+    setControlEnabled(enabled) {
+        let inputs = this.divControl.querySelectorAll('input');
+
+        inputs.forEach(input => {
+
+            if (enabled) {
+                input.removeAttribute('disabled');
+            } else {
+                input.disabled = 'disabled';
+            }
+            
+        });
+
     }
 
     addMapControl(targetControl) {
@@ -155,53 +173,83 @@ export default class DjiGeozone {
                 }
             }
 
-            this.cleanFeatures();
-            this.getData();
+            this.getData(/* clear = */ true);
         }
 
+        const createLegend = (color) => {
+            let span = document.createElement('span');
+            span.className = 'ol-dji-geozone--mark'
+            span.style.border = `1px ${color} solid`;
+            span.style.backgroundColor = colorWithAlpha(color, 0.4);
+            return span;
+        }
 
-        const createButton = (name, value, label) => {
-
+        const createLabel = (label, name) => {
             let labelEl = document.createElement('label');
             labelEl.htmlFor = name;
             labelEl.innerHTML = label;
+            return labelEl;
+        }
 
+        const createButton = (name, value, disabled) => {
             let btn = document.createElement('input');
             btn.type = 'checkbox';
+            btn.name = name;
+            btn.id = name;
+            btn.value = value;
+
+            btn.onclick = () => handleClick(btn);
 
             if (this.level.indexOf(value) !== -1)
                 btn.checked = 'checked';
 
-            btn.name = name;
-            btn.id = name;
-            btn.value = value;
-            btn.onclick = () => handleClick(btn);
+            if (disabled)
+                btn.disabled = 'disabled';
 
+            return btn;
+        }
+
+        const createLevelItem = (value, label, color) => {
+
+            let disabled = (this.view.getZoom() < MIN_ZOOM);
+
+            let name = 'level' + value;
             let divContainer = document.createElement('div');
-            divContainer.append(btn);
-            divContainer.append(labelEl);
+            divContainer.className = `ol-dji-geozone--item ol-dji-geozone--item-${value}`;
+            divContainer.setAttribute('data-level', value);
+            divContainer.append(createButton(name, value, disabled));
+            divContainer.append(createLegend(color));
+            divContainer.append(createLabel(label, name));
 
             return divContainer;
         }
 
+        let level2 = createLevelItem(2, 'Restricted Zones', '#DE4329');
+        let level6 = createLevelItem(6, 'Altitude Zones', '#979797');
+        let level1 = createLevelItem(1, 'Authorization Zones', '#1088F2');
+        let level0 = createLevelItem(0, 'Warning Zones', '#FFCC00');
+        let level3 = createLevelItem(3, 'Enhanced Warning Zones', '#EE8815');
 
-        let btnLevel0 = createButton('level0', 0, 'Warning Zones');
-        let btnLevel3 = createButton('level3', 3, 'Enhanced Warning Zones');
+        let divControl = document.createElement('div');
+        divControl.className = 'ol-dji-geozone ol-control';
+        divControl.innerHTML = `<div><h3>DJI Geozone</h3></div>`;
 
-        let div = document.createElement('div');
-        div.className = 'ol-dji-geozone ol-control';
+        divControl.append(level2);
+        divControl.append(level6);
+        divControl.append(level1);
 
-        div.append(btnLevel0);
-        div.append(btnLevel3);
+        divControl.append(level0);
+        divControl.append(level3);
 
         let options = {
-            element: div
+            element: divControl
         };
 
         if (targetControl) {
             options.target = target;
         }
 
+        this.divControl = divControl;
         this.control = new Control(options)
 
         this.map.addControl(this.control);
@@ -209,12 +257,6 @@ export default class DjiGeozone {
     }
 
     style(feature, resolution) {
-
-        // https://stackoverflow.com/questions/28004153/setting-vector-feature-fill-opacity-when-you-have-a-hexadecimal-color
-        const colorWithAlpha = (color, alpha = 1) => {
-            const [r, g, b] = Array.from(asArray(color));
-            return asString([r, g, b, alpha]);
-        }
 
         const markerIcons = {
             '0': 'https://www1.djicdn.com/dps/6734f5340f66c7be37db48c8889392bf.png',
@@ -243,7 +285,6 @@ export default class DjiGeozone {
         let geomType = feature.getGeometry().getType();
 
         let style;
-
 
         if (geomType === 'Polygon') {
 
@@ -279,33 +320,32 @@ export default class DjiGeozone {
 
         const handleZoomEnd = () => {
 
-            if (this.currentZoom < 9) {
+            if (this.currentZoom < MIN_ZOOM) {
 
                 if (this.isVisible) {
                     this.layer.setVisible(false);
                     this.isVisible = false;
+                    this.setControlEnabled(false);
                 }
 
-                return;
-            }
-
-
-            if (!this.isVisible) {
-                this.layer.setVisible(true);
-                this.isVisible = true;
             } else {
-                // If the view is closer, don't do anything, we already had the features
-                if (this.currentZoom > this.lastZoom)
-                    return;
-            }
 
-            this.getData();
+                if (!this.isVisible) {
+                    this.layer.setVisible(true);
+                    this.isVisible = true;
+                    this.setControlEnabled(true);
+                } else {
+                    // If the view is closer, don't do anything, we already had the features
+                    if (this.currentZoom > this.lastZoom)
+                        return;
+                }
+
+                this.getData();
+            }
 
         }
 
         const handleDragEnd = () => {
-
-            if (!this.isVisible) return;
 
             this.getData();
 
@@ -397,9 +437,8 @@ export default class DjiGeozone {
         this.source.addFeatures(features);
     }
 
-    // https://stackoverflow.com/questions/44575654/get-radius-of-the-displayed-openlayers-map
+    // adapted from https://stackoverflow.com/questions/44575654/get-radius-of-the-displayed-openlayers-map
     getMapRadius(center) {
-
         let size = this.map.getSize();
         let extent = this.view.calculateExtent(size);
         extent = transformExtent(extent, this.projection, 'EPSG:4326');
@@ -410,7 +449,9 @@ export default class DjiGeozone {
         return parseInt(centerToSW);
     }
 
-    getData() {
+    getData(clear = false) {
+
+        if (!this.isVisible) return;
 
         let center = this.view.getCenter();
         let center4326 = transform(center, this.projection, 'EPSG:4326');
@@ -422,13 +463,24 @@ export default class DjiGeozone {
 
         let searchRadius = this.getMapRadius(center);
 
+        // Prevent multiples requests
         this.idRequest += 1;
-
         let request = this.idRequest;
 
         // Original DJI map same behavior to prevent multiples requests
-        setTimeout(() => {
-            if (request == this.idRequest) this.getGeoData(centerLatLng, searchRadius)
+        setTimeout(async () => {
+
+            if (request == this.idRequest) {
+                try {
+                    let data = await this.getGeoData(centerLatLng, searchRadius);
+                    if (clear) this.cleanFeatures();
+                    let features = this.apiResponseToFeatures(data);
+                    this.addFeatures(features);
+                } catch (err) {
+                    console.error(`Got error: ${e.message} `);
+                }
+            }
+
         }, 800);
 
     }
@@ -465,51 +517,50 @@ export default class DjiGeozone {
             }
         }));
 
-        get({
-            hostname: requestUrl.hostname,
-            path: requestUrl.path,
-        }, (res) => {
+        return new Promise((resolve, reject) => {
 
-            const { statusCode } = res;
-            const contentType = res.headers['content-type'];
+            get({
+                hostname: requestUrl.hostname,
+                path: requestUrl.path,
+            }, (res) => {
 
-            let error;
-            // Any 2xx status code signals a successful response but
-            // here we're only checking for 200.
-            if (statusCode !== 200) {
-                error = new Error('Request Failed.\n' +
-                    `Status Code: ${statusCode}`);
-            } else if (!/^application\/json/.test(contentType)) {
-                error = new Error('Invalid content-type.\n' +
-                    `Expected application/json but received ${contentType}`);
-            }
-            if (error) {
-                console.error(error.message);
-                // Consume response data to free up memory
-                res.resume();
-                return;
-            }
+                const { statusCode } = res;
+                const contentType = res.headers['content-type'];
 
-            res.setEncoding('utf8');
-
-            let rawData = '';
-            res.on('data', (chunk) => { rawData += chunk; });
-            res.on('end', () => {
-                try {
-                    const parsedData = JSON.parse(rawData);
-                    console.log(parsedData);
-                    let features = this.apiResponseToFeatures(parsedData);
-                    this.addFeatures(features);
-
-                } catch (e) {
-                    console.error(e);
+                let error;
+                // Any 2xx status code signals a successful response but
+                // here we're only checking for 200.
+                if (statusCode !== 200) {
+                    error = new Error('Request Failed.\n' +
+                        `Status Code: ${statusCode} `);
+                } else if (!/^application\/json/.test(contentType)) {
+                    error = new Error('Invalid content-type.\n' +
+                        `Expected application / json but received ${contentType} `);
                 }
+
+                if (error) {
+                    // Consume response data to free up memory
+                    res.resume();
+                    reject(error);
+                }
+
+                res.setEncoding('utf8');
+
+                let rawData = '';
+                res.on('data', (chunk) => { rawData += chunk; });
+                res.on('end', () => {
+                    try {
+                        const parsedData = JSON.parse(rawData);
+                        resolve(parsedData);
+                    } catch (err) {
+                        reject(err);
+                    }
+                });
+
+            }).on('error', (err) => {
+                reject(err);
             });
-
-        }).on('error', (e) => {
-            console.error(`Got error: ${e.message}`);
-        });
-
+        })
     }
 
 }
