@@ -7076,7 +7076,9 @@ class DjiGeozone {
 
         this.geodata = {};
 
-        this.source = new VectorSource();
+        this.source = new VectorSource({
+            attributions: '<a href="https://www.dji.com/flysafe/geo-map" rel="nofollow noopener noreferrer" target="_blank">DJI Geo Zone Map</a>'
+        });
 
         this.layer = new VectorLayer({
             zIndex: z_index,
