@@ -51,35 +51,6 @@ const VALID_COUNTRIES = [
     "CN"
 ];
 
-// 2020/11
-const VALID_DRONES = [
-    "mavic-mini", //  Mavic Mini
-    "mavic-2-enterprise", //  Mavic 2 Enterprise
-    "mavic-2", //  Mavic 2
-    "mavic-air", // Mavic Air
-    "mavic-air-2", // Mavic Air 2
-    "mavic-pro", //  Mavic Pro
-    "spark", // Spark
-    "phantom-4-pro", //  Phantom 4 Pro
-    "phantom-4-advanced", // Phantom 4 Advanced
-    "phantom-4", // Phantom 4
-    "phantom-4-rtk", //  Phantom 4 RTK
-    "phantom-4-multispectral", //  Phantom 4 Multispectral
-    "phantom-3-pro", //  Phantom 3 Pro
-    "phantom-3-advanced", //  Phantom 3 Advanced
-    "phantom-3-standard", //  Phantom 3 Standard
-    "phantom-3-4K", //  Phantom 3 4K
-    "phantom-3-se", //  Phantom 3 SE
-    "inspire-2", //  Inspire 2
-    "inspire-1-series", //  Inspire 1 Series
-    "m200-series", //  M200 Series
-    "m300-series", //  M300 Series
-    "m600-series", //  M600 Series
-    "m100", //  M100
-    "mg1p", //  MG 1S/1A/1P/1P RTK/T10/T16/T20/T30
-    "dji-mini-2" //  DJI Mini 2
-];
-
 
 /**
  * OpenLayers DJI Geozone Layer.
@@ -116,6 +87,8 @@ export default class DjiGeozone {
 
         this.view = map.getView();
 
+        this.isVisible = (this.view.getZoom() < MIN_ZOOM);
+
         this.geodata = {};
 
         this.source = new VectorSource();
@@ -144,27 +117,88 @@ export default class DjiGeozone {
     }
 
     setControlEnabled(enabled) {
-        let inputs = this.divControl.querySelectorAll('input');
 
-        inputs.forEach(input => {
+        const changeState = (array) => {
+            array.forEach(el => {
+                if (enabled) {
+                    el.removeAttribute('disabled');
+                } else {
+                    el.disabled = 'disabled';
+                }
+            });
+        }
 
-            if (enabled) {
-                input.removeAttribute('disabled');
-            } else {
-                input.disabled = 'disabled';
-            }
-            
-        });
+        changeState(this.divControl.querySelectorAll('input'));
+        changeState(this.divControl.querySelectorAll('select'));
 
     }
 
-    addMapControl(targetControl) {
+    createDroneSelector() {
 
-        const handleClick = (btn) => {
+        const handleChange = ({ target }) => {
+            this._drone = (target.value || target.options[target.selectedIndex].value);
+            this.getData(/* clear = */ true);
+        }
 
-            let value = Number(btn.value);
+        // 2020/11
+        const dronesList = [
+            { value: "mavic-mini", name: "Mavic Mini" },
+            { value: "mavic-2-enterprise", name: "Mavic 2 Enterprise" },
+            { value: "mavic-2", name: "Mavic 2" },
+            { value: "mavic-air", name: "Mavic Air" },
+            { value: "mavic-air-2", name: "Mavic Air 2" },
+            { value: "mavic-pro", name: "Mavic Pro" },
+            { value: "spark", name: "Spark" },
+            { value: "phantom-4-pro", name: "Phantom 4 Pro" },
+            { value: "phantom-4-advanced", name: "Phantom 4 Advanced" },
+            { value: "phantom-4", name: "Phantom 4" },
+            { value: "phantom-4-rtk", name: "Phantom 4 RTK" },
+            { value: "phantom-4-multispectral", name: "Phantom 4 Multispectral" },
+            { value: "phantom-3-pro", name: "Phantom 3 Pro" },
+            { value: "phantom-3-advanced", name: "Phantom 3 Advanced" },
+            { value: "phantom-3-standard", name: "Phantom 3 Standard" },
+            { value: "phantom-3-4K", name: "Phantom 3 4K" },
+            { value: "phantom-3-se", name: "Phantom 3 SE" },
+            { value: "inspire-2", name: "Inspire 2" },
+            { value: "inspire-1-series", name: "Inspire 1 Series" },
+            { value: "m200-series", name: "M200 Series" },
+            { value: "m300-series", name: "M300 Series" },
+            { value: "m600-series", name: "M600 Series" },
+            { value: "m100", name: "M100" },
+            { value: "mg1p", name: "MG 1S/1A/1P/1P RTK/T10/T16/T20/T30" },
+            { value: "dji-mini-2", name: "DJI Mini 2" }
+        ];
 
-            if (btn.checked == true) {
+        let droneSelector = document.createElement('div');
+        droneSelector.className = 'ol-dji-geozone--drone-selector';
+
+        let select = document.createElement('select');
+
+        if (!this.isVisible)
+            select = 'disabled';
+
+        select.onchange = handleChange;
+
+        let options = '';
+        dronesList.forEach(drone => {
+            let selected = (this._drone === drone.value) ? 'selected' : '';
+            options += `<option value=${drone.value} ${selected}>${drone.name}</option>`
+        })
+
+        select.innerHTML = options;
+
+        droneSelector.append(select);
+
+        return droneSelector;
+
+    }
+
+    createLevelSelector() {
+        const handleClick = ({ target }) => {
+
+            let value = Number(target.value);
+
+            if (target.checked == true) {
                 this.level = [...this.level, value];
             } else {
                 let index = this.level.indexOf(value);
@@ -198,7 +232,7 @@ export default class DjiGeozone {
             btn.id = name;
             btn.value = value;
 
-            btn.onclick = () => handleClick(btn);
+            btn.onclick = handleClick;
 
             if (this.level.indexOf(value) !== -1)
                 btn.checked = 'checked';
@@ -211,7 +245,7 @@ export default class DjiGeozone {
 
         const createLevelItem = (value, label, color) => {
 
-            let disabled = (this.view.getZoom() < MIN_ZOOM);
+            let disabled = !this.isVisible;
 
             let name = 'level' + value;
             let divContainer = document.createElement('div');
@@ -230,16 +264,33 @@ export default class DjiGeozone {
         let level0 = createLevelItem(0, 'Warning Zones', '#FFCC00');
         let level3 = createLevelItem(3, 'Enhanced Warning Zones', '#EE8815');
 
+        let levelSelector = document.createElement('div');
+        levelSelector.className = 'ol-dji-geozone--level-selector';
+
+        levelSelector.append(level2);
+        levelSelector.append(level6);
+        levelSelector.append(level1);
+
+        levelSelector.append(level0);
+        levelSelector.append(level3);
+
+        return levelSelector;
+
+    }
+
+    addMapControl(targetControl) {
+
         let divControl = document.createElement('div');
         divControl.className = 'ol-dji-geozone ol-control';
         divControl.innerHTML = `<div><h3>DJI Geozone</h3></div>`;
 
-        divControl.append(level2);
-        divControl.append(level6);
-        divControl.append(level1);
+        let droneSelector = this.createDroneSelector();
+        divControl.append(droneSelector);
 
-        divControl.append(level0);
-        divControl.append(level3);
+        let levelSelector = this.createLevelSelector();
+        divControl.append(levelSelector);
+
+        this.divControl = divControl;
 
         let options = {
             element: divControl
@@ -249,7 +300,6 @@ export default class DjiGeozone {
             options.target = target;
         }
 
-        this.divControl = divControl;
         this.control = new Control(options)
 
         this.map.addControl(this.control);

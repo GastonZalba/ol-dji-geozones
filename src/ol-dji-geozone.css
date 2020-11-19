@@ -3,6 +3,14 @@
     left: .5em;
 }
 
+.ol-dji-geozone h3 {
+    margin: 0.2em 0;
+}
+
+.ol-dji-geozone--drone-selector select {
+    margin: 1em 0;
+}
+
 .ol-dji-geozone--mark {
     display: inline-block;
     border-radius: 50%;
