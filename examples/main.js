@@ -6,9 +6,9 @@
             })],
         target: 'map',
         view: new ol.View({
-            projection: 'EPSG:4326',
-            center: [-57.953497, -34.922232 ],
-            zoom: 8
+            projection: 'EPSG:3857',
+            center: [-6731501,-4403268 ],
+            zoom: 7
         }),
     });
     var djiGeozone = new DjiGeozone(map);

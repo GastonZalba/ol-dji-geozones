@@ -5,6 +5,7 @@ import { format, parse } from 'url';
 import { getDistance } from 'ol/sphere';
 import Polygon from 'ol/geom/Polygon';
 import Point from 'ol/geom/Point';
+import Circle from 'ol/geom/Circle';
 import Feature from 'ol/Feature';
 import Style from 'ol/style/Style';
 import Fill from 'ol/style/Fill';
@@ -15,42 +16,7 @@ import { Control } from 'ol/control';
 import { get } from 'http';
 import { colorWithAlpha } from './utils';
 
-const MIN_ZOOM = 9;
-
-const DEFAULT_DRONE = 'spark';
-const DEFAULT_ZONES_MODE = 'total';
-const DEFAULT_COUNTRY = 'US';
-const DEFAULT_LEVEL = [
-    0,
-    1,
-    2,
-    3,
-    4,
-    6,
-    7
-];
-
-const VALID_COUNTRIES = [
-    "US",
-    "CA",
-    "MX",
-    "DE",
-    "FR",
-    "GB",
-    "IE",
-    "IT",
-    "ES",
-    "BE",
-    "NL",
-    "LU",
-    "DK",
-    "CH",
-    "PT",
-    "AD",
-    "AE",
-    "CN"
-];
-
+const MIN_ZOOM = 9; // lower zoom breaks the api
 
 /**
  * OpenLayers DJI Geozone Layer.
@@ -72,10 +38,10 @@ export default class DjiGeozone {
 
         // API PARAMETERS
         let z_index = opt_options.zIndex || 5;
-        this._drone = opt_options.drone || DEFAULT_DRONE;
-        this.zones_mode = opt_options.zonesMode || DEFAULT_ZONES_MODE;
-        this.country = opt_options.country || DEFAULT_COUNTRY;
-        this.level = opt_options.level || DEFAULT_LEVEL;
+        this._drone = opt_options.drone || 'spark';
+        this.zones_mode = opt_options.zonesMode || 'total';
+        this.country = opt_options.country || 'US';
+        this.level = opt_options.level || [0, 1, 2, 3, 4, 6, 7];
 
         // MAP 
         let addControl = ('controller' in opt_options) ? opt_options.addControl : true;
@@ -245,13 +211,14 @@ export default class DjiGeozone {
             return btn;
         }
 
-        const createLevelItem = (value, label, color) => {
+        const createLevelItem = (value, label, title, color) => {
 
             let disabled = !this.isVisible;
 
             let name = 'level' + value;
             let divContainer = document.createElement('div');
             divContainer.className = `ol-dji-geozone--item ol-dji-geozone--item-${value}`;
+            divContainer.title = title;
             divContainer.setAttribute('data-level', value);
             divContainer.append(createButton(name, value, disabled));
             divContainer.append(createLegend(color));
@@ -260,11 +227,14 @@ export default class DjiGeozone {
             return divContainer;
         }
 
-        let level2 = createLevelItem(2, 'Restricted Zones', '#DE4329');
-        let level6 = createLevelItem(6, 'Altitude Zones', '#979797');
-        let level1 = createLevelItem(1, 'Authorization Zones', '#1088F2');
-        let level0 = createLevelItem(0, 'Warning Zones', '#FFCC00');
-        let level3 = createLevelItem(3, 'Enhanced Warning Zones', '#EE8815');
+        let level2 = createLevelItem(2, 'Restricted Zones', 'In these Zones, which appear red the DJI GO app, users will be prompted with a warning and flight is prevented. If you believe you have the authorization to operate in a Restricted Zone, please contact flysafe@dji.com or Online Unlocking.', '#DE4329');
+        let level6 = createLevelItem(6, 'Altitude Zones', 'Altitude zones will appear in gray on the map. Users receive warnings in DJI GO, or DJI GO 4 and flight altitude is limited.', '#979797');
+        let level1 = createLevelItem(1, 'Authorization Zones', 'In these Zones, which appear blue in the DJI GO map, users will be prompted with a warning and flight is limited by default. Authorization Zones may be unlocked by authorized users using a DJI verified account.', '#1088F2');
+        let level0 = createLevelItem(0, 'Warning Zones', ' In these Zones, which may not necessarily appear on the DJI GO map, users will be prompted with a warning message. Example Warning Zone: Class E airspace', '#FFCC00');
+        let level3 = createLevelItem(3, 'Enhanced Warning Zones', ' In these Zones, you will be prompted by GEO at the time of flight to unlock the zone using the same steps as in an Authorization Zone, but you do not require a verified account or an internet connection at the time of your flight.', '#EE8815');
+
+        let level4 = createLevelItem(4, 'Regulatory Restricted Zones', ' Due to local regulations and policies, flights are prohibited within the scope of some special areas. (Example： Prison)', '#37C4DB');
+        let level7 = createLevelItem(7, 'Recommended Zones', 'This area is shown in green on the map. It is recommended that you choose these areas for flight arrangements.', '#00BE00');
 
         let levelSelector = document.createElement('div');
         levelSelector.className = 'ol-dji-geozone--level-selector';
@@ -275,6 +245,8 @@ export default class DjiGeozone {
 
         levelSelector.append(level0);
         levelSelector.append(level3);
+        levelSelector.append(level4);
+        levelSelector.append(level7);
 
         return levelSelector;
 
@@ -338,10 +310,10 @@ export default class DjiGeozone {
 
         let style;
 
-        if (geomType === 'Polygon') {
+        if (geomType === 'Polygon' || geomType === 'Circle') {
 
-            let color = feature.get('color');
             let height = feature.get('height');
+            let color = feature.get('color');
 
             style = new Style({
                 fill: new Fill({
@@ -358,7 +330,8 @@ export default class DjiGeozone {
             style = new Style({
                 image: new Icon({
                     src: markerIcons[feature.get('level')],
-                    scale: 0.3
+                    scale: 0.35,
+                    anchor: [0.5, 0.9]
                 }),
                 zIndex: 300
             })
@@ -434,12 +407,12 @@ export default class DjiGeozone {
 
             const feature = new Feature({
                 name: area.name,
-                shape: area.shape, // this defines the icon
+                shape: area.shape,
                 level: area.level,
                 radius: area.radius,
                 color: area.color,
                 country: area.country,
-                geometry: new Point([area.lng, area.lat])
+                geometry: new Point([area.lng, area.lat]).transform('EPSG:4326', this.projection)
             });
 
             feature.setId(area.area_id)
@@ -456,9 +429,10 @@ export default class DjiGeozone {
                             height: sub_area.height,
                             color: sub_area.color,
                             level: sub_area.level,
-                            shape: area.shape, // this defines the icon
-                            geometry: new Polygon(sub_area.polygon_points)
+                            shape: sub_area.shape,
+                            geometry: new Polygon(sub_area.polygon_points).transform('EPSG:4326', this.projection)
                         });
+
 
                     } else {
 
@@ -467,14 +441,18 @@ export default class DjiGeozone {
                             height: sub_area.height,
                             color: sub_area.color,
                             level: sub_area.level,
-                            shape: area.shape, // this defines the icon
-                            geometry: new Point([sub_area.lng, sub_area.lat])
+                            shape: sub_area.shape,
+                            geometry: new Circle(
+                                [sub_area.lng, sub_area.lat],
+                                sub_area.radius / 100000
+                            ).transform('EPSG:4326', this.projection)
                         });
 
                     }
 
                     subFeature.setId(sub_area.area_id);
                     features.push(subFeature);
+
                 })
             }
 
@@ -525,6 +503,7 @@ export default class DjiGeozone {
             if (request == this.idRequest) {
                 try {
                     let data = await this.getGeoData(centerLatLng, searchRadius);
+                    console.log(data);
                     if (clear) this.cleanFeatures();
                     let features = this.apiResponseToFeatures(data);
                     this.addFeatures(features);
