@@ -1,4 +1,5 @@
 (function () {
+    
     var map = new ol.Map({
         layers: [
             new ol.layer.Tile({

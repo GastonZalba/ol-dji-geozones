@@ -3,15 +3,19 @@ import VectorSource from 'ol/source/Vector';
 import Feature from 'ol/Feature';
 import { transform, transformExtent } from 'ol/proj';
 import { getDistance } from 'ol/sphere';
-import { Polygon, Point, Circle } from 'ol/geom';
+import { Polygon, MultiPolygon, Point, Circle } from 'ol/geom';
 import { Style, Fill, Stroke, Icon } from 'ol/style';
 import { Control } from 'ol/control';
 import { asArray, asString } from 'ol/color';
+import { fromExtent } from 'ol/geom/Polygon';
+import { getTopRight, getTopLeft, getBottomRight, getCenter, getBottomLeft } from 'ol/extent';
 
 import levelParams from './level-params.json';
 import droneList from './drone-list.json';
 
-const API_ENDPOINT = 'www-api.dji.com/api/geo/areas';
+const API_AREAS_ENDPOINT = 'www-api.dji.com/api/geo/areas';
+const API_INFO_ENDPOINT = 'www-api.dji.com/api/geo/point-info';
+
 const MIN_ZOOM = 9; // >= 9 or breaks the API
 /**
  * OpenLayers DJI Geozone Layer.
@@ -55,6 +59,7 @@ export default class DjiGeozone {
         this.layer = null;
         this.divControl = null;
         this.idRequest = 0;
+        this.areaDownloaded = null;
 
         this.createLayer();
         this.addMapEvents();
@@ -261,8 +266,15 @@ export default class DjiGeozone {
         }
 
         let divControl = document.createElement('div');
-        divControl.className = 'ol-dji-geozone ol-control';
-        divControl.innerHTML = `<div><h3>DJI Geo Zone</h3></div>`;
+        divControl.className = 'ol-dji-geozone ol-control ol-dji-geozone--ctrl-disabled';
+        divControl.innerHTML = `
+        <div>
+            <h3>DJI Geo Zone</h3>
+            <span class="ol-dji-geozone--loading">
+                <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+            </span>
+            <span class="ol-dji-geozone--advice">(Zoom in)</span>
+        </div>`;
 
         let droneSelector = createDroneSelector();
         divControl.append(droneSelector);
@@ -368,6 +380,15 @@ export default class DjiGeozone {
 
     getGeoData(clear = false) {
 
+        const showLoading = (bool) => {
+
+            if (bool)
+                this.divControl.classList.add('ol-dji-geozone--isLoading');
+            else
+                this.divControl.classList.remove('ol-dji-geozone--isLoading');
+
+        }
+
         // adapted from https://stackoverflow.com/questions/44575654/get-radius-of-the-displayed-openlayers-map
         const getMapRadius = center => {
             let size = this.map.getSize();
@@ -379,11 +400,15 @@ export default class DjiGeozone {
             return parseInt(centerToSW);
         }
 
-        const apiRequest = async ({ lng, lat }, searchRadius) => {
+        const apiRequest = async (type, { lng, lat }, searchRadius) => {
+
+            showLoading(true);
+
+            let api_endpoint = (type === 'areas') ? API_AREAS_ENDPOINT : API_INFO_ENDPOINT;
 
             // If not proxy is passed, make a direct request
             // Maybe in the future the api will has updated CORS restrictions
-            let url = new URL((this.url_proxy) ? this.url_proxy + API_ENDPOINT : 'https://' + API_ENDPOINT);
+            url = new URL((this.url_proxy) ? this.url_proxy + api_endpoint : 'https://' + api_endpoint);
 
             let queryObj = {
                 'drone': this.drone,
@@ -398,6 +423,8 @@ export default class DjiGeozone {
             Object.keys(queryObj).forEach(key => url.searchParams.append(key, queryObj[key]))
 
             let response = await fetch(url);
+
+            showLoading(false);
 
             if (!response.ok) throw new Error("HTTP-Error: " + response.status);
 
@@ -503,21 +530,49 @@ export default class DjiGeozone {
 
             if (request == this.idRequest) {
                 try {
-                    let data = await apiRequest(centerLatLng, searchRadius);
 
-                    if (clear)
-                        this.source.clear();
+                    if (clear) {
+                        this.areaDownloaded = null; // Remove area already downloaded
+                    }
+
+                    let extent = this.view.calculateExtent();
+                    let polygon = fromExtent(extent);
+
+                    if (this.areaDownloaded) {
+
+                        if (this.areaDownloaded.intersectsCoordinate(getCenter(extent)) &&
+                            this.areaDownloaded.intersectsCoordinate(getBottomLeft(extent)) &&
+                            this.areaDownloaded.intersectsCoordinate(getTopRight(extent)) &&
+                            this.areaDownloaded.intersectsCoordinate(getBottomRight(extent)) &&
+                            this.areaDownloaded.intersectsCoordinate(getTopLeft(extent))) {
+                            return;
+                        }
+
+                    }
+
+                    if (!this.areaDownloaded) {
+                        this.areaDownloaded = new MultiPolygon({});
+                    }
+
+                    this.areaDownloaded.appendPolygon(polygon);
+
+                    let data = await apiRequest('areas', centerLatLng, searchRadius);
+
+                    if (clear) {
+                        this.source.clear(); // Remove features on layer
+                    }
 
                     let features = apiResponseToFeatures(data);
                     this.source.addFeatures(features);
                     // console.log(data);
                     // console.log(features);
                 } catch (err) {
+                    showLoading(false);
                     console.error(err);
                 }
             }
 
-        }, 800);
+        }, 300);
 
     }
 

@@ -13,22 +13,22 @@ module.exports = {
                 'ol/source/Vector': 'ol.source.Vector',
                 'ol/layer/Vector': 'ol.layer.Vector',
                 'ol/geom': 'ol.geom',
+                'ol/geom/Polygon': 'ol.geom.Polygon',
                 'ol/Feature': 'ol.Feature',
                 'ol/style': 'ol.style',
                 'ol/control': 'ol.control',
                 'ol/proj': 'ol.proj',
                 'ol/sphere': 'ol.sphere',
-                'ol/color': 'ol.color'
+                'ol/color': 'ol.color',
+                'ol/extent' : 'ol.extent'
             }
         }
     ],
     plugins: [
-        json({
-            compact: true
-        }),
+        json(),
         babel({
-            babelHelpers: 'bundled',
-            exclude: 'node_modules/**' // only transpile our source code
+            "babelHelpers": "bundled",
+            "exclude": "node_modules/**" // only transpile our source code
         })
     ],
     external: function (id) {

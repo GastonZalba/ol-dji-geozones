@@ -4,18 +4,37 @@
 }
 
 .ol-dji-geozone h3 {
+    color: #181818;
     margin: 0.2em 0;
+    display: inline-block;
 }
 
 .ol-dji-geozone--drone-selector select {
-    margin: 1em 0;
+    margin: 0.5em 0 1em;
 }
 
-.ol-dji-geozone--ctrl-disabled {
-    opacity: 0.8;
+.ol-dji-geozone--ctrl-disabled .ol-dji-geozone--advice {
+    display: inline-block;
+    font-size: 0.9rem;
+    font-style: italic;
 }
 
+.ol-dji-geozone--ctrl-disabled.ol-dji-geozone--ctrl-disabled .ol-dji-geozone--loading,
+.ol-dji-geozone--ctrl-disabled .ol-dji-geozone--level-selector,
+.ol-dji-geozone--ctrl-disabled .ol-dji-geozone--drone-selector{
+    display: none;
+}
+
+.ol-dji-geozone--advice,
 .ol-dji-geozone--ctrl-hidden {
+    display: none;
+}
+
+.ol-dji-geozone--isLoading .ol-dji-geozone--loading {
+    display: inline-block;
+}
+
+.ol-dji-geozone--loading {
     display: none;
 }
 
@@ -28,3 +47,60 @@
     padding: .2em;
     margin: 0 0.3em;
 }
+
+/* loading.io css spinner ( https://loading.io/css/ ) */
+.lds-ellipsis {
+    display: inline-block;
+    position: relative;
+    width: 30px;
+    height: 15px;
+  }
+  .lds-ellipsis div {
+    position: absolute;
+    top: 7px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #474747;
+    animation-timing-function: cubic-bezier(0, 1, 1, 0);
+  }
+  .lds-ellipsis div:nth-child(1) {
+    left: 4px;
+    animation: lds-ellipsis1 0.6s infinite;
+  }
+  .lds-ellipsis div:nth-child(2) {
+    left: 4px;
+    animation: lds-ellipsis2 0.6s infinite;
+  }
+  .lds-ellipsis div:nth-child(3) {
+    left: 16px;
+    animation: lds-ellipsis2 0.6s infinite;
+  }
+  .lds-ellipsis div:nth-child(4) {
+    left: 32px;
+    animation: lds-ellipsis3 0.6s infinite;
+  }
+  @keyframes lds-ellipsis1 {
+    0% {
+      transform: scale(0);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  @keyframes lds-ellipsis3 {
+    0% {
+      transform: scale(1);
+    }
+    100% {
+      transform: scale(0);
+    }
+  }
+  @keyframes lds-ellipsis2 {
+    0% {
+      transform: translate(0, 0);
+    }
+    100% {
+      transform: translate(12px, 0);
+    }
+  } 
