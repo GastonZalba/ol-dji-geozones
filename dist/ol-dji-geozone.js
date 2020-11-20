@@ -249,7 +249,8 @@
   	}
   ];
 
-  var API_ENDPOINT = 'www-api.dji.com/api/geo/areas';
+  var API_AREAS_ENDPOINT = 'www-api.dji.com/api/geo/areas';
+  var API_INFO_ENDPOINT = 'www-api.dji.com/api/geo/point-info';
   var MIN_ZOOM = 9; // >= 9 or breaks the API
 
   /**
@@ -288,7 +289,8 @@
       this.source = null;
       this.layer = null;
       this.divControl = null;
-      this.idRequest = 0;
+      this.idAreasRequest = 0;
+      this.idInfoRequest = 0;
       this.areaDownloaded = null;
       this.createLayer();
       this.addMapEvents();
@@ -359,7 +361,7 @@
             target
           } = _ref;
           this.drone = target.value || target.options[target.selectedIndex].value;
-          this.getGeoData(
+          this.getAreasFromView(
           /* clear = */
           true);
         };
@@ -396,7 +398,7 @@
             }
           }
 
-          this.getGeoData(
+          this.getAreasFromView(
           /* clear = */
           true);
         };
@@ -523,12 +525,12 @@
             if (this.currentZoom > this.lastZoom) return;
           }
 
-          this.getGeoData();
+          this.getAreasFromView();
         }
       };
 
       var handleDragEnd = _ => {
-        this.getGeoData();
+        this.getAreasFromView();
       };
 
       this.map.on('moveend', _ => {
@@ -536,38 +538,69 @@
         if (this.currentZoom !== this.lastZoom) handleZoomEnd();else handleDragEnd();
         this.lastZoom = this.currentZoom;
       });
+      this.map.on('singleclick', evt => {
+        if (!this.isVisible) return;
+        this.map.forEachFeatureAtPixel(evt.pixel, (feature, layer) => {
+          this.getInfoFromLatLng(evt.coordinate);
+          console.log(feature);
+          return true;
+        });
+      });
     }
 
-    getGeoData() {
-      var _this = this;
+    getInfoFromLatLng(latLng) {
+      var center4326 = proj.transform(latLng, this.projection, 'EPSG:4326');
+      var clickLatLng = {
+        lat: center4326[1],
+        lng: center4326[0]
+      };
+      this.getGeoData('info', clickLatLng);
+    }
 
+    getAreasFromView() {
       var clear = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+      var center = this.view.getCenter();
+      var center4326 = proj.transform(center, this.projection, 'EPSG:4326');
+      var viewLatLng = {
+        lat: center4326[1],
+        lng: center4326[0]
+      };
+      this.getGeoData('areas', viewLatLng, clear);
+    }
+
+    getGeoData(type, latLng, clear) {
+      var _this = this;
 
       var showLoading = bool => {
         if (bool) this.divControl.classList.add('ol-dji-geozone--isLoading');else this.divControl.classList.remove('ol-dji-geozone--isLoading');
       }; // adapted from https://stackoverflow.com/questions/44575654/get-radius-of-the-displayed-openlayers-map
 
 
-      var getMapRadius = center => {
+      var getMapRadius = (_ref4) => {
+        var {
+          lng,
+          lat
+        } = _ref4;
+        var center = [lng, lat];
         var size = this.map.getSize();
         var extent = this.view.calculateExtent(size);
         extent = proj.transformExtent(extent, this.projection, 'EPSG:4326');
         var posSW = [extent[0], extent[1]];
-        center = proj.transform(center, this.projection, 'EPSG:4326');
         var centerToSW = sphere.getDistance(center, posSW);
         return parseInt(centerToSW);
       };
 
       var apiRequest = /*#__PURE__*/function () {
-        var _ref5 = _asyncToGenerator(function* (_ref4, searchRadius) {
+        var _ref6 = _asyncToGenerator(function* (type, _ref5, searchRadius) {
           var {
             lng,
             lat
-          } = _ref4;
-          showLoading(true); // If not proxy is passed, make a direct request
+          } = _ref5;
+          showLoading(true);
+          var api_endpoint = type === 'areas' ? API_AREAS_ENDPOINT : API_INFO_ENDPOINT; // If not proxy is passed, make a direct request
           // Maybe in the future the api will has updated CORS restrictions
 
-          var url = new URL(_this.url_proxy ? _this.url_proxy + API_ENDPOINT : 'https://' + API_ENDPOINT);
+          var url = new URL(_this.url_proxy ? _this.url_proxy + api_endpoint : 'https://' + api_endpoint);
           var queryObj = {
             'drone': _this.drone,
             'zones_mode': _this.zones_mode,
@@ -584,8 +617,8 @@
           return yield response.json();
         });
 
-        return function apiRequest(_x, _x2) {
-          return _ref5.apply(this, arguments);
+        return function apiRequest(_x, _x2, _x3) {
+          return _ref6.apply(this, arguments);
         };
       }();
 
@@ -647,65 +680,86 @@
         return features;
       };
 
-      if (!this.isVisible) return;
-      var center = this.view.getCenter();
-      var center4326 = proj.transform(center, this.projection, 'EPSG:4326');
-      var centerLatLng = {
-        lat: center4326[1],
-        lng: center4326[0]
-      };
-      var searchRadius = getMapRadius(center); // Prevent multiples requests
-
-      this.idRequest += 1;
-      var request = this.idRequest; // Original DJI map same behavior to prevent multiples requests
-
-      setTimeout( /*#__PURE__*/function () {
-        var _ref6 = _asyncToGenerator(function* (_) {
-          if (request == _this.idRequest) {
-            try {
-              if (clear) {
-                _this.areaDownloaded = null; // Remove area already downloaded
+      var getPointInfo = (latLng, searchRadius) => {
+        // Prevent multiples requests
+        this.idInfoRequest += 1;
+        var request = this.idInfoRequest;
+        setTimeout( /*#__PURE__*/function () {
+          var _ref7 = _asyncToGenerator(function* (_) {
+            if (request == _this.idInfoRequest) {
+              try {
+                var data = yield apiRequest('info', latLng, searchRadius);
+                console.log(data);
+              } catch (err) {
+                showLoading(false);
+                console.error(err);
               }
-
-              var extent$1 = _this.view.calculateExtent();
-
-              var polygon = Polygon.fromExtent(extent$1);
-
-              if (_this.areaDownloaded) {
-                if (_this.areaDownloaded.intersectsCoordinate(extent.getCenter(extent$1)) && _this.areaDownloaded.intersectsCoordinate(extent.getBottomLeft(extent$1)) && _this.areaDownloaded.intersectsCoordinate(extent.getTopRight(extent$1)) && _this.areaDownloaded.intersectsCoordinate(extent.getBottomRight(extent$1)) && _this.areaDownloaded.intersectsCoordinate(extent.getTopLeft(extent$1))) {
-                  return;
-                }
-              }
-
-              if (!_this.areaDownloaded) {
-                _this.areaDownloaded = new geom.MultiPolygon({});
-              }
-
-              _this.areaDownloaded.appendPolygon(polygon);
-
-              var data = yield apiRequest(centerLatLng, searchRadius);
-
-              if (clear) {
-                _this.source.clear(); // Remove features on layer
-
-              }
-
-              var features = apiResponseToFeatures(data);
-
-              _this.source.addFeatures(features); // console.log(data);
-              // console.log(features);
-
-            } catch (err) {
-              showLoading(false);
-              console.error(err);
             }
-          }
-        });
+          });
 
-        return function (_x3) {
-          return _ref6.apply(this, arguments);
-        };
-      }(), 300);
+          return function (_x4) {
+            return _ref7.apply(this, arguments);
+          };
+        }(), 100);
+      };
+
+      var getAreas = (centerLatLng, searchRadius, clear) => {
+        // Prevent multiples requests
+        this.idAreasRequest += 1;
+        var request = this.idAreasRequest; // Original DJI map same behavior to prevent multiples requests
+
+        setTimeout( /*#__PURE__*/function () {
+          var _ref8 = _asyncToGenerator(function* (_) {
+            if (request == _this.idAreasRequest) {
+              try {
+                if (clear) {
+                  _this.areaDownloaded = null; // Remove area already downloaded
+                }
+
+                var extent$1 = _this.view.calculateExtent();
+
+                var polygon = Polygon.fromExtent(extent$1);
+
+                if (_this.areaDownloaded) {
+                  if (_this.areaDownloaded.intersectsCoordinate(extent.getCenter(extent$1)) && _this.areaDownloaded.intersectsCoordinate(extent.getBottomLeft(extent$1)) && _this.areaDownloaded.intersectsCoordinate(extent.getTopRight(extent$1)) && _this.areaDownloaded.intersectsCoordinate(extent.getBottomRight(extent$1)) && _this.areaDownloaded.intersectsCoordinate(extent.getTopLeft(extent$1))) {
+                    return;
+                  }
+                }
+
+                if (!_this.areaDownloaded) {
+                  _this.areaDownloaded = new geom.MultiPolygon({});
+                }
+
+                _this.areaDownloaded.appendPolygon(polygon);
+
+                var data = yield apiRequest('areas', centerLatLng, searchRadius);
+
+                if (clear) {
+                  _this.source.clear(); // Remove features on layer
+
+                }
+
+                var features = apiResponseToFeatures(data);
+
+                _this.source.addFeatures(features); // console.log(data);
+                // console.log(features);
+
+              } catch (err) {
+                showLoading(false);
+                console.error(err);
+              }
+            }
+          });
+
+          return function (_x5) {
+            return _ref8.apply(this, arguments);
+          };
+        }(), 300);
+      };
+
+      if (!this.isVisible) return;
+      var searchRadius = getMapRadius(latLng);
+      if (type === 'areas') getAreas(latLng, searchRadius, clear);else getPointInfo(latLng, searchRadius);
     }
 
   } // https://stackoverflow.com/questions/28004153/setting-vector-feature-fill-opacity-when-you-have-a-hexadecimal-color
