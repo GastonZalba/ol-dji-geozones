@@ -1,19 +1,18 @@
-// Open Layers
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
+import Feature from 'ol/Feature';
 import { transform, transformExtent } from 'ol/proj';
 import { getDistance } from 'ol/sphere';
 import { Polygon, Point, Circle } from 'ol/geom';
-import Feature from 'ol/Feature';
 import { Style, Fill, Stroke, Icon } from 'ol/style';
 import { Control } from 'ol/control';
 import { asArray, asString } from 'ol/color';
 
-// NodeJS
-import { get } from 'https';
+import levelParams from './level-params.json';
+import droneList from './drone-list.json';
 
-const MIN_ZOOM = 9; // lower zoom breaks the api
-
+const API_ENDPOINT = 'www-api.dji.com/api/geo/areas';
+const MIN_ZOOM = 9; // >= 9 or breaks the API
 /**
  * OpenLayers DJI Geozone Layer.
  * See [the examples](./examples) for usage.
@@ -25,6 +24,7 @@ const MIN_ZOOM = 9; // lower zoom breaks the api
  * @param {String} opt_options.zonesMode DJI API parameter
  * @param {String} opt_options.country DJI API parameter
  * @param {Array} opt_options.level DJI API parameter
+ * @param {Array} opt_options.levelParams Controller labels, names, icons and color for each level
  * @param {Boolean} opt_options.control Add Open Layers Controller to the map
  * @param {HTMLElement | string} opt_options.targetControl // Specify a target if you want the control to be rendered outside of the map's viewport.
  */
@@ -38,7 +38,9 @@ export default class DjiGeozone {
         this.country = opt_options.country || 'US';
         this.level = opt_options.level || [0, 1, 2, 3, 4, 6, 7];
 
-        this.url_proxy = url_proxy || '';
+        this.levelParams = (!opt_options.levelParams) ? levelParams : { ...levelParams, ...opt_options.levelParams };
+
+        this.url_proxy = url_proxy;
 
         // MAP 
         let addControl = ('control' in opt_options) ? opt_options.control : true;
@@ -66,18 +68,6 @@ export default class DjiGeozone {
 
         const styleFunction = feature => {
 
-            const markerIcons = {
-                '0': 'https://www1.djicdn.com/dps/6734f5340f66c7be37db48c8889392bf.png',
-                '1': 'https://www1.djicdn.com/dps/fbbea9e33581907cac182adb4bcd0c94.png',
-                '2': 'https://www1.djicdn.com/dps/d47dfe9f089f259631fbed99610b8b5a.png',
-                '3': 'https://www1.djicdn.com/dps/df822149e1e6e9e804e177813e044238.png',
-                '4': 'https://www1.djicdn.com/dps/53b33783709b6ed06bc3afdd21ac2a81.png',
-                '5': '//www3.djicdn.com/assets/images/flysafe/geo-system/dark-green-marker-a45d865ea1fb9df5346ad5b06084d9ba.png?from=cdnMap',
-                '6': 'https://www1.djicdn.com/dps/f5961991d664e130fcf9ad01b1f28043.png',
-                '7': 'https://www1.djicdn.com/dps/9d922ae5fbd80d3166a844a9e249ceb3.png',
-                '8': 'https://www1.djicdn.com/dps/53b33783709b6ed06bc3afdd21ac2a81.png',
-            };
-
             let geomType = feature.getGeometry().getType();
 
             let style;
@@ -101,7 +91,7 @@ export default class DjiGeozone {
             } else if (geomType === 'Point') {
                 style = new Style({
                     image: new Icon({
-                        src: markerIcons[feature.get('level')],
+                        src: this.levelParams[feature.get('level')].icon,
                         scale: 0.35,
                         anchor: [0.5, 0.9]
                     }),
@@ -153,35 +143,6 @@ export default class DjiGeozone {
                 this.getGeoData(/* clear = */ true);
             }
 
-            // last updated 2020/11
-            const dronesList = [
-                { value: "mavic-mini", name: "Mavic Mini" },
-                { value: "mavic-2-enterprise", name: "Mavic 2 Enterprise" },
-                { value: "mavic-2", name: "Mavic 2" },
-                { value: "mavic-air", name: "Mavic Air" },
-                { value: "mavic-air-2", name: "Mavic Air 2" },
-                { value: "mavic-pro", name: "Mavic Pro" },
-                { value: "spark", name: "Spark" },
-                { value: "phantom-4-pro", name: "Phantom 4 Pro" },
-                { value: "phantom-4-advanced", name: "Phantom 4 Advanced" },
-                { value: "phantom-4", name: "Phantom 4" },
-                { value: "phantom-4-rtk", name: "Phantom 4 RTK" },
-                { value: "phantom-4-multispectral", name: "Phantom 4 Multispectral" },
-                { value: "phantom-3-pro", name: "Phantom 3 Pro" },
-                { value: "phantom-3-advanced", name: "Phantom 3 Advanced" },
-                { value: "phantom-3-standard", name: "Phantom 3 Standard" },
-                { value: "phantom-3-4K", name: "Phantom 3 4K" },
-                { value: "phantom-3-se", name: "Phantom 3 SE" },
-                { value: "inspire-2", name: "Inspire 2" },
-                { value: "inspire-1-series", name: "Inspire 1 Series" },
-                { value: "m200-series", name: "M200 Series" },
-                { value: "m300-series", name: "M300 Series" },
-                { value: "m600-series", name: "M600 Series" },
-                { value: "m100", name: "M100" },
-                { value: "mg1p", name: "MG 1S/1A/1P/1P RTK/T10/T16/T20/T30" },
-                { value: "dji-mini-2", name: "DJI Mini 2" }
-            ];
-
             let droneSelector = document.createElement('div');
             droneSelector.className = 'ol-dji-geozone--drone-selector';
 
@@ -192,7 +153,7 @@ export default class DjiGeozone {
 
             let options = '';
 
-            dronesList.forEach(drone => {
+            droneList.forEach(drone => {
                 let selected = (this.drone === drone.value) ? 'selected' : '';
                 options += `<option value="${drone.value}" ${selected} ${disabled}>${drone.name}</option>`
             })
@@ -259,32 +220,34 @@ export default class DjiGeozone {
                 return checkbox;
             }
 
-            const createLevelItem = (value, label, title, color) => {
+            const createLevelItem = (value, { name, desc, color }) => {
 
                 let disabled = !this.isVisible;
-                let name = 'level' + value;
+                let id = 'level' + value;
 
                 let divContainer = document.createElement('div');
                 divContainer.className = `ol-dji-geozone--item ol-dji-geozone--item-${value}`;
-                divContainer.title = title;
+                divContainer.title = desc;
                 divContainer.setAttribute('data-level', value);
-                divContainer.append(createCheckbox(name, value, disabled));
-                divContainer.append(createLabel(label, name, color));
+                divContainer.append(createCheckbox(id, value, disabled));
+                divContainer.append(createLabel(name, id, color));
 
                 return divContainer;
             }
 
-            let level2 = createLevelItem(2, 'Restricted Zones', 'In these Zones, which appear red the DJI GO app, users will be prompted with a warning and flight is prevented. If you believe you have the authorization to operate in a Restricted Zone, please contact flysafe@dji.com or Online Unlocking.', '#DE4329');
-            let level6 = createLevelItem(6, 'Altitude Zones', 'Altitude zones will appear in gray on the map. Users receive warnings in DJI GO, or DJI GO 4 and flight altitude is limited.', '#979797');
-            let level1 = createLevelItem(1, 'Authorization Zones', 'In these Zones, which appear blue in the DJI GO map, users will be prompted with a warning and flight is limited by default. Authorization Zones may be unlocked by authorized users using a DJI verified account.', '#1088F2');
-            let level0 = createLevelItem(0, 'Warning Zones', 'In these Zones, which may not necessarily appear on the DJI GO map, users will be prompted with a warning message. Example Warning Zone: Class E airspace', '#FFCC00');
-            let level3 = createLevelItem(3, 'Enhanced Warning Zones', 'In these Zones, you will be prompted by GEO at the time of flight to unlock the zone using the same steps as in an Authorization Zone, but you do not require a verified account or an internet connection at the time of your flight.', '#EE8815');
-            let level4 = createLevelItem(4, 'Regulatory Restricted Zones', 'Due to local regulations and policies, flights are prohibited within the scope of some special areas. (Example：Prison)', '#37C4DB');
-            let level7 = createLevelItem(7, 'Recommended Zones', 'This area is shown in green on the map. It is recommended that you choose these areas for flight arrangements.', '#00BE00');
+            // Use the same DJI order
+            let level2 = createLevelItem(2, this.levelParams[2]);
+            let level6 = createLevelItem(6, this.levelParams[6]);
+            let level1 = createLevelItem(1, this.levelParams[1]);
+            let level0 = createLevelItem(0, this.levelParams[0]);
+            let level3 = createLevelItem(3, this.levelParams[3]);
+            let level4 = createLevelItem(4, this.levelParams[4]);
+            let level7 = createLevelItem(7, this.levelParams[7]);
 
             let levelSelector = document.createElement('div');
             levelSelector.className = 'ol-dji-geozone--level-selector';
 
+            // Use the same DJI order
             levelSelector.append(level2);
             levelSelector.append(level6);
             levelSelector.append(level1);
@@ -418,69 +381,28 @@ export default class DjiGeozone {
 
         const apiRequest = async ({ lng, lat }, searchRadius) => {
 
-
-            const API_ENDPOINT = 'www-api.dji.com/api/geo/areas';
-
             // If not proxy is passed, make a direct request
             // Maybe in the future the api will has updated CORS restrictions
-            let parsedUrl = new URL((this.url_proxy) ? this.url_proxy + API_ENDPOINT : 'https://' + API_ENDPOINT);
+            let url = new URL((this.url_proxy) ? this.url_proxy + API_ENDPOINT : 'https://' + API_ENDPOINT);
 
             let queryObj = {
                 'drone': this.drone,
                 'zones_mode': this.zones_mode,
                 'country': this.country,
-                'level': this.level.join(),
+                'level': this.level,
                 'lng': lng,
                 'lat': lat,
                 'search_radius': searchRadius
             }
 
-            return new Promise((resolve, reject) => {
+            Object.keys(queryObj).forEach(key => url.searchParams.append(key, queryObj[key]))
 
-                const objToQueryParams = obj => '?' + Object.keys(obj).map(key => key + '=' + obj[key]).join('&');
+            let response = await fetch(url);
 
-                get({
-                    hostname: parsedUrl.hostname,
-                    path: parsedUrl.pathname + objToQueryParams(queryObj),
-                }, (res) => {
+            if (!response.ok) throw new Error("HTTP-Error: " + response.status);
 
-                    const { statusCode } = res;
-                    const contentType = res.headers['content-type'];
+            return await response.json();
 
-                    let error;
-                    // Any 2xx status code signals a successful response but
-                    // here we're only checking for 200.
-                    if (statusCode !== 200) {
-                        error = new Error('Request Failed.\n' +
-                            `Status Code: ${statusCode} `);
-                    } else if (!/^application\/json/.test(contentType)) {
-                        error = new Error('Invalid content-type.\n' +
-                            `Expected application / json but received ${contentType} `);
-                    }
-
-                    if (error) {
-                        // Consume response data to free up memory
-                        res.resume();
-                        reject(error);
-                    }
-
-                    res.setEncoding('utf8');
-
-                    let rawData = '';
-                    res.on('data', (chunk) => { rawData += chunk; });
-                    res.on('end', _ => {
-                        try {
-                            const parsedData = JSON.parse(rawData);
-                            resolve(parsedData);
-                        } catch (err) {
-                            reject(err);
-                        }
-                    });
-
-                }).on('error', (err) => {
-                    reject(err);
-                });
-            })
         }
 
         const apiResponseToFeatures = (djiJson) => {

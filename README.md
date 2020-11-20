@@ -21,7 +21,7 @@ let opt_options = {
     country: 'US',
     level: [0, 1, 2, 3, 4, 6, 7],
     control: true, // Create or not the control
-    targetControl: null // {HTMLElement | string} Optional Element to create the control outside the map
+    targetControl: null // {HTMLElement | string} Specify a target if you want the control to be rendered outside of the map's viewport.
 }
 
 // REVERSE PROXY
