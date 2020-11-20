@@ -11,6 +11,14 @@
     margin: 1em 0;
 }
 
+.ol-dji-geozone--ctrl-disabled {
+    opacity: 0.8;
+}
+
+.ol-dji-geozone--ctrl-hidden {
+    display: none;
+}
+
 .ol-dji-geozone--mark {
     display: inline-block;
     border-radius: 50%;

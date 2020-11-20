@@ -14,10 +14,16 @@
     "geozone",
     "flyzafe",
     "openlayers",
-    "ol"
+    "ol",
+    "airports",
+    "aerodromo",
+    "airspace"
   ],
   "author": "Gastón Zalba",
-  "license": "ISC",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/GastonZalba/ol-dji-geozone/issues"
+  },
   "dependencies": {},
   "peerDependencies": {
     "ol": ">=5.0.0"

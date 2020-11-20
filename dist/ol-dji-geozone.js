@@ -1,382 +1,12 @@
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('ol/layer/Vector'), require('ol/source/Vector'), require('ol/proj'), require('ol/sphere'), require('ol/geom/Polygon'), require('ol/geom/Point'), require('ol/geom/Circle'), require('ol/Feature'), require('ol/style/Style'), require('ol/style/Fill'), require('ol/style/Stroke'), require('ol/style/Icon'), require('ol/control'), require('ol/color')) :
-	typeof define === 'function' && define.amd ? define(['ol/layer/Vector', 'ol/source/Vector', 'ol/proj', 'ol/sphere', 'ol/geom/Polygon', 'ol/geom/Point', 'ol/geom/Circle', 'ol/Feature', 'ol/style/Style', 'ol/style/Fill', 'ol/style/Stroke', 'ol/style/Icon', 'ol/control', 'ol/color'], factory) :
-	(global.DjiGeozone = factory(global.ol.layer.Vector,global.ol.source.Vector,global.ol.proj,global.ol.sphere,global.ol.geom.Polygon,global.ol.geom.Point,global.ol.geom.Circle,global.ol.Feature,global.ol.style.Style,global.ol.style.Fill,global.ol.style.Stroke,global.ol.style.Icon,global.ol.control,global.ol.color));
-}(this, (function (VectorLayer,VectorSource,ol_proj,ol_sphere,Polygon,Point,Circle,Feature,Style,Fill,Stroke,Icon,ol_control,ol_color) { 'use strict';
+	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('ol/layer/Vector'), require('ol/source/Vector'), require('ol/proj'), require('ol/sphere'), require('ol/geom'), require('ol/Feature'), require('ol/style'), require('ol/control'), require('ol/color')) :
+	typeof define === 'function' && define.amd ? define(['ol/layer/Vector', 'ol/source/Vector', 'ol/proj', 'ol/sphere', 'ol/geom', 'ol/Feature', 'ol/style', 'ol/control', 'ol/color'], factory) :
+	(global.DjiGeozone = factory(global.ol.layer.Vector,global.ol.source.Vector,global.ol.proj,global.ol.sphere,global.ol.geom,global.ol.Feature,global.ol.style,global.ol.control,global.ol.color));
+}(this, (function (VectorLayer,VectorSource,ol_proj,ol_sphere,ol_geom,Feature,ol_style,ol_control,ol_color) { 'use strict';
 
 VectorLayer = 'default' in VectorLayer ? VectorLayer['default'] : VectorLayer;
 VectorSource = 'default' in VectorSource ? VectorSource['default'] : VectorSource;
-Polygon = 'default' in Polygon ? Polygon['default'] : Polygon;
-Point = 'default' in Point ? Point['default'] : Point;
-Circle = 'default' in Circle ? Circle['default'] : Circle;
 Feature = 'default' in Feature ? Feature['default'] : Feature;
-Style = 'default' in Style ? Style['default'] : Style;
-Fill = 'default' in Fill ? Fill['default'] : Fill;
-Stroke = 'default' in Stroke ? Stroke['default'] : Stroke;
-Icon = 'default' in Icon ? Icon['default'] : Icon;
-
-/*! https://mths.be/punycode v1.4.1 by @mathias */
-
-
-/** Highest positive signed 32-bit float value */
-var maxInt = 2147483647; // aka. 0x7FFFFFFF or 2^31-1
-
-/** Bootstring parameters */
-var base = 36;
-var tMin = 1;
-var tMax = 26;
-var skew = 38;
-var damp = 700;
-var initialBias = 72;
-var initialN = 128; // 0x80
-var delimiter = '-'; // '\x2D'
-
-var regexNonASCII = /[^\x20-\x7E]/; // unprintable ASCII chars + non-ASCII chars
-var regexSeparators = /[\x2E\u3002\uFF0E\uFF61]/g; // RFC 3490 separators
-
-/** Error messages */
-var errors = {
-  'overflow': 'Overflow: input needs wider integers to process',
-  'not-basic': 'Illegal input >= 0x80 (not a basic code point)',
-  'invalid-input': 'Invalid input'
-};
-
-/** Convenience shortcuts */
-var baseMinusTMin = base - tMin;
-var floor = Math.floor;
-var stringFromCharCode = String.fromCharCode;
-
-/*--------------------------------------------------------------------------*/
-
-/**
- * A generic error utility function.
- * @private
- * @param {String} type The error type.
- * @returns {Error} Throws a `RangeError` with the applicable error message.
- */
-function error(type) {
-  throw new RangeError(errors[type]);
-}
-
-/**
- * A generic `Array#map` utility function.
- * @private
- * @param {Array} array The array to iterate over.
- * @param {Function} callback The function that gets called for every array
- * item.
- * @returns {Array} A new array of values returned by the callback function.
- */
-function map(array, fn) {
-  var length = array.length;
-  var result = [];
-  while (length--) {
-    result[length] = fn(array[length]);
-  }
-  return result;
-}
-
-/**
- * A simple `Array#map`-like wrapper to work with domain name strings or email
- * addresses.
- * @private
- * @param {String} domain The domain name or email address.
- * @param {Function} callback The function that gets called for every
- * character.
- * @returns {Array} A new string of characters returned by the callback
- * function.
- */
-function mapDomain(string, fn) {
-  var parts = string.split('@');
-  var result = '';
-  if (parts.length > 1) {
-    // In email addresses, only the domain name should be punycoded. Leave
-    // the local part (i.e. everything up to `@`) intact.
-    result = parts[0] + '@';
-    string = parts[1];
-  }
-  // Avoid `split(regex)` for IE8 compatibility. See #17.
-  string = string.replace(regexSeparators, '\x2E');
-  var labels = string.split('.');
-  var encoded = map(labels, fn).join('.');
-  return result + encoded;
-}
-
-/**
- * Creates an array containing the numeric code points of each Unicode
- * character in the string. While JavaScript uses UCS-2 internally,
- * this function will convert a pair of surrogate halves (each of which
- * UCS-2 exposes as separate characters) into a single code point,
- * matching UTF-16.
- * @see `punycode.ucs2.encode`
- * @see <https://mathiasbynens.be/notes/javascript-encoding>
- * @memberOf punycode.ucs2
- * @name decode
- * @param {String} string The Unicode input string (UCS-2).
- * @returns {Array} The new array of code points.
- */
-function ucs2decode(string) {
-  var output = [],
-    counter = 0,
-    length = string.length,
-    value,
-    extra;
-  while (counter < length) {
-    value = string.charCodeAt(counter++);
-    if (value >= 0xD800 && value <= 0xDBFF && counter < length) {
-      // high surrogate, and there is a next character
-      extra = string.charCodeAt(counter++);
-      if ((extra & 0xFC00) == 0xDC00) { // low surrogate
-        output.push(((value & 0x3FF) << 10) + (extra & 0x3FF) + 0x10000);
-      } else {
-        // unmatched surrogate; only append this code unit, in case the next
-        // code unit is the high surrogate of a surrogate pair
-        output.push(value);
-        counter--;
-      }
-    } else {
-      output.push(value);
-    }
-  }
-  return output;
-}
-
-/**
- * Creates a string based on an array of numeric code points.
- * @see `punycode.ucs2.decode`
- * @memberOf punycode.ucs2
- * @name encode
- * @param {Array} codePoints The array of numeric code points.
- * @returns {String} The new Unicode string (UCS-2).
- */
-function ucs2encode(array) {
-  return map(array, function(value) {
-    var output = '';
-    if (value > 0xFFFF) {
-      value -= 0x10000;
-      output += stringFromCharCode(value >>> 10 & 0x3FF | 0xD800);
-      value = 0xDC00 | value & 0x3FF;
-    }
-    output += stringFromCharCode(value);
-    return output;
-  }).join('');
-}
-
-/**
- * Converts a basic code point into a digit/integer.
- * @see `digitToBasic()`
- * @private
- * @param {Number} codePoint The basic numeric code point value.
- * @returns {Number} The numeric value of a basic code point (for use in
- * representing integers) in the range `0` to `base - 1`, or `base` if
- * the code point does not represent a value.
- */
-function basicToDigit(codePoint) {
-  if (codePoint - 48 < 10) {
-    return codePoint - 22;
-  }
-  if (codePoint - 65 < 26) {
-    return codePoint - 65;
-  }
-  if (codePoint - 97 < 26) {
-    return codePoint - 97;
-  }
-  return base;
-}
-
-/**
- * Converts a digit/integer into a basic code point.
- * @see `basicToDigit()`
- * @private
- * @param {Number} digit The numeric value of a basic code point.
- * @returns {Number} The basic code point whose value (when used for
- * representing integers) is `digit`, which needs to be in the range
- * `0` to `base - 1`. If `flag` is non-zero, the uppercase form is
- * used; else, the lowercase form is used. The behavior is undefined
- * if `flag` is non-zero and `digit` has no uppercase form.
- */
-function digitToBasic(digit, flag) {
-  //  0..25 map to ASCII a..z or A..Z
-  // 26..35 map to ASCII 0..9
-  return digit + 22 + 75 * (digit < 26) - ((flag != 0) << 5);
-}
-
-/**
- * Bias adaptation function as per section 3.4 of RFC 3492.
- * https://tools.ietf.org/html/rfc3492#section-3.4
- * @private
- */
-function adapt(delta, numPoints, firstTime) {
-  var k = 0;
-  delta = firstTime ? floor(delta / damp) : delta >> 1;
-  delta += floor(delta / numPoints);
-  for ( /* no initialization */ ; delta > baseMinusTMin * tMax >> 1; k += base) {
-    delta = floor(delta / baseMinusTMin);
-  }
-  return floor(k + (baseMinusTMin + 1) * delta / (delta + skew));
-}
-
-/**
- * Converts a Punycode string of ASCII-only symbols to a string of Unicode
- * symbols.
- * @memberOf punycode
- * @param {String} input The Punycode string of ASCII-only symbols.
- * @returns {String} The resulting string of Unicode symbols.
- */
-
-
-/**
- * Converts a string of Unicode symbols (e.g. a domain name label) to a
- * Punycode string of ASCII-only symbols.
- * @memberOf punycode
- * @param {String} input The string of Unicode symbols.
- * @returns {String} The resulting Punycode string of ASCII-only symbols.
- */
-function encode(input) {
-  var n,
-    delta,
-    handledCPCount,
-    basicLength,
-    bias,
-    j,
-    m,
-    q,
-    k,
-    t,
-    currentValue,
-    output = [],
-    /** `inputLength` will hold the number of code points in `input`. */
-    inputLength,
-    /** Cached calculation results */
-    handledCPCountPlusOne,
-    baseMinusT,
-    qMinusT;
-
-  // Convert the input in UCS-2 to Unicode
-  input = ucs2decode(input);
-
-  // Cache the length
-  inputLength = input.length;
-
-  // Initialize the state
-  n = initialN;
-  delta = 0;
-  bias = initialBias;
-
-  // Handle the basic code points
-  for (j = 0; j < inputLength; ++j) {
-    currentValue = input[j];
-    if (currentValue < 0x80) {
-      output.push(stringFromCharCode(currentValue));
-    }
-  }
-
-  handledCPCount = basicLength = output.length;
-
-  // `handledCPCount` is the number of code points that have been handled;
-  // `basicLength` is the number of basic code points.
-
-  // Finish the basic string - if it is not empty - with a delimiter
-  if (basicLength) {
-    output.push(delimiter);
-  }
-
-  // Main encoding loop:
-  while (handledCPCount < inputLength) {
-
-    // All non-basic code points < n have been handled already. Find the next
-    // larger one:
-    for (m = maxInt, j = 0; j < inputLength; ++j) {
-      currentValue = input[j];
-      if (currentValue >= n && currentValue < m) {
-        m = currentValue;
-      }
-    }
-
-    // Increase `delta` enough to advance the decoder's <n,i> state to <m,0>,
-    // but guard against overflow
-    handledCPCountPlusOne = handledCPCount + 1;
-    if (m - n > floor((maxInt - delta) / handledCPCountPlusOne)) {
-      error('overflow');
-    }
-
-    delta += (m - n) * handledCPCountPlusOne;
-    n = m;
-
-    for (j = 0; j < inputLength; ++j) {
-      currentValue = input[j];
-
-      if (currentValue < n && ++delta > maxInt) {
-        error('overflow');
-      }
-
-      if (currentValue == n) {
-        // Represent delta as a generalized variable-length integer
-        for (q = delta, k = base; /* no condition */ ; k += base) {
-          t = k <= bias ? tMin : (k >= bias + tMax ? tMax : k - bias);
-          if (q < t) {
-            break;
-          }
-          qMinusT = q - t;
-          baseMinusT = base - t;
-          output.push(
-            stringFromCharCode(digitToBasic(t + qMinusT % baseMinusT, 0))
-          );
-          q = floor(qMinusT / baseMinusT);
-        }
-
-        output.push(stringFromCharCode(digitToBasic(q, 0)));
-        bias = adapt(delta, handledCPCountPlusOne, handledCPCount == basicLength);
-        delta = 0;
-        ++handledCPCount;
-      }
-    }
-
-    ++delta;
-    ++n;
-
-  }
-  return output.join('');
-}
-
-/**
- * Converts a Punycode string representing a domain name or an email address
- * to Unicode. Only the Punycoded parts of the input will be converted, i.e.
- * it doesn't matter if you call it on a string that has already been
- * converted to Unicode.
- * @memberOf punycode
- * @param {String} input The Punycoded domain name or email address to
- * convert to Unicode.
- * @returns {String} The Unicode representation of the given Punycode
- * string.
- */
-
-
-/**
- * Converts a Unicode string representing a domain name or an email address to
- * Punycode. Only the non-ASCII parts of the domain name will be converted,
- * i.e. it doesn't matter if you call it with a domain that's already in
- * ASCII.
- * @memberOf punycode
- * @param {String} input The domain name or email address to convert, as a
- * Unicode string.
- * @returns {String} The Punycode representation of the given domain name or
- * email address.
- */
-function toASCII(input) {
-  return mapDomain(input, function(string) {
-    return regexNonASCII.test(string) ?
-      'xn--' + encode(string) :
-      string;
-  });
-}
-
-/**
- * An object of methods to convert from JavaScript's internal character
- * representation (UCS-2) to Unicode code points, and back.
- * @see <https://mathiasbynens.be/notes/javascript-encoding>
- * @memberOf punycode
- * @type Object
- */
 
 var global$1 = (typeof global !== "undefined" ? global :
             typeof self !== "undefined" ? self :
@@ -579,7 +209,7 @@ function write (buffer, value, offset, isLE, mLen, nBytes) {
 
 var toString = {}.toString;
 
-var isArray$1 = Array.isArray || function (arr) {
+var isArray = Array.isArray || function (arr) {
   return toString.call(arr) == '[object Array]';
 };
 
@@ -864,7 +494,7 @@ function fromObject (that, obj) {
       return fromArrayLike(that, obj)
     }
 
-    if (obj.type === 'Buffer' && isArray$1(obj.data)) {
+    if (obj.type === 'Buffer' && isArray(obj.data)) {
       return fromArrayLike(that, obj.data)
     }
   }
@@ -883,7 +513,7 @@ function checked (length) {
 }
 
 
-Buffer.isBuffer = isBuffer$1;
+Buffer.isBuffer = isBuffer;
 function internalIsBuffer (b) {
   return !!(b != null && b._isBuffer)
 }
@@ -931,7 +561,7 @@ Buffer.isEncoding = function isEncoding (encoding) {
 };
 
 Buffer.concat = function concat (list, length) {
-  if (!isArray$1(list)) {
+  if (!isArray(list)) {
     throw new TypeError('"list" argument must be an Array of Buffers')
   }
 
@@ -2349,7 +1979,7 @@ function isnan (val) {
 // the following is from is-buffer, also by Feross Aboukhadijeh and with same lisence
 // The _isBuffer check is for Safari 5-7 support, because it's missing
 // Object.prototype.constructor. Remove this eventually
-function isBuffer$1(obj) {
+function isBuffer(obj) {
   return obj != null && (!!obj._isBuffer || isFastBuffer(obj) || isSlowBuffer(obj))
 }
 
@@ -2500,7 +2130,7 @@ var platform = 'browser';
 var browser = true;
 var env = {};
 var argv = [];
-var version$1 = ''; // empty string to avoid regexp issues
+var version = ''; // empty string to avoid regexp issues
 var versions = {};
 var release = {};
 var config = {};
@@ -2565,7 +2195,7 @@ var process = {
   browser: browser,
   env: env,
   argv: argv,
-  version: version$1,
+  version: version,
   versions: versions,
   on: on,
   addListener: addListener,
@@ -2584,6 +2214,59 @@ var process = {
   config: config,
   uptime: uptime
 };
+
+var hasFetch = isFunction(global$1.fetch) && isFunction(global$1.ReadableStream);
+
+var _blobConstructor;
+function blobConstructor() {
+  if (typeof _blobConstructor !== 'undefined') {
+    return _blobConstructor;
+  }
+  try {
+    new global$1.Blob([new ArrayBuffer(1)]);
+    _blobConstructor = true;
+  } catch (e) {
+    _blobConstructor = false;
+  }
+  return _blobConstructor
+}
+var xhr;
+
+function checkTypeSupport(type) {
+  if (!xhr) {
+    xhr = new global$1.XMLHttpRequest();
+    // If location.host is empty, e.g. if this page/worker was loaded
+    // from a Blob, then use example.com to avoid an error
+    xhr.open('GET', global$1.location.host ? '/' : 'https://example.com');
+  }
+  try {
+    xhr.responseType = type;
+    return xhr.responseType === type
+  } catch (e) {
+    return false
+  }
+
+}
+
+// For some strange reason, Safari 7.0 reports typeof global.ArrayBuffer === 'object'.
+// Safari 7.1 appears to have fixed this bug.
+var haveArrayBuffer = typeof global$1.ArrayBuffer !== 'undefined';
+var haveSlice = haveArrayBuffer && isFunction(global$1.ArrayBuffer.prototype.slice);
+
+var arraybuffer = haveArrayBuffer && checkTypeSupport('arraybuffer');
+  // These next two tests unavoidably show warnings in Chrome. Since fetch will always
+  // be used if it's available, just return false for these to avoid the warnings.
+var msstream = !hasFetch && haveSlice && checkTypeSupport('ms-stream');
+var mozchunkedarraybuffer = !hasFetch && haveArrayBuffer &&
+  checkTypeSupport('moz-chunked-arraybuffer');
+var overrideMimeType = isFunction(xhr.overrideMimeType);
+var vbArray = isFunction(global$1.VBArray);
+
+function isFunction(value) {
+  return typeof value === 'function'
+}
+
+xhr = null; // Help gc
 
 var inherits;
 if (typeof Object.create === 'function'){
@@ -2631,7 +2314,7 @@ var inherits$1 = inherits;
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 var formatRegExp = /%[sdj%]/g;
-function format$1(f) {
+function format(f) {
   if (!isString(f)) {
     var objects = [];
     for (var i = 0; i < arguments.length; i++) {
@@ -2714,7 +2397,7 @@ function debuglog(set) {
     if (new RegExp('\\b' + set + '\\b', 'i').test(debugEnviron)) {
       var pid = 0;
       debugs[set] = function() {
-        var msg = format$1.apply(null, arguments);
+        var msg = format.apply(null, arguments);
         console.error('%s %d: %s', set, pid, msg);
       };
     } else {
@@ -2822,7 +2505,7 @@ function formatValue(ctx, value, recurseTimes) {
   // Check that value is an object with an inspect function on it
   if (ctx.customInspect &&
       value &&
-      isFunction(value.inspect) &&
+      isFunction$1(value.inspect) &&
       // Filter out the util module, it's inspect function is special
       value.inspect !== inspect &&
       // Also filter out any prototype objects using the circular check.
@@ -2857,7 +2540,7 @@ function formatValue(ctx, value, recurseTimes) {
 
   // Some type of object without properties can be shortcutted.
   if (keys.length === 0) {
-    if (isFunction(value)) {
+    if (isFunction$1(value)) {
       var name = value.name ? ': ' + value.name : '';
       return ctx.stylize('[Function' + name + ']', 'special');
     }
@@ -2875,13 +2558,13 @@ function formatValue(ctx, value, recurseTimes) {
   var base = '', array = false, braces = ['{', '}'];
 
   // Make Array say that they are Array
-  if (isArray(value)) {
+  if (isArray$1(value)) {
     array = true;
     braces = ['[', ']'];
   }
 
   // Make functions say that they are functions
-  if (isFunction(value)) {
+  if (isFunction$1(value)) {
     var n = value.name ? ': ' + value.name : '';
     base = ' [Function' + n + ']';
   }
@@ -3056,7 +2739,7 @@ function reduceToSingleString(output, base, braces) {
 
 // NOTE: These type checking functions intentionally don't use `instanceof`
 // because it is fragile and can be easily faked with `Object.create()`.
-function isArray(ar) {
+function isArray$1(ar) {
   return Array.isArray(ar);
 }
 
@@ -3103,7 +2786,7 @@ function isError(e) {
       (objectToString(e) === '[object Error]' || e instanceof Error);
 }
 
-function isFunction(arg) {
+function isFunction$1(arg) {
   return typeof arg === 'function';
 }
 
@@ -3148,905 +2831,6 @@ function _extend(origin, add) {
 function hasOwnProperty(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
-
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-// If obj.hasOwnProperty has been overridden, then calling
-// obj.hasOwnProperty(prop) will break.
-// See: https://github.com/joyent/node/issues/1707
-function hasOwnProperty$1(obj, prop) {
-  return Object.prototype.hasOwnProperty.call(obj, prop);
-}
-var isArray$2 = Array.isArray || function (xs) {
-  return Object.prototype.toString.call(xs) === '[object Array]';
-};
-function stringifyPrimitive(v) {
-  switch (typeof v) {
-    case 'string':
-      return v;
-
-    case 'boolean':
-      return v ? 'true' : 'false';
-
-    case 'number':
-      return isFinite(v) ? v : '';
-
-    default:
-      return '';
-  }
-}
-
-function stringify (obj, sep, eq, name) {
-  sep = sep || '&';
-  eq = eq || '=';
-  if (obj === null) {
-    obj = undefined;
-  }
-
-  if (typeof obj === 'object') {
-    return map$1(objectKeys(obj), function(k) {
-      var ks = encodeURIComponent(stringifyPrimitive(k)) + eq;
-      if (isArray$2(obj[k])) {
-        return map$1(obj[k], function(v) {
-          return ks + encodeURIComponent(stringifyPrimitive(v));
-        }).join(sep);
-      } else {
-        return ks + encodeURIComponent(stringifyPrimitive(obj[k]));
-      }
-    }).join(sep);
-
-  }
-
-  if (!name) return '';
-  return encodeURIComponent(stringifyPrimitive(name)) + eq +
-         encodeURIComponent(stringifyPrimitive(obj));
-}
-
-function map$1 (xs, f) {
-  if (xs.map) return xs.map(f);
-  var res = [];
-  for (var i = 0; i < xs.length; i++) {
-    res.push(f(xs[i], i));
-  }
-  return res;
-}
-
-var objectKeys = Object.keys || function (obj) {
-  var res = [];
-  for (var key in obj) {
-    if (Object.prototype.hasOwnProperty.call(obj, key)) res.push(key);
-  }
-  return res;
-};
-
-function parse$1(qs, sep, eq, options) {
-  sep = sep || '&';
-  eq = eq || '=';
-  var obj = {};
-
-  if (typeof qs !== 'string' || qs.length === 0) {
-    return obj;
-  }
-
-  var regexp = /\+/g;
-  qs = qs.split(sep);
-
-  var maxKeys = 1000;
-  if (options && typeof options.maxKeys === 'number') {
-    maxKeys = options.maxKeys;
-  }
-
-  var len = qs.length;
-  // maxKeys <= 0 means that we should not limit keys count
-  if (maxKeys > 0 && len > maxKeys) {
-    len = maxKeys;
-  }
-
-  for (var i = 0; i < len; ++i) {
-    var x = qs[i].replace(regexp, '%20'),
-        idx = x.indexOf(eq),
-        kstr, vstr, k, v;
-
-    if (idx >= 0) {
-      kstr = x.substr(0, idx);
-      vstr = x.substr(idx + 1);
-    } else {
-      kstr = x;
-      vstr = '';
-    }
-
-    k = decodeURIComponent(kstr);
-    v = decodeURIComponent(vstr);
-
-    if (!hasOwnProperty$1(obj, k)) {
-      obj[k] = v;
-    } else if (isArray$2(obj[k])) {
-      obj[k].push(v);
-    } else {
-      obj[k] = [obj[k], v];
-    }
-  }
-
-  return obj;
-}
-
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-function Url() {
-  this.protocol = null;
-  this.slashes = null;
-  this.auth = null;
-  this.host = null;
-  this.port = null;
-  this.hostname = null;
-  this.hash = null;
-  this.search = null;
-  this.query = null;
-  this.pathname = null;
-  this.path = null;
-  this.href = null;
-}
-
-// Reference: RFC 3986, RFC 1808, RFC 2396
-
-// define these here so at least they only have to be
-// compiled once on the first module load.
-var protocolPattern = /^([a-z0-9.+-]+:)/i;
-var portPattern = /:[0-9]*$/;
-var simplePathPattern = /^(\/\/?(?!\/)[^\?\s]*)(\?[^\s]*)?$/;
-var delims = ['<', '>', '"', '`', ' ', '\r', '\n', '\t'];
-var unwise = ['{', '}', '|', '\\', '^', '`'].concat(delims);
-var autoEscape = ['\''].concat(unwise);
-var nonHostChars = ['%', '/', '?', ';', '#'].concat(autoEscape);
-var hostEndingChars = ['/', '?', '#'];
-var hostnameMaxLen = 255;
-var hostnamePartPattern = /^[+a-z0-9A-Z_-]{0,63}$/;
-var hostnamePartStart = /^([+a-z0-9A-Z_-]{0,63})(.*)$/;
-var unsafeProtocol = {
-    'javascript': true,
-    'javascript:': true
-  };
-var hostlessProtocol = {
-    'javascript': true,
-    'javascript:': true
-  };
-var slashedProtocol = {
-    'http': true,
-    'https': true,
-    'ftp': true,
-    'gopher': true,
-    'file': true,
-    'http:': true,
-    'https:': true,
-    'ftp:': true,
-    'gopher:': true,
-    'file:': true
-  };
-
-function urlParse(url, parseQueryString, slashesDenoteHost) {
-  if (url && isObject(url) && url instanceof Url) return url;
-
-  var u = new Url;
-  u.parse(url, parseQueryString, slashesDenoteHost);
-  return u;
-}
-Url.prototype.parse = function(url, parseQueryString, slashesDenoteHost) {
-  return parse$$1(this, url, parseQueryString, slashesDenoteHost);
-};
-
-function parse$$1(self, url, parseQueryString, slashesDenoteHost) {
-  if (!isString(url)) {
-    throw new TypeError('Parameter \'url\' must be a string, not ' + typeof url);
-  }
-
-  // Copy chrome, IE, opera backslash-handling behavior.
-  // Back slashes before the query string get converted to forward slashes
-  // See: https://code.google.com/p/chromium/issues/detail?id=25916
-  var queryIndex = url.indexOf('?'),
-    splitter =
-    (queryIndex !== -1 && queryIndex < url.indexOf('#')) ? '?' : '#',
-    uSplit = url.split(splitter),
-    slashRegex = /\\/g;
-  uSplit[0] = uSplit[0].replace(slashRegex, '/');
-  url = uSplit.join(splitter);
-
-  var rest = url;
-
-  // trim before proceeding.
-  // This is to support parse stuff like "  http://foo.com  \n"
-  rest = rest.trim();
-
-  if (!slashesDenoteHost && url.split('#').length === 1) {
-    // Try fast path regexp
-    var simplePath = simplePathPattern.exec(rest);
-    if (simplePath) {
-      self.path = rest;
-      self.href = rest;
-      self.pathname = simplePath[1];
-      if (simplePath[2]) {
-        self.search = simplePath[2];
-        if (parseQueryString) {
-          self.query = parse$1(self.search.substr(1));
-        } else {
-          self.query = self.search.substr(1);
-        }
-      } else if (parseQueryString) {
-        self.search = '';
-        self.query = {};
-      }
-      return self;
-    }
-  }
-
-  var proto = protocolPattern.exec(rest);
-  if (proto) {
-    proto = proto[0];
-    var lowerProto = proto.toLowerCase();
-    self.protocol = lowerProto;
-    rest = rest.substr(proto.length);
-  }
-
-  // figure out if it's got a host
-  // user@server is *always* interpreted as a hostname, and url
-  // resolution will treat //foo/bar as host=foo,path=bar because that's
-  // how the browser resolves relative URLs.
-  if (slashesDenoteHost || proto || rest.match(/^\/\/[^@\/]+@[^@\/]+/)) {
-    var slashes = rest.substr(0, 2) === '//';
-    if (slashes && !(proto && hostlessProtocol[proto])) {
-      rest = rest.substr(2);
-      self.slashes = true;
-    }
-  }
-  var i, hec, l, p;
-  if (!hostlessProtocol[proto] &&
-    (slashes || (proto && !slashedProtocol[proto]))) {
-
-    // there's a hostname.
-    // the first instance of /, ?, ;, or # ends the host.
-    //
-    // If there is an @ in the hostname, then non-host chars *are* allowed
-    // to the left of the last @ sign, unless some host-ending character
-    // comes *before* the @-sign.
-    // URLs are obnoxious.
-    //
-    // ex:
-    // http://a@b@c/ => user:a@b host:c
-    // http://a@b?@c => user:a host:c path:/?@c
-
-    // v0.12 TODO(isaacs): This is not quite how Chrome does things.
-    // Review our test case against browsers more comprehensively.
-
-    // find the first instance of any hostEndingChars
-    var hostEnd = -1;
-    for (i = 0; i < hostEndingChars.length; i++) {
-      hec = rest.indexOf(hostEndingChars[i]);
-      if (hec !== -1 && (hostEnd === -1 || hec < hostEnd))
-        hostEnd = hec;
-    }
-
-    // at this point, either we have an explicit point where the
-    // auth portion cannot go past, or the last @ char is the decider.
-    var auth, atSign;
-    if (hostEnd === -1) {
-      // atSign can be anywhere.
-      atSign = rest.lastIndexOf('@');
-    } else {
-      // atSign must be in auth portion.
-      // http://a@b/c@d => host:b auth:a path:/c@d
-      atSign = rest.lastIndexOf('@', hostEnd);
-    }
-
-    // Now we have a portion which is definitely the auth.
-    // Pull that off.
-    if (atSign !== -1) {
-      auth = rest.slice(0, atSign);
-      rest = rest.slice(atSign + 1);
-      self.auth = decodeURIComponent(auth);
-    }
-
-    // the host is the remaining to the left of the first non-host char
-    hostEnd = -1;
-    for (i = 0; i < nonHostChars.length; i++) {
-      hec = rest.indexOf(nonHostChars[i]);
-      if (hec !== -1 && (hostEnd === -1 || hec < hostEnd))
-        hostEnd = hec;
-    }
-    // if we still have not hit it, then the entire thing is a host.
-    if (hostEnd === -1)
-      hostEnd = rest.length;
-
-    self.host = rest.slice(0, hostEnd);
-    rest = rest.slice(hostEnd);
-
-    // pull out port.
-    parseHost(self);
-
-    // we've indicated that there is a hostname,
-    // so even if it's empty, it has to be present.
-    self.hostname = self.hostname || '';
-
-    // if hostname begins with [ and ends with ]
-    // assume that it's an IPv6 address.
-    var ipv6Hostname = self.hostname[0] === '[' &&
-      self.hostname[self.hostname.length - 1] === ']';
-
-    // validate a little.
-    if (!ipv6Hostname) {
-      var hostparts = self.hostname.split(/\./);
-      for (i = 0, l = hostparts.length; i < l; i++) {
-        var part = hostparts[i];
-        if (!part) continue;
-        if (!part.match(hostnamePartPattern)) {
-          var newpart = '';
-          for (var j = 0, k = part.length; j < k; j++) {
-            if (part.charCodeAt(j) > 127) {
-              // we replace non-ASCII char with a temporary placeholder
-              // we need this to make sure size of hostname is not
-              // broken by replacing non-ASCII by nothing
-              newpart += 'x';
-            } else {
-              newpart += part[j];
-            }
-          }
-          // we test again with ASCII char only
-          if (!newpart.match(hostnamePartPattern)) {
-            var validParts = hostparts.slice(0, i);
-            var notHost = hostparts.slice(i + 1);
-            var bit = part.match(hostnamePartStart);
-            if (bit) {
-              validParts.push(bit[1]);
-              notHost.unshift(bit[2]);
-            }
-            if (notHost.length) {
-              rest = '/' + notHost.join('.') + rest;
-            }
-            self.hostname = validParts.join('.');
-            break;
-          }
-        }
-      }
-    }
-
-    if (self.hostname.length > hostnameMaxLen) {
-      self.hostname = '';
-    } else {
-      // hostnames are always lower case.
-      self.hostname = self.hostname.toLowerCase();
-    }
-
-    if (!ipv6Hostname) {
-      // IDNA Support: Returns a punycoded representation of "domain".
-      // It only converts parts of the domain name that
-      // have non-ASCII characters, i.e. it doesn't matter if
-      // you call it with a domain that already is ASCII-only.
-      self.hostname = toASCII(self.hostname);
-    }
-
-    p = self.port ? ':' + self.port : '';
-    var h = self.hostname || '';
-    self.host = h + p;
-    self.href += self.host;
-
-    // strip [ and ] from the hostname
-    // the host field still retains them, though
-    if (ipv6Hostname) {
-      self.hostname = self.hostname.substr(1, self.hostname.length - 2);
-      if (rest[0] !== '/') {
-        rest = '/' + rest;
-      }
-    }
-  }
-
-  // now rest is set to the post-host stuff.
-  // chop off any delim chars.
-  if (!unsafeProtocol[lowerProto]) {
-
-    // First, make 100% sure that any "autoEscape" chars get
-    // escaped, even if encodeURIComponent doesn't think they
-    // need to be.
-    for (i = 0, l = autoEscape.length; i < l; i++) {
-      var ae = autoEscape[i];
-      if (rest.indexOf(ae) === -1)
-        continue;
-      var esc = encodeURIComponent(ae);
-      if (esc === ae) {
-        esc = escape(ae);
-      }
-      rest = rest.split(ae).join(esc);
-    }
-  }
-
-
-  // chop off from the tail first.
-  var hash = rest.indexOf('#');
-  if (hash !== -1) {
-    // got a fragment string.
-    self.hash = rest.substr(hash);
-    rest = rest.slice(0, hash);
-  }
-  var qm = rest.indexOf('?');
-  if (qm !== -1) {
-    self.search = rest.substr(qm);
-    self.query = rest.substr(qm + 1);
-    if (parseQueryString) {
-      self.query = parse$1(self.query);
-    }
-    rest = rest.slice(0, qm);
-  } else if (parseQueryString) {
-    // no query string, but parseQueryString still requested
-    self.search = '';
-    self.query = {};
-  }
-  if (rest) self.pathname = rest;
-  if (slashedProtocol[lowerProto] &&
-    self.hostname && !self.pathname) {
-    self.pathname = '/';
-  }
-
-  //to support http.request
-  if (self.pathname || self.search) {
-    p = self.pathname || '';
-    var s = self.search || '';
-    self.path = p + s;
-  }
-
-  // finally, reconstruct the href based on what has been validated.
-  self.href = format$$1(self);
-  return self;
-}
-
-// format a parsed object into a url string
-function urlFormat(obj) {
-  // ensure it's an object, and not a string url.
-  // If it's an obj, this is a no-op.
-  // this way, you can call url_format() on strings
-  // to clean up potentially wonky urls.
-  if (isString(obj)) obj = parse$$1({}, obj);
-  return format$$1(obj);
-}
-
-function format$$1(self) {
-  var auth = self.auth || '';
-  if (auth) {
-    auth = encodeURIComponent(auth);
-    auth = auth.replace(/%3A/i, ':');
-    auth += '@';
-  }
-
-  var protocol = self.protocol || '',
-    pathname = self.pathname || '',
-    hash = self.hash || '',
-    host = false,
-    query = '';
-
-  if (self.host) {
-    host = auth + self.host;
-  } else if (self.hostname) {
-    host = auth + (self.hostname.indexOf(':') === -1 ?
-      self.hostname :
-      '[' + this.hostname + ']');
-    if (self.port) {
-      host += ':' + self.port;
-    }
-  }
-
-  if (self.query &&
-    isObject(self.query) &&
-    Object.keys(self.query).length) {
-    query = stringify(self.query);
-  }
-
-  var search = self.search || (query && ('?' + query)) || '';
-
-  if (protocol && protocol.substr(-1) !== ':') protocol += ':';
-
-  // only the slashedProtocols get the //.  Not mailto:, xmpp:, etc.
-  // unless they had them to begin with.
-  if (self.slashes ||
-    (!protocol || slashedProtocol[protocol]) && host !== false) {
-    host = '//' + (host || '');
-    if (pathname && pathname.charAt(0) !== '/') pathname = '/' + pathname;
-  } else if (!host) {
-    host = '';
-  }
-
-  if (hash && hash.charAt(0) !== '#') hash = '#' + hash;
-  if (search && search.charAt(0) !== '?') search = '?' + search;
-
-  pathname = pathname.replace(/[?#]/g, function(match) {
-    return encodeURIComponent(match);
-  });
-  search = search.replace('#', '%23');
-
-  return protocol + host + pathname + search + hash;
-}
-
-Url.prototype.format = function() {
-  return format$$1(this);
-};
-
-Url.prototype.resolve = function(relative) {
-  return this.resolveObject(urlParse(relative, false, true)).format();
-};
-
-Url.prototype.resolveObject = function(relative) {
-  if (isString(relative)) {
-    var rel = new Url();
-    rel.parse(relative, false, true);
-    relative = rel;
-  }
-
-  var result = new Url();
-  var tkeys = Object.keys(this);
-  for (var tk = 0; tk < tkeys.length; tk++) {
-    var tkey = tkeys[tk];
-    result[tkey] = this[tkey];
-  }
-
-  // hash is always overridden, no matter what.
-  // even href="" will remove it.
-  result.hash = relative.hash;
-
-  // if the relative url is empty, then there's nothing left to do here.
-  if (relative.href === '') {
-    result.href = result.format();
-    return result;
-  }
-
-  // hrefs like //foo/bar always cut to the protocol.
-  if (relative.slashes && !relative.protocol) {
-    // take everything except the protocol from relative
-    var rkeys = Object.keys(relative);
-    for (var rk = 0; rk < rkeys.length; rk++) {
-      var rkey = rkeys[rk];
-      if (rkey !== 'protocol')
-        result[rkey] = relative[rkey];
-    }
-
-    //urlParse appends trailing / to urls like http://www.example.com
-    if (slashedProtocol[result.protocol] &&
-      result.hostname && !result.pathname) {
-      result.path = result.pathname = '/';
-    }
-
-    result.href = result.format();
-    return result;
-  }
-  var relPath;
-  if (relative.protocol && relative.protocol !== result.protocol) {
-    // if it's a known url protocol, then changing
-    // the protocol does weird things
-    // first, if it's not file:, then we MUST have a host,
-    // and if there was a path
-    // to begin with, then we MUST have a path.
-    // if it is file:, then the host is dropped,
-    // because that's known to be hostless.
-    // anything else is assumed to be absolute.
-    if (!slashedProtocol[relative.protocol]) {
-      var keys = Object.keys(relative);
-      for (var v = 0; v < keys.length; v++) {
-        var k = keys[v];
-        result[k] = relative[k];
-      }
-      result.href = result.format();
-      return result;
-    }
-
-    result.protocol = relative.protocol;
-    if (!relative.host && !hostlessProtocol[relative.protocol]) {
-      relPath = (relative.pathname || '').split('/');
-      while (relPath.length && !(relative.host = relPath.shift()));
-      if (!relative.host) relative.host = '';
-      if (!relative.hostname) relative.hostname = '';
-      if (relPath[0] !== '') relPath.unshift('');
-      if (relPath.length < 2) relPath.unshift('');
-      result.pathname = relPath.join('/');
-    } else {
-      result.pathname = relative.pathname;
-    }
-    result.search = relative.search;
-    result.query = relative.query;
-    result.host = relative.host || '';
-    result.auth = relative.auth;
-    result.hostname = relative.hostname || relative.host;
-    result.port = relative.port;
-    // to support http.request
-    if (result.pathname || result.search) {
-      var p = result.pathname || '';
-      var s = result.search || '';
-      result.path = p + s;
-    }
-    result.slashes = result.slashes || relative.slashes;
-    result.href = result.format();
-    return result;
-  }
-
-  var isSourceAbs = (result.pathname && result.pathname.charAt(0) === '/'),
-    isRelAbs = (
-      relative.host ||
-      relative.pathname && relative.pathname.charAt(0) === '/'
-    ),
-    mustEndAbs = (isRelAbs || isSourceAbs ||
-      (result.host && relative.pathname)),
-    removeAllDots = mustEndAbs,
-    srcPath = result.pathname && result.pathname.split('/') || [],
-    psychotic = result.protocol && !slashedProtocol[result.protocol];
-  relPath = relative.pathname && relative.pathname.split('/') || [];
-  // if the url is a non-slashed url, then relative
-  // links like ../.. should be able
-  // to crawl up to the hostname, as well.  This is strange.
-  // result.protocol has already been set by now.
-  // Later on, put the first path part into the host field.
-  if (psychotic) {
-    result.hostname = '';
-    result.port = null;
-    if (result.host) {
-      if (srcPath[0] === '') srcPath[0] = result.host;
-      else srcPath.unshift(result.host);
-    }
-    result.host = '';
-    if (relative.protocol) {
-      relative.hostname = null;
-      relative.port = null;
-      if (relative.host) {
-        if (relPath[0] === '') relPath[0] = relative.host;
-        else relPath.unshift(relative.host);
-      }
-      relative.host = null;
-    }
-    mustEndAbs = mustEndAbs && (relPath[0] === '' || srcPath[0] === '');
-  }
-  var authInHost;
-  if (isRelAbs) {
-    // it's absolute.
-    result.host = (relative.host || relative.host === '') ?
-      relative.host : result.host;
-    result.hostname = (relative.hostname || relative.hostname === '') ?
-      relative.hostname : result.hostname;
-    result.search = relative.search;
-    result.query = relative.query;
-    srcPath = relPath;
-    // fall through to the dot-handling below.
-  } else if (relPath.length) {
-    // it's relative
-    // throw away the existing file, and take the new path instead.
-    if (!srcPath) srcPath = [];
-    srcPath.pop();
-    srcPath = srcPath.concat(relPath);
-    result.search = relative.search;
-    result.query = relative.query;
-  } else if (!isNullOrUndefined(relative.search)) {
-    // just pull out the search.
-    // like href='?foo'.
-    // Put this after the other two cases because it simplifies the booleans
-    if (psychotic) {
-      result.hostname = result.host = srcPath.shift();
-      //occationaly the auth can get stuck only in host
-      //this especially happens in cases like
-      //url.resolveObject('mailto:local1@domain1', 'local2@domain2')
-      authInHost = result.host && result.host.indexOf('@') > 0 ?
-        result.host.split('@') : false;
-      if (authInHost) {
-        result.auth = authInHost.shift();
-        result.host = result.hostname = authInHost.shift();
-      }
-    }
-    result.search = relative.search;
-    result.query = relative.query;
-    //to support http.request
-    if (!isNull(result.pathname) || !isNull(result.search)) {
-      result.path = (result.pathname ? result.pathname : '') +
-        (result.search ? result.search : '');
-    }
-    result.href = result.format();
-    return result;
-  }
-
-  if (!srcPath.length) {
-    // no path at all.  easy.
-    // we've already handled the other stuff above.
-    result.pathname = null;
-    //to support http.request
-    if (result.search) {
-      result.path = '/' + result.search;
-    } else {
-      result.path = null;
-    }
-    result.href = result.format();
-    return result;
-  }
-
-  // if a url ENDs in . or .., then it must get a trailing slash.
-  // however, if it ends in anything else non-slashy,
-  // then it must NOT get a trailing slash.
-  var last = srcPath.slice(-1)[0];
-  var hasTrailingSlash = (
-    (result.host || relative.host || srcPath.length > 1) &&
-    (last === '.' || last === '..') || last === '');
-
-  // strip single dots, resolve double dots to parent dir
-  // if the path tries to go above the root, `up` ends up > 0
-  var up = 0;
-  for (var i = srcPath.length; i >= 0; i--) {
-    last = srcPath[i];
-    if (last === '.') {
-      srcPath.splice(i, 1);
-    } else if (last === '..') {
-      srcPath.splice(i, 1);
-      up++;
-    } else if (up) {
-      srcPath.splice(i, 1);
-      up--;
-    }
-  }
-
-  // if the path is allowed to go above the root, restore leading ..s
-  if (!mustEndAbs && !removeAllDots) {
-    for (; up--; up) {
-      srcPath.unshift('..');
-    }
-  }
-
-  if (mustEndAbs && srcPath[0] !== '' &&
-    (!srcPath[0] || srcPath[0].charAt(0) !== '/')) {
-    srcPath.unshift('');
-  }
-
-  if (hasTrailingSlash && (srcPath.join('/').substr(-1) !== '/')) {
-    srcPath.push('');
-  }
-
-  var isAbsolute = srcPath[0] === '' ||
-    (srcPath[0] && srcPath[0].charAt(0) === '/');
-
-  // put the host back
-  if (psychotic) {
-    result.hostname = result.host = isAbsolute ? '' :
-      srcPath.length ? srcPath.shift() : '';
-    //occationaly the auth can get stuck only in host
-    //this especially happens in cases like
-    //url.resolveObject('mailto:local1@domain1', 'local2@domain2')
-    authInHost = result.host && result.host.indexOf('@') > 0 ?
-      result.host.split('@') : false;
-    if (authInHost) {
-      result.auth = authInHost.shift();
-      result.host = result.hostname = authInHost.shift();
-    }
-  }
-
-  mustEndAbs = mustEndAbs || (result.host && srcPath.length);
-
-  if (mustEndAbs && !isAbsolute) {
-    srcPath.unshift('');
-  }
-
-  if (!srcPath.length) {
-    result.pathname = null;
-    result.path = null;
-  } else {
-    result.pathname = srcPath.join('/');
-  }
-
-  //to support request.http
-  if (!isNull(result.pathname) || !isNull(result.search)) {
-    result.path = (result.pathname ? result.pathname : '') +
-      (result.search ? result.search : '');
-  }
-  result.auth = relative.auth || result.auth;
-  result.slashes = result.slashes || relative.slashes;
-  result.href = result.format();
-  return result;
-};
-
-Url.prototype.parseHost = function() {
-  return parseHost(this);
-};
-
-function parseHost(self) {
-  var host = self.host;
-  var port = portPattern.exec(host);
-  if (port) {
-    port = port[0];
-    if (port !== ':') {
-      self.port = port.substr(1);
-    }
-    host = host.substr(0, host.length - port.length);
-  }
-  if (host) self.hostname = host;
-}
-
-var hasFetch = isFunction$1(global$1.fetch) && isFunction$1(global$1.ReadableStream);
-
-var _blobConstructor;
-function blobConstructor() {
-  if (typeof _blobConstructor !== 'undefined') {
-    return _blobConstructor;
-  }
-  try {
-    new global$1.Blob([new ArrayBuffer(1)]);
-    _blobConstructor = true;
-  } catch (e) {
-    _blobConstructor = false;
-  }
-  return _blobConstructor
-}
-var xhr;
-
-function checkTypeSupport(type) {
-  if (!xhr) {
-    xhr = new global$1.XMLHttpRequest();
-    // If location.host is empty, e.g. if this page/worker was loaded
-    // from a Blob, then use example.com to avoid an error
-    xhr.open('GET', global$1.location.host ? '/' : 'https://example.com');
-  }
-  try {
-    xhr.responseType = type;
-    return xhr.responseType === type
-  } catch (e) {
-    return false
-  }
-
-}
-
-// For some strange reason, Safari 7.0 reports typeof global.ArrayBuffer === 'object'.
-// Safari 7.1 appears to have fixed this bug.
-var haveArrayBuffer = typeof global$1.ArrayBuffer !== 'undefined';
-var haveSlice = haveArrayBuffer && isFunction$1(global$1.ArrayBuffer.prototype.slice);
-
-var arraybuffer = haveArrayBuffer && checkTypeSupport('arraybuffer');
-  // These next two tests unavoidably show warnings in Chrome. Since fetch will always
-  // be used if it's available, just return false for these to avoid the warnings.
-var msstream = !hasFetch && haveSlice && checkTypeSupport('ms-stream');
-var mozchunkedarraybuffer = !hasFetch && haveArrayBuffer &&
-  checkTypeSupport('moz-chunked-arraybuffer');
-var overrideMimeType = isFunction$1(xhr.overrideMimeType);
-var vbArray = isFunction$1(global$1.VBArray);
-
-function isFunction$1(value) {
-  return typeof value === 'function'
-}
-
-xhr = null; // Help gc
 
 var domain;
 
@@ -5136,7 +3920,7 @@ Readable$1.prototype.read = function (n) {
 
 function chunkInvalid(state, chunk) {
   var er = null;
-  if (!isBuffer$1(chunk) && typeof chunk !== 'string' && chunk !== null && chunk !== undefined && !state.objectMode) {
+  if (!isBuffer(chunk) && typeof chunk !== 'string' && chunk !== null && chunk !== undefined && !state.objectMode) {
     er = new TypeError('Invalid non-string/buffer chunk');
   }
   return er;
@@ -6673,7 +5457,7 @@ var toArrayBuffer = function (buf) {
     }
   }
 
-  if (isBuffer$1(buf)) {
+  if (isBuffer(buf)) {
     // This is the slow version that will work with any Buffer
     // implementation (even in old browsers)
     var arrayCopy = new Uint8Array(buf.length);
@@ -6958,6 +5742,1205 @@ ClientRequest$1.prototype.setTimeout = function() {};
 ClientRequest$1.prototype.setNoDelay = function() {};
 ClientRequest$1.prototype.setSocketKeepAlive = function() {};
 
+/*! https://mths.be/punycode v1.4.1 by @mathias */
+
+
+/** Highest positive signed 32-bit float value */
+var maxInt = 2147483647; // aka. 0x7FFFFFFF or 2^31-1
+
+/** Bootstring parameters */
+var base = 36;
+var tMin = 1;
+var tMax = 26;
+var skew = 38;
+var damp = 700;
+var initialBias = 72;
+var initialN = 128; // 0x80
+var delimiter = '-'; // '\x2D'
+
+var regexNonASCII = /[^\x20-\x7E]/; // unprintable ASCII chars + non-ASCII chars
+var regexSeparators = /[\x2E\u3002\uFF0E\uFF61]/g; // RFC 3490 separators
+
+/** Error messages */
+var errors = {
+  'overflow': 'Overflow: input needs wider integers to process',
+  'not-basic': 'Illegal input >= 0x80 (not a basic code point)',
+  'invalid-input': 'Invalid input'
+};
+
+/** Convenience shortcuts */
+var baseMinusTMin = base - tMin;
+var floor = Math.floor;
+var stringFromCharCode = String.fromCharCode;
+
+/*--------------------------------------------------------------------------*/
+
+/**
+ * A generic error utility function.
+ * @private
+ * @param {String} type The error type.
+ * @returns {Error} Throws a `RangeError` with the applicable error message.
+ */
+function error(type) {
+  throw new RangeError(errors[type]);
+}
+
+/**
+ * A generic `Array#map` utility function.
+ * @private
+ * @param {Array} array The array to iterate over.
+ * @param {Function} callback The function that gets called for every array
+ * item.
+ * @returns {Array} A new array of values returned by the callback function.
+ */
+function map(array, fn) {
+  var length = array.length;
+  var result = [];
+  while (length--) {
+    result[length] = fn(array[length]);
+  }
+  return result;
+}
+
+/**
+ * A simple `Array#map`-like wrapper to work with domain name strings or email
+ * addresses.
+ * @private
+ * @param {String} domain The domain name or email address.
+ * @param {Function} callback The function that gets called for every
+ * character.
+ * @returns {Array} A new string of characters returned by the callback
+ * function.
+ */
+function mapDomain(string, fn) {
+  var parts = string.split('@');
+  var result = '';
+  if (parts.length > 1) {
+    // In email addresses, only the domain name should be punycoded. Leave
+    // the local part (i.e. everything up to `@`) intact.
+    result = parts[0] + '@';
+    string = parts[1];
+  }
+  // Avoid `split(regex)` for IE8 compatibility. See #17.
+  string = string.replace(regexSeparators, '\x2E');
+  var labels = string.split('.');
+  var encoded = map(labels, fn).join('.');
+  return result + encoded;
+}
+
+/**
+ * Creates an array containing the numeric code points of each Unicode
+ * character in the string. While JavaScript uses UCS-2 internally,
+ * this function will convert a pair of surrogate halves (each of which
+ * UCS-2 exposes as separate characters) into a single code point,
+ * matching UTF-16.
+ * @see `punycode.ucs2.encode`
+ * @see <https://mathiasbynens.be/notes/javascript-encoding>
+ * @memberOf punycode.ucs2
+ * @name decode
+ * @param {String} string The Unicode input string (UCS-2).
+ * @returns {Array} The new array of code points.
+ */
+function ucs2decode(string) {
+  var output = [],
+    counter = 0,
+    length = string.length,
+    value,
+    extra;
+  while (counter < length) {
+    value = string.charCodeAt(counter++);
+    if (value >= 0xD800 && value <= 0xDBFF && counter < length) {
+      // high surrogate, and there is a next character
+      extra = string.charCodeAt(counter++);
+      if ((extra & 0xFC00) == 0xDC00) { // low surrogate
+        output.push(((value & 0x3FF) << 10) + (extra & 0x3FF) + 0x10000);
+      } else {
+        // unmatched surrogate; only append this code unit, in case the next
+        // code unit is the high surrogate of a surrogate pair
+        output.push(value);
+        counter--;
+      }
+    } else {
+      output.push(value);
+    }
+  }
+  return output;
+}
+
+/**
+ * Creates a string based on an array of numeric code points.
+ * @see `punycode.ucs2.decode`
+ * @memberOf punycode.ucs2
+ * @name encode
+ * @param {Array} codePoints The array of numeric code points.
+ * @returns {String} The new Unicode string (UCS-2).
+ */
+function ucs2encode(array) {
+  return map(array, function(value) {
+    var output = '';
+    if (value > 0xFFFF) {
+      value -= 0x10000;
+      output += stringFromCharCode(value >>> 10 & 0x3FF | 0xD800);
+      value = 0xDC00 | value & 0x3FF;
+    }
+    output += stringFromCharCode(value);
+    return output;
+  }).join('');
+}
+
+/**
+ * Converts a basic code point into a digit/integer.
+ * @see `digitToBasic()`
+ * @private
+ * @param {Number} codePoint The basic numeric code point value.
+ * @returns {Number} The numeric value of a basic code point (for use in
+ * representing integers) in the range `0` to `base - 1`, or `base` if
+ * the code point does not represent a value.
+ */
+function basicToDigit(codePoint) {
+  if (codePoint - 48 < 10) {
+    return codePoint - 22;
+  }
+  if (codePoint - 65 < 26) {
+    return codePoint - 65;
+  }
+  if (codePoint - 97 < 26) {
+    return codePoint - 97;
+  }
+  return base;
+}
+
+/**
+ * Converts a digit/integer into a basic code point.
+ * @see `basicToDigit()`
+ * @private
+ * @param {Number} digit The numeric value of a basic code point.
+ * @returns {Number} The basic code point whose value (when used for
+ * representing integers) is `digit`, which needs to be in the range
+ * `0` to `base - 1`. If `flag` is non-zero, the uppercase form is
+ * used; else, the lowercase form is used. The behavior is undefined
+ * if `flag` is non-zero and `digit` has no uppercase form.
+ */
+function digitToBasic(digit, flag) {
+  //  0..25 map to ASCII a..z or A..Z
+  // 26..35 map to ASCII 0..9
+  return digit + 22 + 75 * (digit < 26) - ((flag != 0) << 5);
+}
+
+/**
+ * Bias adaptation function as per section 3.4 of RFC 3492.
+ * https://tools.ietf.org/html/rfc3492#section-3.4
+ * @private
+ */
+function adapt(delta, numPoints, firstTime) {
+  var k = 0;
+  delta = firstTime ? floor(delta / damp) : delta >> 1;
+  delta += floor(delta / numPoints);
+  for ( /* no initialization */ ; delta > baseMinusTMin * tMax >> 1; k += base) {
+    delta = floor(delta / baseMinusTMin);
+  }
+  return floor(k + (baseMinusTMin + 1) * delta / (delta + skew));
+}
+
+/**
+ * Converts a Punycode string of ASCII-only symbols to a string of Unicode
+ * symbols.
+ * @memberOf punycode
+ * @param {String} input The Punycode string of ASCII-only symbols.
+ * @returns {String} The resulting string of Unicode symbols.
+ */
+
+
+/**
+ * Converts a string of Unicode symbols (e.g. a domain name label) to a
+ * Punycode string of ASCII-only symbols.
+ * @memberOf punycode
+ * @param {String} input The string of Unicode symbols.
+ * @returns {String} The resulting Punycode string of ASCII-only symbols.
+ */
+function encode(input) {
+  var n,
+    delta,
+    handledCPCount,
+    basicLength,
+    bias,
+    j,
+    m,
+    q,
+    k,
+    t,
+    currentValue,
+    output = [],
+    /** `inputLength` will hold the number of code points in `input`. */
+    inputLength,
+    /** Cached calculation results */
+    handledCPCountPlusOne,
+    baseMinusT,
+    qMinusT;
+
+  // Convert the input in UCS-2 to Unicode
+  input = ucs2decode(input);
+
+  // Cache the length
+  inputLength = input.length;
+
+  // Initialize the state
+  n = initialN;
+  delta = 0;
+  bias = initialBias;
+
+  // Handle the basic code points
+  for (j = 0; j < inputLength; ++j) {
+    currentValue = input[j];
+    if (currentValue < 0x80) {
+      output.push(stringFromCharCode(currentValue));
+    }
+  }
+
+  handledCPCount = basicLength = output.length;
+
+  // `handledCPCount` is the number of code points that have been handled;
+  // `basicLength` is the number of basic code points.
+
+  // Finish the basic string - if it is not empty - with a delimiter
+  if (basicLength) {
+    output.push(delimiter);
+  }
+
+  // Main encoding loop:
+  while (handledCPCount < inputLength) {
+
+    // All non-basic code points < n have been handled already. Find the next
+    // larger one:
+    for (m = maxInt, j = 0; j < inputLength; ++j) {
+      currentValue = input[j];
+      if (currentValue >= n && currentValue < m) {
+        m = currentValue;
+      }
+    }
+
+    // Increase `delta` enough to advance the decoder's <n,i> state to <m,0>,
+    // but guard against overflow
+    handledCPCountPlusOne = handledCPCount + 1;
+    if (m - n > floor((maxInt - delta) / handledCPCountPlusOne)) {
+      error('overflow');
+    }
+
+    delta += (m - n) * handledCPCountPlusOne;
+    n = m;
+
+    for (j = 0; j < inputLength; ++j) {
+      currentValue = input[j];
+
+      if (currentValue < n && ++delta > maxInt) {
+        error('overflow');
+      }
+
+      if (currentValue == n) {
+        // Represent delta as a generalized variable-length integer
+        for (q = delta, k = base; /* no condition */ ; k += base) {
+          t = k <= bias ? tMin : (k >= bias + tMax ? tMax : k - bias);
+          if (q < t) {
+            break;
+          }
+          qMinusT = q - t;
+          baseMinusT = base - t;
+          output.push(
+            stringFromCharCode(digitToBasic(t + qMinusT % baseMinusT, 0))
+          );
+          q = floor(qMinusT / baseMinusT);
+        }
+
+        output.push(stringFromCharCode(digitToBasic(q, 0)));
+        bias = adapt(delta, handledCPCountPlusOne, handledCPCount == basicLength);
+        delta = 0;
+        ++handledCPCount;
+      }
+    }
+
+    ++delta;
+    ++n;
+
+  }
+  return output.join('');
+}
+
+/**
+ * Converts a Punycode string representing a domain name or an email address
+ * to Unicode. Only the Punycoded parts of the input will be converted, i.e.
+ * it doesn't matter if you call it on a string that has already been
+ * converted to Unicode.
+ * @memberOf punycode
+ * @param {String} input The Punycoded domain name or email address to
+ * convert to Unicode.
+ * @returns {String} The Unicode representation of the given Punycode
+ * string.
+ */
+
+
+/**
+ * Converts a Unicode string representing a domain name or an email address to
+ * Punycode. Only the non-ASCII parts of the domain name will be converted,
+ * i.e. it doesn't matter if you call it with a domain that's already in
+ * ASCII.
+ * @memberOf punycode
+ * @param {String} input The domain name or email address to convert, as a
+ * Unicode string.
+ * @returns {String} The Punycode representation of the given domain name or
+ * email address.
+ */
+function toASCII(input) {
+  return mapDomain(input, function(string) {
+    return regexNonASCII.test(string) ?
+      'xn--' + encode(string) :
+      string;
+  });
+}
+
+/**
+ * An object of methods to convert from JavaScript's internal character
+ * representation (UCS-2) to Unicode code points, and back.
+ * @see <https://mathiasbynens.be/notes/javascript-encoding>
+ * @memberOf punycode
+ * @type Object
+ */
+
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+// If obj.hasOwnProperty has been overridden, then calling
+// obj.hasOwnProperty(prop) will break.
+// See: https://github.com/joyent/node/issues/1707
+function hasOwnProperty$1(obj, prop) {
+  return Object.prototype.hasOwnProperty.call(obj, prop);
+}
+var isArray$2 = Array.isArray || function (xs) {
+  return Object.prototype.toString.call(xs) === '[object Array]';
+};
+function stringifyPrimitive(v) {
+  switch (typeof v) {
+    case 'string':
+      return v;
+
+    case 'boolean':
+      return v ? 'true' : 'false';
+
+    case 'number':
+      return isFinite(v) ? v : '';
+
+    default:
+      return '';
+  }
+}
+
+function stringify (obj, sep, eq, name) {
+  sep = sep || '&';
+  eq = eq || '=';
+  if (obj === null) {
+    obj = undefined;
+  }
+
+  if (typeof obj === 'object') {
+    return map$1(objectKeys(obj), function(k) {
+      var ks = encodeURIComponent(stringifyPrimitive(k)) + eq;
+      if (isArray$2(obj[k])) {
+        return map$1(obj[k], function(v) {
+          return ks + encodeURIComponent(stringifyPrimitive(v));
+        }).join(sep);
+      } else {
+        return ks + encodeURIComponent(stringifyPrimitive(obj[k]));
+      }
+    }).join(sep);
+
+  }
+
+  if (!name) return '';
+  return encodeURIComponent(stringifyPrimitive(name)) + eq +
+         encodeURIComponent(stringifyPrimitive(obj));
+}
+
+function map$1 (xs, f) {
+  if (xs.map) return xs.map(f);
+  var res = [];
+  for (var i = 0; i < xs.length; i++) {
+    res.push(f(xs[i], i));
+  }
+  return res;
+}
+
+var objectKeys = Object.keys || function (obj) {
+  var res = [];
+  for (var key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) res.push(key);
+  }
+  return res;
+};
+
+function parse$1(qs, sep, eq, options) {
+  sep = sep || '&';
+  eq = eq || '=';
+  var obj = {};
+
+  if (typeof qs !== 'string' || qs.length === 0) {
+    return obj;
+  }
+
+  var regexp = /\+/g;
+  qs = qs.split(sep);
+
+  var maxKeys = 1000;
+  if (options && typeof options.maxKeys === 'number') {
+    maxKeys = options.maxKeys;
+  }
+
+  var len = qs.length;
+  // maxKeys <= 0 means that we should not limit keys count
+  if (maxKeys > 0 && len > maxKeys) {
+    len = maxKeys;
+  }
+
+  for (var i = 0; i < len; ++i) {
+    var x = qs[i].replace(regexp, '%20'),
+        idx = x.indexOf(eq),
+        kstr, vstr, k, v;
+
+    if (idx >= 0) {
+      kstr = x.substr(0, idx);
+      vstr = x.substr(idx + 1);
+    } else {
+      kstr = x;
+      vstr = '';
+    }
+
+    k = decodeURIComponent(kstr);
+    v = decodeURIComponent(vstr);
+
+    if (!hasOwnProperty$1(obj, k)) {
+      obj[k] = v;
+    } else if (isArray$2(obj[k])) {
+      obj[k].push(v);
+    } else {
+      obj[k] = [obj[k], v];
+    }
+  }
+
+  return obj;
+}
+
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+function Url() {
+  this.protocol = null;
+  this.slashes = null;
+  this.auth = null;
+  this.host = null;
+  this.port = null;
+  this.hostname = null;
+  this.hash = null;
+  this.search = null;
+  this.query = null;
+  this.pathname = null;
+  this.path = null;
+  this.href = null;
+}
+
+// Reference: RFC 3986, RFC 1808, RFC 2396
+
+// define these here so at least they only have to be
+// compiled once on the first module load.
+var protocolPattern = /^([a-z0-9.+-]+:)/i;
+var portPattern = /:[0-9]*$/;
+var simplePathPattern = /^(\/\/?(?!\/)[^\?\s]*)(\?[^\s]*)?$/;
+var delims = ['<', '>', '"', '`', ' ', '\r', '\n', '\t'];
+var unwise = ['{', '}', '|', '\\', '^', '`'].concat(delims);
+var autoEscape = ['\''].concat(unwise);
+var nonHostChars = ['%', '/', '?', ';', '#'].concat(autoEscape);
+var hostEndingChars = ['/', '?', '#'];
+var hostnameMaxLen = 255;
+var hostnamePartPattern = /^[+a-z0-9A-Z_-]{0,63}$/;
+var hostnamePartStart = /^([+a-z0-9A-Z_-]{0,63})(.*)$/;
+var unsafeProtocol = {
+    'javascript': true,
+    'javascript:': true
+  };
+var hostlessProtocol = {
+    'javascript': true,
+    'javascript:': true
+  };
+var slashedProtocol = {
+    'http': true,
+    'https': true,
+    'ftp': true,
+    'gopher': true,
+    'file': true,
+    'http:': true,
+    'https:': true,
+    'ftp:': true,
+    'gopher:': true,
+    'file:': true
+  };
+
+function urlParse(url, parseQueryString, slashesDenoteHost) {
+  if (url && isObject(url) && url instanceof Url) return url;
+
+  var u = new Url;
+  u.parse(url, parseQueryString, slashesDenoteHost);
+  return u;
+}
+Url.prototype.parse = function(url, parseQueryString, slashesDenoteHost) {
+  return parse$$1(this, url, parseQueryString, slashesDenoteHost);
+};
+
+function parse$$1(self, url, parseQueryString, slashesDenoteHost) {
+  if (!isString(url)) {
+    throw new TypeError('Parameter \'url\' must be a string, not ' + typeof url);
+  }
+
+  // Copy chrome, IE, opera backslash-handling behavior.
+  // Back slashes before the query string get converted to forward slashes
+  // See: https://code.google.com/p/chromium/issues/detail?id=25916
+  var queryIndex = url.indexOf('?'),
+    splitter =
+    (queryIndex !== -1 && queryIndex < url.indexOf('#')) ? '?' : '#',
+    uSplit = url.split(splitter),
+    slashRegex = /\\/g;
+  uSplit[0] = uSplit[0].replace(slashRegex, '/');
+  url = uSplit.join(splitter);
+
+  var rest = url;
+
+  // trim before proceeding.
+  // This is to support parse stuff like "  http://foo.com  \n"
+  rest = rest.trim();
+
+  if (!slashesDenoteHost && url.split('#').length === 1) {
+    // Try fast path regexp
+    var simplePath = simplePathPattern.exec(rest);
+    if (simplePath) {
+      self.path = rest;
+      self.href = rest;
+      self.pathname = simplePath[1];
+      if (simplePath[2]) {
+        self.search = simplePath[2];
+        if (parseQueryString) {
+          self.query = parse$1(self.search.substr(1));
+        } else {
+          self.query = self.search.substr(1);
+        }
+      } else if (parseQueryString) {
+        self.search = '';
+        self.query = {};
+      }
+      return self;
+    }
+  }
+
+  var proto = protocolPattern.exec(rest);
+  if (proto) {
+    proto = proto[0];
+    var lowerProto = proto.toLowerCase();
+    self.protocol = lowerProto;
+    rest = rest.substr(proto.length);
+  }
+
+  // figure out if it's got a host
+  // user@server is *always* interpreted as a hostname, and url
+  // resolution will treat //foo/bar as host=foo,path=bar because that's
+  // how the browser resolves relative URLs.
+  if (slashesDenoteHost || proto || rest.match(/^\/\/[^@\/]+@[^@\/]+/)) {
+    var slashes = rest.substr(0, 2) === '//';
+    if (slashes && !(proto && hostlessProtocol[proto])) {
+      rest = rest.substr(2);
+      self.slashes = true;
+    }
+  }
+  var i, hec, l, p;
+  if (!hostlessProtocol[proto] &&
+    (slashes || (proto && !slashedProtocol[proto]))) {
+
+    // there's a hostname.
+    // the first instance of /, ?, ;, or # ends the host.
+    //
+    // If there is an @ in the hostname, then non-host chars *are* allowed
+    // to the left of the last @ sign, unless some host-ending character
+    // comes *before* the @-sign.
+    // URLs are obnoxious.
+    //
+    // ex:
+    // http://a@b@c/ => user:a@b host:c
+    // http://a@b?@c => user:a host:c path:/?@c
+
+    // v0.12 TODO(isaacs): This is not quite how Chrome does things.
+    // Review our test case against browsers more comprehensively.
+
+    // find the first instance of any hostEndingChars
+    var hostEnd = -1;
+    for (i = 0; i < hostEndingChars.length; i++) {
+      hec = rest.indexOf(hostEndingChars[i]);
+      if (hec !== -1 && (hostEnd === -1 || hec < hostEnd))
+        hostEnd = hec;
+    }
+
+    // at this point, either we have an explicit point where the
+    // auth portion cannot go past, or the last @ char is the decider.
+    var auth, atSign;
+    if (hostEnd === -1) {
+      // atSign can be anywhere.
+      atSign = rest.lastIndexOf('@');
+    } else {
+      // atSign must be in auth portion.
+      // http://a@b/c@d => host:b auth:a path:/c@d
+      atSign = rest.lastIndexOf('@', hostEnd);
+    }
+
+    // Now we have a portion which is definitely the auth.
+    // Pull that off.
+    if (atSign !== -1) {
+      auth = rest.slice(0, atSign);
+      rest = rest.slice(atSign + 1);
+      self.auth = decodeURIComponent(auth);
+    }
+
+    // the host is the remaining to the left of the first non-host char
+    hostEnd = -1;
+    for (i = 0; i < nonHostChars.length; i++) {
+      hec = rest.indexOf(nonHostChars[i]);
+      if (hec !== -1 && (hostEnd === -1 || hec < hostEnd))
+        hostEnd = hec;
+    }
+    // if we still have not hit it, then the entire thing is a host.
+    if (hostEnd === -1)
+      hostEnd = rest.length;
+
+    self.host = rest.slice(0, hostEnd);
+    rest = rest.slice(hostEnd);
+
+    // pull out port.
+    parseHost(self);
+
+    // we've indicated that there is a hostname,
+    // so even if it's empty, it has to be present.
+    self.hostname = self.hostname || '';
+
+    // if hostname begins with [ and ends with ]
+    // assume that it's an IPv6 address.
+    var ipv6Hostname = self.hostname[0] === '[' &&
+      self.hostname[self.hostname.length - 1] === ']';
+
+    // validate a little.
+    if (!ipv6Hostname) {
+      var hostparts = self.hostname.split(/\./);
+      for (i = 0, l = hostparts.length; i < l; i++) {
+        var part = hostparts[i];
+        if (!part) continue;
+        if (!part.match(hostnamePartPattern)) {
+          var newpart = '';
+          for (var j = 0, k = part.length; j < k; j++) {
+            if (part.charCodeAt(j) > 127) {
+              // we replace non-ASCII char with a temporary placeholder
+              // we need this to make sure size of hostname is not
+              // broken by replacing non-ASCII by nothing
+              newpart += 'x';
+            } else {
+              newpart += part[j];
+            }
+          }
+          // we test again with ASCII char only
+          if (!newpart.match(hostnamePartPattern)) {
+            var validParts = hostparts.slice(0, i);
+            var notHost = hostparts.slice(i + 1);
+            var bit = part.match(hostnamePartStart);
+            if (bit) {
+              validParts.push(bit[1]);
+              notHost.unshift(bit[2]);
+            }
+            if (notHost.length) {
+              rest = '/' + notHost.join('.') + rest;
+            }
+            self.hostname = validParts.join('.');
+            break;
+          }
+        }
+      }
+    }
+
+    if (self.hostname.length > hostnameMaxLen) {
+      self.hostname = '';
+    } else {
+      // hostnames are always lower case.
+      self.hostname = self.hostname.toLowerCase();
+    }
+
+    if (!ipv6Hostname) {
+      // IDNA Support: Returns a punycoded representation of "domain".
+      // It only converts parts of the domain name that
+      // have non-ASCII characters, i.e. it doesn't matter if
+      // you call it with a domain that already is ASCII-only.
+      self.hostname = toASCII(self.hostname);
+    }
+
+    p = self.port ? ':' + self.port : '';
+    var h = self.hostname || '';
+    self.host = h + p;
+    self.href += self.host;
+
+    // strip [ and ] from the hostname
+    // the host field still retains them, though
+    if (ipv6Hostname) {
+      self.hostname = self.hostname.substr(1, self.hostname.length - 2);
+      if (rest[0] !== '/') {
+        rest = '/' + rest;
+      }
+    }
+  }
+
+  // now rest is set to the post-host stuff.
+  // chop off any delim chars.
+  if (!unsafeProtocol[lowerProto]) {
+
+    // First, make 100% sure that any "autoEscape" chars get
+    // escaped, even if encodeURIComponent doesn't think they
+    // need to be.
+    for (i = 0, l = autoEscape.length; i < l; i++) {
+      var ae = autoEscape[i];
+      if (rest.indexOf(ae) === -1)
+        continue;
+      var esc = encodeURIComponent(ae);
+      if (esc === ae) {
+        esc = escape(ae);
+      }
+      rest = rest.split(ae).join(esc);
+    }
+  }
+
+
+  // chop off from the tail first.
+  var hash = rest.indexOf('#');
+  if (hash !== -1) {
+    // got a fragment string.
+    self.hash = rest.substr(hash);
+    rest = rest.slice(0, hash);
+  }
+  var qm = rest.indexOf('?');
+  if (qm !== -1) {
+    self.search = rest.substr(qm);
+    self.query = rest.substr(qm + 1);
+    if (parseQueryString) {
+      self.query = parse$1(self.query);
+    }
+    rest = rest.slice(0, qm);
+  } else if (parseQueryString) {
+    // no query string, but parseQueryString still requested
+    self.search = '';
+    self.query = {};
+  }
+  if (rest) self.pathname = rest;
+  if (slashedProtocol[lowerProto] &&
+    self.hostname && !self.pathname) {
+    self.pathname = '/';
+  }
+
+  //to support http.request
+  if (self.pathname || self.search) {
+    p = self.pathname || '';
+    var s = self.search || '';
+    self.path = p + s;
+  }
+
+  // finally, reconstruct the href based on what has been validated.
+  self.href = format$1(self);
+  return self;
+}
+
+function format$1(self) {
+  var auth = self.auth || '';
+  if (auth) {
+    auth = encodeURIComponent(auth);
+    auth = auth.replace(/%3A/i, ':');
+    auth += '@';
+  }
+
+  var protocol = self.protocol || '',
+    pathname = self.pathname || '',
+    hash = self.hash || '',
+    host = false,
+    query = '';
+
+  if (self.host) {
+    host = auth + self.host;
+  } else if (self.hostname) {
+    host = auth + (self.hostname.indexOf(':') === -1 ?
+      self.hostname :
+      '[' + this.hostname + ']');
+    if (self.port) {
+      host += ':' + self.port;
+    }
+  }
+
+  if (self.query &&
+    isObject(self.query) &&
+    Object.keys(self.query).length) {
+    query = stringify(self.query);
+  }
+
+  var search = self.search || (query && ('?' + query)) || '';
+
+  if (protocol && protocol.substr(-1) !== ':') protocol += ':';
+
+  // only the slashedProtocols get the //.  Not mailto:, xmpp:, etc.
+  // unless they had them to begin with.
+  if (self.slashes ||
+    (!protocol || slashedProtocol[protocol]) && host !== false) {
+    host = '//' + (host || '');
+    if (pathname && pathname.charAt(0) !== '/') pathname = '/' + pathname;
+  } else if (!host) {
+    host = '';
+  }
+
+  if (hash && hash.charAt(0) !== '#') hash = '#' + hash;
+  if (search && search.charAt(0) !== '?') search = '?' + search;
+
+  pathname = pathname.replace(/[?#]/g, function(match) {
+    return encodeURIComponent(match);
+  });
+  search = search.replace('#', '%23');
+
+  return protocol + host + pathname + search + hash;
+}
+
+Url.prototype.format = function() {
+  return format$1(this);
+};
+
+Url.prototype.resolve = function(relative) {
+  return this.resolveObject(urlParse(relative, false, true)).format();
+};
+
+Url.prototype.resolveObject = function(relative) {
+  if (isString(relative)) {
+    var rel = new Url();
+    rel.parse(relative, false, true);
+    relative = rel;
+  }
+
+  var result = new Url();
+  var tkeys = Object.keys(this);
+  for (var tk = 0; tk < tkeys.length; tk++) {
+    var tkey = tkeys[tk];
+    result[tkey] = this[tkey];
+  }
+
+  // hash is always overridden, no matter what.
+  // even href="" will remove it.
+  result.hash = relative.hash;
+
+  // if the relative url is empty, then there's nothing left to do here.
+  if (relative.href === '') {
+    result.href = result.format();
+    return result;
+  }
+
+  // hrefs like //foo/bar always cut to the protocol.
+  if (relative.slashes && !relative.protocol) {
+    // take everything except the protocol from relative
+    var rkeys = Object.keys(relative);
+    for (var rk = 0; rk < rkeys.length; rk++) {
+      var rkey = rkeys[rk];
+      if (rkey !== 'protocol')
+        result[rkey] = relative[rkey];
+    }
+
+    //urlParse appends trailing / to urls like http://www.example.com
+    if (slashedProtocol[result.protocol] &&
+      result.hostname && !result.pathname) {
+      result.path = result.pathname = '/';
+    }
+
+    result.href = result.format();
+    return result;
+  }
+  var relPath;
+  if (relative.protocol && relative.protocol !== result.protocol) {
+    // if it's a known url protocol, then changing
+    // the protocol does weird things
+    // first, if it's not file:, then we MUST have a host,
+    // and if there was a path
+    // to begin with, then we MUST have a path.
+    // if it is file:, then the host is dropped,
+    // because that's known to be hostless.
+    // anything else is assumed to be absolute.
+    if (!slashedProtocol[relative.protocol]) {
+      var keys = Object.keys(relative);
+      for (var v = 0; v < keys.length; v++) {
+        var k = keys[v];
+        result[k] = relative[k];
+      }
+      result.href = result.format();
+      return result;
+    }
+
+    result.protocol = relative.protocol;
+    if (!relative.host && !hostlessProtocol[relative.protocol]) {
+      relPath = (relative.pathname || '').split('/');
+      while (relPath.length && !(relative.host = relPath.shift()));
+      if (!relative.host) relative.host = '';
+      if (!relative.hostname) relative.hostname = '';
+      if (relPath[0] !== '') relPath.unshift('');
+      if (relPath.length < 2) relPath.unshift('');
+      result.pathname = relPath.join('/');
+    } else {
+      result.pathname = relative.pathname;
+    }
+    result.search = relative.search;
+    result.query = relative.query;
+    result.host = relative.host || '';
+    result.auth = relative.auth;
+    result.hostname = relative.hostname || relative.host;
+    result.port = relative.port;
+    // to support http.request
+    if (result.pathname || result.search) {
+      var p = result.pathname || '';
+      var s = result.search || '';
+      result.path = p + s;
+    }
+    result.slashes = result.slashes || relative.slashes;
+    result.href = result.format();
+    return result;
+  }
+
+  var isSourceAbs = (result.pathname && result.pathname.charAt(0) === '/'),
+    isRelAbs = (
+      relative.host ||
+      relative.pathname && relative.pathname.charAt(0) === '/'
+    ),
+    mustEndAbs = (isRelAbs || isSourceAbs ||
+      (result.host && relative.pathname)),
+    removeAllDots = mustEndAbs,
+    srcPath = result.pathname && result.pathname.split('/') || [],
+    psychotic = result.protocol && !slashedProtocol[result.protocol];
+  relPath = relative.pathname && relative.pathname.split('/') || [];
+  // if the url is a non-slashed url, then relative
+  // links like ../.. should be able
+  // to crawl up to the hostname, as well.  This is strange.
+  // result.protocol has already been set by now.
+  // Later on, put the first path part into the host field.
+  if (psychotic) {
+    result.hostname = '';
+    result.port = null;
+    if (result.host) {
+      if (srcPath[0] === '') srcPath[0] = result.host;
+      else srcPath.unshift(result.host);
+    }
+    result.host = '';
+    if (relative.protocol) {
+      relative.hostname = null;
+      relative.port = null;
+      if (relative.host) {
+        if (relPath[0] === '') relPath[0] = relative.host;
+        else relPath.unshift(relative.host);
+      }
+      relative.host = null;
+    }
+    mustEndAbs = mustEndAbs && (relPath[0] === '' || srcPath[0] === '');
+  }
+  var authInHost;
+  if (isRelAbs) {
+    // it's absolute.
+    result.host = (relative.host || relative.host === '') ?
+      relative.host : result.host;
+    result.hostname = (relative.hostname || relative.hostname === '') ?
+      relative.hostname : result.hostname;
+    result.search = relative.search;
+    result.query = relative.query;
+    srcPath = relPath;
+    // fall through to the dot-handling below.
+  } else if (relPath.length) {
+    // it's relative
+    // throw away the existing file, and take the new path instead.
+    if (!srcPath) srcPath = [];
+    srcPath.pop();
+    srcPath = srcPath.concat(relPath);
+    result.search = relative.search;
+    result.query = relative.query;
+  } else if (!isNullOrUndefined(relative.search)) {
+    // just pull out the search.
+    // like href='?foo'.
+    // Put this after the other two cases because it simplifies the booleans
+    if (psychotic) {
+      result.hostname = result.host = srcPath.shift();
+      //occationaly the auth can get stuck only in host
+      //this especially happens in cases like
+      //url.resolveObject('mailto:local1@domain1', 'local2@domain2')
+      authInHost = result.host && result.host.indexOf('@') > 0 ?
+        result.host.split('@') : false;
+      if (authInHost) {
+        result.auth = authInHost.shift();
+        result.host = result.hostname = authInHost.shift();
+      }
+    }
+    result.search = relative.search;
+    result.query = relative.query;
+    //to support http.request
+    if (!isNull(result.pathname) || !isNull(result.search)) {
+      result.path = (result.pathname ? result.pathname : '') +
+        (result.search ? result.search : '');
+    }
+    result.href = result.format();
+    return result;
+  }
+
+  if (!srcPath.length) {
+    // no path at all.  easy.
+    // we've already handled the other stuff above.
+    result.pathname = null;
+    //to support http.request
+    if (result.search) {
+      result.path = '/' + result.search;
+    } else {
+      result.path = null;
+    }
+    result.href = result.format();
+    return result;
+  }
+
+  // if a url ENDs in . or .., then it must get a trailing slash.
+  // however, if it ends in anything else non-slashy,
+  // then it must NOT get a trailing slash.
+  var last = srcPath.slice(-1)[0];
+  var hasTrailingSlash = (
+    (result.host || relative.host || srcPath.length > 1) &&
+    (last === '.' || last === '..') || last === '');
+
+  // strip single dots, resolve double dots to parent dir
+  // if the path tries to go above the root, `up` ends up > 0
+  var up = 0;
+  for (var i = srcPath.length; i >= 0; i--) {
+    last = srcPath[i];
+    if (last === '.') {
+      srcPath.splice(i, 1);
+    } else if (last === '..') {
+      srcPath.splice(i, 1);
+      up++;
+    } else if (up) {
+      srcPath.splice(i, 1);
+      up--;
+    }
+  }
+
+  // if the path is allowed to go above the root, restore leading ..s
+  if (!mustEndAbs && !removeAllDots) {
+    for (; up--; up) {
+      srcPath.unshift('..');
+    }
+  }
+
+  if (mustEndAbs && srcPath[0] !== '' &&
+    (!srcPath[0] || srcPath[0].charAt(0) !== '/')) {
+    srcPath.unshift('');
+  }
+
+  if (hasTrailingSlash && (srcPath.join('/').substr(-1) !== '/')) {
+    srcPath.push('');
+  }
+
+  var isAbsolute = srcPath[0] === '' ||
+    (srcPath[0] && srcPath[0].charAt(0) === '/');
+
+  // put the host back
+  if (psychotic) {
+    result.hostname = result.host = isAbsolute ? '' :
+      srcPath.length ? srcPath.shift() : '';
+    //occationaly the auth can get stuck only in host
+    //this especially happens in cases like
+    //url.resolveObject('mailto:local1@domain1', 'local2@domain2')
+    authInHost = result.host && result.host.indexOf('@') > 0 ?
+      result.host.split('@') : false;
+    if (authInHost) {
+      result.auth = authInHost.shift();
+      result.host = result.hostname = authInHost.shift();
+    }
+  }
+
+  mustEndAbs = mustEndAbs || (result.host && srcPath.length);
+
+  if (mustEndAbs && !isAbsolute) {
+    srcPath.unshift('');
+  }
+
+  if (!srcPath.length) {
+    result.pathname = null;
+    result.path = null;
+  } else {
+    result.pathname = srcPath.join('/');
+  }
+
+  //to support request.http
+  if (!isNull(result.pathname) || !isNull(result.search)) {
+    result.path = (result.pathname ? result.pathname : '') +
+      (result.search ? result.search : '');
+  }
+  result.auth = relative.auth || result.auth;
+  result.slashes = result.slashes || relative.slashes;
+  result.href = result.format();
+  return result;
+};
+
+Url.prototype.parseHost = function() {
+  return parseHost(this);
+};
+
+function parseHost(self) {
+  var host = self.host;
+  var port = portPattern.exec(host);
+  if (port) {
+    port = port[0];
+    if (port !== ':') {
+      self.port = port.substr(1);
+    }
+    host = host.substr(0, host.length - port.length);
+  }
+  if (host) self.hostname = host;
+}
+
 /*
 this and http-lib folder
 
@@ -7025,12 +7008,8 @@ function get(opts, cb) {
   return req
 }
 
-// https://stackoverflow.com/questions/28004153/setting-vector-feature-fill-opacity-when-you-have-a-hexadecimal-color
-function colorWithAlpha(color, alpha = 1) {
-    const [r, g, b] = Array.from(ol_color.asArray(color));
-    return ol_color.asString([r, g, b, alpha]);
-}
-
+// Open Layers
+// NodeJS
 const MIN_ZOOM = 9; // lower zoom breaks the api
 
 /**
@@ -7040,210 +7019,252 @@ const MIN_ZOOM = 9; // lower zoom breaks the api
  * @param {Object} map Class Map
  * @param {String} url_proxy Proxy 
  * @param {Object} opt_options Control options adding:
- * @param {Number} opt_options.zIndex zIndex of the OpenLayers layer
  * @param {String} opt_options.drone DJI API parameter
  * @param {String} opt_options.zonesMode DJI API parameter
  * @param {String} opt_options.country DJI API parameter
  * @param {Array} opt_options.level DJI API parameter
- * @param {Boolean} opt_options.addControl Add Open Layers Controller to the map
+ * @param {Boolean} opt_options.control Add Open Layers Controller to the map
+ * @param {HTMLElement | string} opt_options.targetControl // Specify a target if you want the control to be rendered outside of the map's viewport.
  */
 class DjiGeozone {
 
     constructor(map, url_proxy, opt_options = {}) {
 
         // API PARAMETERS
-        let z_index = opt_options.zIndex || 5;
-        this._drone = opt_options.drone || 'spark';
+        this.drone = opt_options.drone || 'spark';
         this.zones_mode = opt_options.zonesMode || 'total';
         this.country = opt_options.country || 'US';
         this.level = opt_options.level || [0, 1, 2, 3, 4, 6, 7];
 
-        // MAP 
-        let addControl = 'controller' in opt_options ? opt_options.addControl : true;
-        let targetControl = opt_options.targetControl || '';
+        this.url_proxy = url_proxy || '';
 
-        this.url_proxy = url_proxy || 'cors-anywhere.herokuapp.com';
+        // MAP 
+        let addControl = 'control' in opt_options ? opt_options.control : true;
+        let targetControl = opt_options.targetControl || null;
 
         this.map = map;
-
         this.view = map.getView();
-
+        this.projection = this.view.getProjection();
         this.isVisible = this.view.getZoom() < MIN_ZOOM;
 
-        this.geodata = {};
+        this.source = null;
+        this.layer = null;
+        this.divControl = null;
+        this.idRequest = 0;
+
+        this.createLayer();
+        this.addMapEvents();
+
+        if (addControl) this.addMapControl(targetControl);
+    }
+
+    createLayer() {
+
+        const styleFunction = feature => {
+
+            const markerIcons = {
+                '0': 'https://www1.djicdn.com/dps/6734f5340f66c7be37db48c8889392bf.png',
+                '1': 'https://www1.djicdn.com/dps/fbbea9e33581907cac182adb4bcd0c94.png',
+                '2': 'https://www1.djicdn.com/dps/d47dfe9f089f259631fbed99610b8b5a.png',
+                '3': 'https://www1.djicdn.com/dps/df822149e1e6e9e804e177813e044238.png',
+                '4': 'https://www1.djicdn.com/dps/53b33783709b6ed06bc3afdd21ac2a81.png',
+                '5': '//www3.djicdn.com/assets/images/flysafe/geo-system/dark-green-marker-a45d865ea1fb9df5346ad5b06084d9ba.png?from=cdnMap',
+                '6': 'https://www1.djicdn.com/dps/f5961991d664e130fcf9ad01b1f28043.png',
+                '7': 'https://www1.djicdn.com/dps/9d922ae5fbd80d3166a844a9e249ceb3.png',
+                '8': 'https://www1.djicdn.com/dps/53b33783709b6ed06bc3afdd21ac2a81.png'
+            };
+
+            let geomType = feature.getGeometry().getType();
+
+            let style;
+
+            if (geomType === 'Polygon' || geomType === 'Circle') {
+
+                let height = feature.get('height');
+                let color = feature.get('color');
+
+                style = new ol_style.Style({
+                    fill: new ol_style.Fill({
+                        color: colorWithAlpha(color, 0.3)
+                    }),
+                    stroke: new ol_style.Stroke({
+                        color: color,
+                        width: 1
+                    }),
+                    zIndex: height
+                });
+            } else if (geomType === 'Point') {
+                style = new ol_style.Style({
+                    image: new ol_style.Icon({
+                        src: markerIcons[feature.get('level')],
+                        scale: 0.35,
+                        anchor: [0.5, 0.9]
+                    }),
+                    zIndex: 300
+                });
+            }
+
+            return style;
+        };
 
         this.source = new VectorSource({
             attributions: '<a href="https://www.dji.com/flysafe/geo-map" rel="nofollow noopener noreferrer" target="_blank">DJI GeoZoneMap</a>'
         });
 
         this.layer = new VectorLayer({
-            zIndex: z_index,
+            zIndex: 99,
             name: 'ol-dji-geozone',
             source: this.source,
-            style: this.style
+            style: styleFunction
         });
 
-        map.addLayer(this.layer);
-
-        this.projection = this.view.getProjection();
-
-        if (addControl) this.addMapControl(targetControl);
-
-        this.addMapEvents();
-
-        this.idRequest = 0;
+        this.map.addLayer(this.layer);
     }
 
-    cleanFeatures() {
-        this.source.clear();
-    }
-
-    setControlEnabled(enabled) {
-
-        const changeState = array => {
-            array.forEach(el => {
-                if (enabled) {
-                    el.removeAttribute('disabled');
-                } else {
-                    el.disabled = 'disabled';
-                }
-            });
-        };
-
-        changeState(this.divControl.querySelectorAll('input'));
-        changeState(this.divControl.querySelectorAll('select'));
-    }
-
-    createDroneSelector() {
-
-        const handleChange = ({ target }) => {
-            this._drone = target.value || target.options[target.selectedIndex].value;
-            this.getData( /* clear = */true);
-        };
-
-        // 2020/11
-        const dronesList = [{ value: "mavic-mini", name: "Mavic Mini" }, { value: "mavic-2-enterprise", name: "Mavic 2 Enterprise" }, { value: "mavic-2", name: "Mavic 2" }, { value: "mavic-air", name: "Mavic Air" }, { value: "mavic-air-2", name: "Mavic Air 2" }, { value: "mavic-pro", name: "Mavic Pro" }, { value: "spark", name: "Spark" }, { value: "phantom-4-pro", name: "Phantom 4 Pro" }, { value: "phantom-4-advanced", name: "Phantom 4 Advanced" }, { value: "phantom-4", name: "Phantom 4" }, { value: "phantom-4-rtk", name: "Phantom 4 RTK" }, { value: "phantom-4-multispectral", name: "Phantom 4 Multispectral" }, { value: "phantom-3-pro", name: "Phantom 3 Pro" }, { value: "phantom-3-advanced", name: "Phantom 3 Advanced" }, { value: "phantom-3-standard", name: "Phantom 3 Standard" }, { value: "phantom-3-4K", name: "Phantom 3 4K" }, { value: "phantom-3-se", name: "Phantom 3 SE" }, { value: "inspire-2", name: "Inspire 2" }, { value: "inspire-1-series", name: "Inspire 1 Series" }, { value: "m200-series", name: "M200 Series" }, { value: "m300-series", name: "M300 Series" }, { value: "m600-series", name: "M600 Series" }, { value: "m100", name: "M100" }, { value: "mg1p", name: "MG 1S/1A/1P/1P RTK/T10/T16/T20/T30" }, { value: "dji-mini-2", name: "DJI Mini 2" }];
-
-        let droneSelector = document.createElement('div');
-        droneSelector.className = 'ol-dji-geozone--drone-selector';
-
-        let select = document.createElement('select');
-
-        if (!this.isVisible) select = 'disabled';
-
-        select.onchange = handleChange;
-
-        let options = '';
-        dronesList.forEach(drone => {
-            let selected = this._drone === drone.value ? 'selected' : '';
-            options += `<option value=${drone.value} ${selected}>${drone.name}</option>`;
-        });
-
-        select.innerHTML = options;
-
-        droneSelector.append(select);
-
-        return droneSelector;
-    }
-
-    createLevelSelector() {
-        const handleClick = ({ target }) => {
-
-            let value = Number(target.value);
-
-            if (target.checked == true) {
-                this.level = [...this.level, value];
-            } else {
-                let index = this.level.indexOf(value);
-                if (index !== -1) {
-                    this.level.splice(index, 1);
-                }
-            }
-
-            this.getData( /* clear = */true);
-        };
-
-        const createLegend = color => {
-            let span = document.createElement('span');
-            span.className = 'ol-dji-geozone--mark';
-            span.style.border = `1px ${color} solid`;
-            span.style.backgroundColor = colorWithAlpha(color, 0.4);
-            return span;
-        };
-
-        const createLabel = (label, name) => {
-            let labelEl = document.createElement('label');
-            labelEl.htmlFor = name;
-            labelEl.innerHTML = label;
-            return labelEl;
-        };
-
-        const createButton = (name, value, disabled) => {
-            let btn = document.createElement('input');
-            btn.type = 'checkbox';
-            btn.name = name;
-            btn.id = name;
-            btn.value = value;
-
-            btn.onclick = handleClick;
-
-            if (this.level.indexOf(value) !== -1) btn.checked = 'checked';
-
-            if (disabled) btn.disabled = 'disabled';
-
-            return btn;
-        };
-
-        const createLevelItem = (value, label, title, color) => {
-
-            let disabled = !this.isVisible;
-
-            let name = 'level' + value;
-            let divContainer = document.createElement('div');
-            divContainer.className = `ol-dji-geozone--item ol-dji-geozone--item-${value}`;
-            divContainer.title = title;
-            divContainer.setAttribute('data-level', value);
-            divContainer.append(createButton(name, value, disabled));
-            divContainer.append(createLegend(color));
-            divContainer.append(createLabel(label, name));
-
-            return divContainer;
-        };
-
-        let level2 = createLevelItem(2, 'Restricted Zones', 'In these Zones, which appear red the DJI GO app, users will be prompted with a warning and flight is prevented. If you believe you have the authorization to operate in a Restricted Zone, please contact flysafe@dji.com or Online Unlocking.', '#DE4329');
-        let level6 = createLevelItem(6, 'Altitude Zones', 'Altitude zones will appear in gray on the map. Users receive warnings in DJI GO, or DJI GO 4 and flight altitude is limited.', '#979797');
-        let level1 = createLevelItem(1, 'Authorization Zones', 'In these Zones, which appear blue in the DJI GO map, users will be prompted with a warning and flight is limited by default. Authorization Zones may be unlocked by authorized users using a DJI verified account.', '#1088F2');
-        let level0 = createLevelItem(0, 'Warning Zones', ' In these Zones, which may not necessarily appear on the DJI GO map, users will be prompted with a warning message. Example Warning Zone: Class E airspace', '#FFCC00');
-        let level3 = createLevelItem(3, 'Enhanced Warning Zones', ' In these Zones, you will be prompted by GEO at the time of flight to unlock the zone using the same steps as in an Authorization Zone, but you do not require a verified account or an internet connection at the time of your flight.', '#EE8815');
-
-        let level4 = createLevelItem(4, 'Regulatory Restricted Zones', ' Due to local regulations and policies, flights are prohibited within the scope of some special areas. (Example： Prison)', '#37C4DB');
-        let level7 = createLevelItem(7, 'Recommended Zones', 'This area is shown in green on the map. It is recommended that you choose these areas for flight arrangements.', '#00BE00');
-
-        let levelSelector = document.createElement('div');
-        levelSelector.className = 'ol-dji-geozone--level-selector';
-
-        levelSelector.append(level2);
-        levelSelector.append(level6);
-        levelSelector.append(level1);
-
-        levelSelector.append(level0);
-        levelSelector.append(level3);
-        levelSelector.append(level4);
-        levelSelector.append(level7);
-
-        return levelSelector;
-    }
-
+    /**
+     * 
+     * @param {HTMLElement | string} targetControl 
+     */
     addMapControl(targetControl) {
+
+        /**
+          * Show or hides the control
+          * @param {Boolean} visible 
+          */
+        this.setControlVisible = visible => {
+
+            if (visible) this.divControl.classList.addClass('ol-dji-geozone--ctrl-hidden');else this.divControl.classList.removeClass('ol-dji-geozone--ctrl-hidden');
+        };
+
+        const createDroneSelector = _ => {
+
+            const handleChange = ({ target }) => {
+                this.drone = target.value || target.options[target.selectedIndex].value;
+                this.getGeoData( /* clear = */true);
+            };
+
+            // last updated 2020/11
+            const dronesList = [{ value: "mavic-mini", name: "Mavic Mini" }, { value: "mavic-2-enterprise", name: "Mavic 2 Enterprise" }, { value: "mavic-2", name: "Mavic 2" }, { value: "mavic-air", name: "Mavic Air" }, { value: "mavic-air-2", name: "Mavic Air 2" }, { value: "mavic-pro", name: "Mavic Pro" }, { value: "spark", name: "Spark" }, { value: "phantom-4-pro", name: "Phantom 4 Pro" }, { value: "phantom-4-advanced", name: "Phantom 4 Advanced" }, { value: "phantom-4", name: "Phantom 4" }, { value: "phantom-4-rtk", name: "Phantom 4 RTK" }, { value: "phantom-4-multispectral", name: "Phantom 4 Multispectral" }, { value: "phantom-3-pro", name: "Phantom 3 Pro" }, { value: "phantom-3-advanced", name: "Phantom 3 Advanced" }, { value: "phantom-3-standard", name: "Phantom 3 Standard" }, { value: "phantom-3-4K", name: "Phantom 3 4K" }, { value: "phantom-3-se", name: "Phantom 3 SE" }, { value: "inspire-2", name: "Inspire 2" }, { value: "inspire-1-series", name: "Inspire 1 Series" }, { value: "m200-series", name: "M200 Series" }, { value: "m300-series", name: "M300 Series" }, { value: "m600-series", name: "M600 Series" }, { value: "m100", name: "M100" }, { value: "mg1p", name: "MG 1S/1A/1P/1P RTK/T10/T16/T20/T30" }, { value: "dji-mini-2", name: "DJI Mini 2" }];
+
+            let droneSelector = document.createElement('div');
+            droneSelector.className = 'ol-dji-geozone--drone-selector';
+
+            let select = document.createElement('select');
+            select.onchange = handleChange;
+
+            let disabled = !this.isVisible ? 'disabled' : '';
+
+            let options = '';
+
+            dronesList.forEach(drone => {
+                let selected = this.drone === drone.value ? 'selected' : '';
+                options += `<option value="${drone.value}" ${selected} ${disabled}>${drone.name}</option>`;
+            });
+
+            select.innerHTML = options;
+
+            droneSelector.append(select);
+
+            return droneSelector;
+        };
+
+        const createLevelSelector = _ => {
+
+            const handleClick = ({ target }) => {
+
+                let value = Number(target.value);
+
+                if (target.checked === true) {
+                    this.level = [...this.level, value];
+                } else {
+                    let index = this.level.indexOf(value);
+                    if (index !== -1) {
+                        this.level.splice(index, 1);
+                    }
+                }
+
+                this.getGeoData( /* clear = */true);
+            };
+
+            const createLegend = color => {
+                let span = document.createElement('span');
+                span.className = 'ol-dji-geozone--mark';
+                span.style.border = `1px ${color} solid`;
+                span.style.backgroundColor = colorWithAlpha(color, 0.4);
+
+                return span;
+            };
+
+            const createLabel = (label, name, color) => {
+                let labelEl = document.createElement('label');
+                labelEl.htmlFor = name;
+                labelEl.append(createLegend(color));
+                labelEl.append(label);
+
+                return labelEl;
+            };
+
+            const createCheckbox = (name, value, disabled) => {
+                let checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.name = name;
+                checkbox.id = name;
+                checkbox.value = value;
+
+                checkbox.onclick = handleClick;
+
+                if (this.level.indexOf(value) !== -1) checkbox.checked = 'checked';
+
+                if (disabled) checkbox.disabled = 'disabled';
+
+                return checkbox;
+            };
+
+            const createLevelItem = (value, label, title, color) => {
+
+                let disabled = !this.isVisible;
+                let name = 'level' + value;
+
+                let divContainer = document.createElement('div');
+                divContainer.className = `ol-dji-geozone--item ol-dji-geozone--item-${value}`;
+                divContainer.title = title;
+                divContainer.setAttribute('data-level', value);
+                divContainer.append(createCheckbox(name, value, disabled));
+                divContainer.append(createLabel(label, name, color));
+
+                return divContainer;
+            };
+
+            let level2 = createLevelItem(2, 'Restricted Zones', 'In these Zones, which appear red the DJI GO app, users will be prompted with a warning and flight is prevented. If you believe you have the authorization to operate in a Restricted Zone, please contact flysafe@dji.com or Online Unlocking.', '#DE4329');
+            let level6 = createLevelItem(6, 'Altitude Zones', 'Altitude zones will appear in gray on the map. Users receive warnings in DJI GO, or DJI GO 4 and flight altitude is limited.', '#979797');
+            let level1 = createLevelItem(1, 'Authorization Zones', 'In these Zones, which appear blue in the DJI GO map, users will be prompted with a warning and flight is limited by default. Authorization Zones may be unlocked by authorized users using a DJI verified account.', '#1088F2');
+            let level0 = createLevelItem(0, 'Warning Zones', 'In these Zones, which may not necessarily appear on the DJI GO map, users will be prompted with a warning message. Example Warning Zone: Class E airspace', '#FFCC00');
+            let level3 = createLevelItem(3, 'Enhanced Warning Zones', 'In these Zones, you will be prompted by GEO at the time of flight to unlock the zone using the same steps as in an Authorization Zone, but you do not require a verified account or an internet connection at the time of your flight.', '#EE8815');
+            let level4 = createLevelItem(4, 'Regulatory Restricted Zones', 'Due to local regulations and policies, flights are prohibited within the scope of some special areas. (Example：Prison)', '#37C4DB');
+            let level7 = createLevelItem(7, 'Recommended Zones', 'This area is shown in green on the map. It is recommended that you choose these areas for flight arrangements.', '#00BE00');
+
+            let levelSelector = document.createElement('div');
+            levelSelector.className = 'ol-dji-geozone--level-selector';
+
+            levelSelector.append(level2);
+            levelSelector.append(level6);
+            levelSelector.append(level1);
+            levelSelector.append(level0);
+            levelSelector.append(level3);
+            levelSelector.append(level4);
+            levelSelector.append(level7);
+
+            return levelSelector;
+        };
 
         let divControl = document.createElement('div');
         divControl.className = 'ol-dji-geozone ol-control';
-        divControl.innerHTML = `<div><h3>DJI Geozone</h3></div>`;
+        divControl.innerHTML = `<div><h3>DJI Geo Zone</h3></div>`;
 
-        let droneSelector = this.createDroneSelector();
+        let droneSelector = createDroneSelector();
         divControl.append(droneSelector);
 
-        let levelSelector = this.createLevelSelector();
+        let levelSelector = createLevelSelector();
         divControl.append(levelSelector);
 
         this.divControl = divControl;
@@ -7261,97 +7282,59 @@ class DjiGeozone {
         this.map.addControl(this.control);
     }
 
-    style(feature, resolution) {
-
-        const markerIcons = {
-            '0': 'https://www1.djicdn.com/dps/6734f5340f66c7be37db48c8889392bf.png',
-            '1': 'https://www1.djicdn.com/dps/fbbea9e33581907cac182adb4bcd0c94.png',
-            '2': 'https://www1.djicdn.com/dps/d47dfe9f089f259631fbed99610b8b5a.png',
-            '3': 'https://www1.djicdn.com/dps/df822149e1e6e9e804e177813e044238.png',
-            '4': 'https://www1.djicdn.com/dps/53b33783709b6ed06bc3afdd21ac2a81.png',
-            '5': '//www3.djicdn.com/assets/images/flysafe/geo-system/dark-green-marker-a45d865ea1fb9df5346ad5b06084d9ba.png?from=cdnMap', // level5 也是推荐区
-            '6': 'https://www1.djicdn.com/dps/f5961991d664e130fcf9ad01b1f28043.png', // level 6为前端定义的限高区level
-            '7': 'https://www1.djicdn.com/dps/9d922ae5fbd80d3166a844a9e249ceb3.png',
-            '8': 'https://www1.djicdn.com/dps/53b33783709b6ed06bc3afdd21ac2a81.png'
-        };
-
-        const markerCircles = {
-            '0': '//www2.djicdn.com/assets/images/flysafe/geo-system/warning-98a8a2c8d6768e22957488ce962d77c3.png?from=cdnMap',
-            '1': '//www4.djicdn.com/assets/images/flysafe/geo-system/authorization-878e879982c9555bcaab7bb6bce3c6ca.png?from=cdnMap',
-            '2': '//www5.djicdn.com/assets/images/flysafe/geo-system/restricted-e0ce1467a8df2d07ec6a33cf11f4279e.png?from=cdnMap',
-            '3': '//www4.djicdn.com/assets/images/flysafe/geo-system/enhanced_warning-623fea05bff2f83f3c0ff5a65a41a1df.png?from=cdnMap',
-            '4': '//www4.djicdn.com/assets/images/flysafe/geo-system/recommended-e92f991d039ae145c9b1c72ad62b26b2.png?from=cdnMap',
-            '5': '//www4.djicdn.com/assets/images/flysafe/geo-system/recommended-e92f991d039ae145c9b1c72ad62b26b2.png?from=cdnMap',
-            '6': '//www1.djicdn.com/assets/images/flysafe/geo-system/Oval-34907c1071d63a3f1fffdc739b0943d9.png?from=cdnMap', // level 6为前端定义的限高区level
-            '7': '//www1.djicdn.com/assets/images/flysafe/geo-system/regulations-2dfeef5b11017811dcaa720c86c49406.png?from=cdnMap',
-            '8': 'https://www1.djicdn.com/dps/a968914208241c3f6a5a3c64c221b8ff.png'
-        };
-
-        let geomType = feature.getGeometry().getType();
-
-        let style;
-
-        if (geomType === 'Polygon' || geomType === 'Circle') {
-
-            let height = feature.get('height');
-            let color = feature.get('color');
-
-            style = new Style({
-                fill: new Fill({
-                    color: colorWithAlpha(color, 0.3)
-                }),
-                stroke: new Stroke({
-                    color: color,
-                    width: 1
-                }),
-                zIndex: height
-            });
-        } else if (geomType === 'Point') {
-            style = new Style({
-                image: new Icon({
-                    src: markerIcons[feature.get('level')],
-                    scale: 0.35,
-                    anchor: [0.5, 0.9]
-                }),
-                zIndex: 300
-            });
-        }
-
-        return style;
-    }
-
     addMapEvents() {
 
-        const handleZoomEnd = () => {
+        /**
+         * Enable or disable the inputs and the select in the control
+         * @param {Boolean} enabled 
+         */
+        const setControlEnabled = enabled => {
+
+            const changeState = array => {
+                array.forEach(el => {
+
+                    if (enabled) el.removeAttribute('disabled');else el.disabled = 'disabled';
+                });
+            };
+
+            if (enabled) this.divControl.classList.remove('ol-dji-geozone--ctrl-disabled');else this.divControl.classList.add('ol-dji-geozone--ctrl-disabled');
+
+            changeState(this.divControl.querySelectorAll('input'));
+            changeState(this.divControl.querySelectorAll('select'));
+        };
+
+        const handleZoomEnd = _ => {
 
             if (this.currentZoom < MIN_ZOOM) {
 
+                // Hide the layer and disable the control
                 if (this.isVisible) {
                     this.layer.setVisible(false);
                     this.isVisible = false;
-                    this.setControlEnabled(false);
+                    setControlEnabled(false);
                 }
             } else {
 
+                // Show the layers and enable the control
                 if (!this.isVisible) {
                     this.layer.setVisible(true);
                     this.isVisible = true;
-                    this.setControlEnabled(true);
+                    setControlEnabled(true);
                 } else {
                     // If the view is closer, don't do anything, we already had the features
                     if (this.currentZoom > this.lastZoom) return;
                 }
 
-                this.getData();
+                this.getGeoData();
             }
         };
 
-        const handleDragEnd = () => {
+        const handleDragEnd = _ => {
 
-            this.getData();
+            this.getGeoData();
         };
 
-        this.map.on('moveend', () => {
+        this.map.on('moveend', _ => {
 
             this.currentZoom = this.view.getZoom();
 
@@ -7361,86 +7344,149 @@ class DjiGeozone {
         });
     }
 
-    apiResponseToFeatures(djiJson) {
+    getGeoData(clear = false) {
 
-        let areas = djiJson.areas;
-        let features = [];
+        // adapted from https://stackoverflow.com/questions/44575654/get-radius-of-the-displayed-openlayers-map
+        const getMapRadius = center => {
+            let size = this.map.getSize();
+            let extent = this.view.calculateExtent(size);
+            extent = ol_proj.transformExtent(extent, this.projection, 'EPSG:4326');
+            let posSW = [extent[0], extent[1]];
+            center = ol_proj.transform(center, this.projection, 'EPSG:4326');
+            let centerToSW = ol_sphere.getDistance(center, posSW);
+            return parseInt(centerToSW);
+        };
 
-        if (!areas.length) return false;
+        const apiRequest = async ({ lng, lat }, searchRadius) => {
 
-        for (let area of areas) {
+            const API_ENDPOINT = 'www-api.dji.com/api/geo/areas';
 
-            if (this.source.getFeatureById(area.area_id)) {
-                continue;
-            }
+            // If not proxy is passed, make a direct request
+            // Maybe in the future the api will has updated CORS restrictions
+            let parsedUrl = new URL(this.url_proxy ? this.url_proxy + API_ENDPOINT : 'https://' + API_ENDPOINT);
 
-            const feature = new Feature({
-                name: area.name,
-                shape: area.shape,
-                level: area.level,
-                radius: area.radius,
-                color: area.color,
-                country: area.country,
-                geometry: new Point([area.lng, area.lat]).transform('EPSG:4326', this.projection)
-            });
+            let queryObj = {
+                'drone': this.drone,
+                'zones_mode': this.zones_mode,
+                'country': this.country,
+                'level': this.level.join(),
+                'lng': lng,
+                'lat': lat,
+                'search_radius': searchRadius
+            };
 
-            feature.setId(area.area_id);
+            return new Promise((resolve, reject) => {
 
-            if (area.sub_areas) {
-                area.sub_areas.forEach(sub_area => {
+                const objToQueryParams = obj => '?' + Object.keys(obj).map(key => key + '=' + obj[key]).join('&');
 
-                    let subFeature;
+                get({
+                    hostname: parsedUrl.hostname,
+                    path: parsedUrl.pathname + objToQueryParams(queryObj)
+                }, res => {
 
-                    if (sub_area.polygon_points) {
+                    const { statusCode } = res;
+                    const contentType = res.headers['content-type'];
 
-                        subFeature = new Feature({
-                            radius: sub_area.radius,
-                            height: sub_area.height,
-                            color: sub_area.color,
-                            level: sub_area.level,
-                            shape: sub_area.shape,
-                            geometry: new Polygon(sub_area.polygon_points).transform('EPSG:4326', this.projection)
-                        });
-                    } else {
-
-                        subFeature = new Feature({
-                            radius: sub_area.radius,
-                            height: sub_area.height,
-                            color: sub_area.color,
-                            level: sub_area.level,
-                            shape: sub_area.shape,
-                            geometry: new Circle([sub_area.lng, sub_area.lat], sub_area.radius / 100000).transform('EPSG:4326', this.projection)
-                        });
+                    let error;
+                    // Any 2xx status code signals a successful response but
+                    // here we're only checking for 200.
+                    if (statusCode !== 200) {
+                        error = new Error('Request Failed.\n' + `Status Code: ${statusCode} `);
+                    } else if (!/^application\/json/.test(contentType)) {
+                        error = new Error('Invalid content-type.\n' + `Expected application / json but received ${contentType} `);
                     }
 
-                    subFeature.setId(sub_area.area_id);
-                    features.push(subFeature);
+                    if (error) {
+                        // Consume response data to free up memory
+                        res.resume();
+                        reject(error);
+                    }
+
+                    res.setEncoding('utf8');
+
+                    let rawData = '';
+                    res.on('data', chunk => {
+                        rawData += chunk;
+                    });
+                    res.on('end', _ => {
+                        try {
+                            const parsedData = JSON.parse(rawData);
+                            resolve(parsedData);
+                        } catch (err) {
+                            reject(err);
+                        }
+                    });
+                }).on('error', err => {
+                    reject(err);
                 });
+            });
+        };
+
+        const apiResponseToFeatures = djiJson => {
+
+            let areas = djiJson.areas;
+            let features = [];
+
+            if (!areas.length) return false;
+
+            for (let area of areas) {
+
+                // If the feature already exists, continue
+                if (this.source.getFeatureById(area.area_id)) {
+                    continue;
+                }
+
+                const feature = new Feature({
+                    name: area.name,
+                    shape: area.shape,
+                    level: area.level,
+                    radius: area.radius,
+                    color: area.color,
+                    country: area.country,
+                    geometry: new ol_geom.Point([area.lng, area.lat]).transform('EPSG:4326', this.projection)
+                });
+
+                // Store the id to avoid duplicates
+                feature.setId(area.area_id);
+
+                if (area.sub_areas) {
+
+                    area.sub_areas.forEach(sub_area => {
+
+                        let subFeature;
+
+                        if (sub_area.polygon_points) {
+
+                            subFeature = new Feature({
+                                radius: sub_area.radius,
+                                height: sub_area.height,
+                                color: sub_area.color,
+                                level: sub_area.level,
+                                shape: sub_area.shape,
+                                geometry: new ol_geom.Polygon(sub_area.polygon_points).transform('EPSG:4326', this.projection)
+                            });
+                        } else {
+
+                            subFeature = new Feature({
+                                radius: sub_area.radius,
+                                height: sub_area.height,
+                                color: sub_area.color,
+                                level: sub_area.level,
+                                shape: sub_area.shape,
+                                geometry: new ol_geom.Circle([sub_area.lng, sub_area.lat], sub_area.radius / 100000).transform('EPSG:4326', this.projection)
+                            });
+                        }
+
+                        subFeature.setId(sub_area.area_id);
+                        features.push(subFeature);
+                    });
+                }
+
+                features.push(feature);
             }
 
-            features.push(feature);
-        }
-
-        return features;
-    }
-
-    addFeatures(features) {
-        this.source.addFeatures(features);
-    }
-
-    // adapted from https://stackoverflow.com/questions/44575654/get-radius-of-the-displayed-openlayers-map
-    getMapRadius(center) {
-        let size = this.map.getSize();
-        let extent = this.view.calculateExtent(size);
-        extent = ol_proj.transformExtent(extent, this.projection, 'EPSG:4326');
-        let posSW = [extent[0], extent[1]];
-        center = ol_proj.transform(center, this.projection, 'EPSG:4326');
-        let centerToSW = ol_sphere.getDistance(center, posSW);
-
-        return parseInt(centerToSW);
-    }
-
-    getData(clear = false) {
+            return features;
+        };
 
         if (!this.isVisible) return;
 
@@ -7452,103 +7498,38 @@ class DjiGeozone {
             lng: center4326[0]
         };
 
-        let searchRadius = this.getMapRadius(center);
+        let searchRadius = getMapRadius(center);
 
         // Prevent multiples requests
         this.idRequest += 1;
         let request$$1 = this.idRequest;
 
         // Original DJI map same behavior to prevent multiples requests
-        setTimeout(async () => {
+        setTimeout(async _ => {
 
             if (request$$1 == this.idRequest) {
                 try {
-                    let data = await this.getGeoData(centerLatLng, searchRadius);
-                    console.log(data);
-                    if (clear) this.cleanFeatures();
-                    let features = this.apiResponseToFeatures(data);
-                    this.addFeatures(features);
+                    let data = await apiRequest(centerLatLng, searchRadius);
+
+                    if (clear) this.source.clear();
+
+                    let features = apiResponseToFeatures(data);
+                    this.source.addFeatures(features);
+                    // console.log(data);
+                    // console.log(features);
                 } catch (err) {
-                    console.error(`Got error: ${e.message} `);
+                    console.error(err);
                 }
             }
         }, 800);
     }
 
-    set drone(drone) {
-        if (DjiGeozone.isValidDrone(drone)) this._drone = drone;else console.error('Drone not supported');
-    }
+}
 
-    get drone() {
-        return this._drone;
-    }
-
-    static isValidDrone(drone) {
-        return VALID_DRONES.includes(drone);
-    }
-
-    async getGeoData({ lng, lat }, searchRadius) {
-
-        const requestUrl = urlParse(urlFormat({
-            protocol: 'https',
-            hostname: this.url_proxy,
-            pathname: '/www-api.dji.com/api/geo/areas',
-            query: {
-                'drone': this._drone,
-                'zones_mode': this.zones_mode,
-                'country': this.country,
-                'level': this.level.join(),
-                'lng': lng,
-                'lat': lat,
-                'search_radius': searchRadius
-            }
-        }));
-
-        return new Promise((resolve$$1, reject) => {
-
-            get({
-                hostname: requestUrl.hostname,
-                path: requestUrl.path
-            }, res => {
-
-                const { statusCode } = res;
-                const contentType = res.headers['content-type'];
-
-                let error;
-                // Any 2xx status code signals a successful response but
-                // here we're only checking for 200.
-                if (statusCode !== 200) {
-                    error = new Error('Request Failed.\n' + `Status Code: ${statusCode} `);
-                } else if (!/^application\/json/.test(contentType)) {
-                    error = new Error('Invalid content-type.\n' + `Expected application / json but received ${contentType} `);
-                }
-
-                if (error) {
-                    // Consume response data to free up memory
-                    res.resume();
-                    reject(error);
-                }
-
-                res.setEncoding('utf8');
-
-                let rawData = '';
-                res.on('data', chunk => {
-                    rawData += chunk;
-                });
-                res.on('end', () => {
-                    try {
-                        const parsedData = JSON.parse(rawData);
-                        resolve$$1(parsedData);
-                    } catch (err) {
-                        reject(err);
-                    }
-                });
-            }).on('error', err => {
-                reject(err);
-            });
-        });
-    }
-
+// https://stackoverflow.com/questions/28004153/setting-vector-feature-fill-opacity-when-you-have-a-hexadecimal-color
+function colorWithAlpha(color, alpha = 1) {
+    const [r, g, b] = Array.from(ol_color.asArray(color));
+    return ol_color.asString([r, g, b, alpha]);
 }
 
 return DjiGeozone;
