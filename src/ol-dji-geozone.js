@@ -12,6 +12,7 @@ import { getTopRight, getTopLeft, getBottomRight, getCenter, getBottomLeft } fro
 
 import levelParams from './level-params.json';
 import droneList from './drone-list.json';
+import typeList from './type-list.json';
 
 const API_AREAS_ENDPOINT = 'www-api.dji.com/api/geo/areas';
 const API_INFO_ENDPOINT = 'www-api.dji.com/api/geo/point-info';
@@ -97,7 +98,7 @@ export default class DjiGeozone {
             } else if (geomType === 'Point') {
                 style = new Style({
                     image: new Icon({
-                        src: this.levelParams[feature.get('level')].icon,
+                        src: this.levelParams[feature.get('level')].markerIcon,
                         scale: 0.35,
                         anchor: [0.5, 0.9]
                     }),
@@ -232,7 +233,7 @@ export default class DjiGeozone {
                 let id = 'level' + value;
 
                 let divContainer = document.createElement('div');
-                divContainer.className = `ol-dji-geozone--item ol-dji-geozone--item-${value}`;
+                divContainer.className = `ol-dji-geozone--item-ctl ol-dji-geozone--item-ctl-${value}`;
                 divContainer.title = desc;
                 divContainer.setAttribute('data-level', value);
                 divContainer.append(createCheckbox(id, value, disabled));
@@ -241,7 +242,7 @@ export default class DjiGeozone {
                 return divContainer;
             }
 
-            // Use the same DJI order
+            // Same DJI order
             let level2 = createLevelItem(2, this.levelParams[2]);
             let level6 = createLevelItem(6, this.levelParams[6]);
             let level1 = createLevelItem(1, this.levelParams[1]);
@@ -253,7 +254,7 @@ export default class DjiGeozone {
             let levelSelector = document.createElement('div');
             levelSelector.className = 'ol-dji-geozone--level-selector';
 
-            // Use the same DJI order
+            // Same DJI order
             levelSelector.append(level2);
             levelSelector.append(level6);
             levelSelector.append(level1);
@@ -379,13 +380,39 @@ export default class DjiGeozone {
         this.map.on('singleclick', evt => {
 
             if (!this.isVisible) return;
-            
+
             this.map.forEachFeatureAtPixel(evt.pixel, (feature, layer) => {
-                this.getInfoFromLatLng(evt.coordinate);
-                // console.log(feature);
+
+                if (layer === this.layer) {
+                    this.getInfoFromLatLng(evt.coordinate);
+                    this.showFeatureInfo(feature, evt.coordinate);
+                }
+
                 return true;
             })
+
         });
+
+    }
+
+    showFeatureInfo(feature, coordinates) {
+        let properties = feature.getProperties();
+    }
+
+    createPopUp({ name, level, type, height }) {
+
+        return `
+        <div class="item">
+            <div class="marker">
+                <img src="${levelParams[level].markerCircle}">
+            </div>
+            <div class="main">
+            <h3 class="title">${name}</h3>
+                <p class="level">Level: ${level}</p>
+                <p class="type">Type: ${typeList[type]}</p>      
+                ${(height) ? `<p class="height">Max. Altitude (m): ${height}</p>` : ''}; 
+            </div >
+        </div > `;
 
     }
 
@@ -485,12 +512,16 @@ export default class DjiGeozone {
                 }
 
                 const feature = new Feature({
-                    name: area.name,
-                    shape: area.shape,
-                    level: area.level,
-                    radius: area.radius,
                     color: area.color,
                     country: area.country,
+                    height: area.height,
+                    level: area.level,
+                    name: area.name,
+                    radius: area.radius,
+                    shape: area.shape,
+                    type: area.type,
+                    lng: area.lng,
+                    lat: area.lat,
                     geometry: new Point([area.lng, area.lat]).transform('EPSG:4326', this.projection)
                 });
 
@@ -506,11 +537,13 @@ export default class DjiGeozone {
                         if (sub_area.polygon_points) {
 
                             subFeature = new Feature({
-                                radius: sub_area.radius,
-                                height: sub_area.height,
                                 color: sub_area.color,
+                                height: sub_area.height,
                                 level: sub_area.level,
+                                radius: sub_area.radius,
                                 shape: sub_area.shape,
+                                lng: sub_area.lng,
+                                lat: sub_area.lat,
                                 geometry:
                                     new Polygon(
                                         sub_area.polygon_points
@@ -520,11 +553,13 @@ export default class DjiGeozone {
                         } else {
 
                             subFeature = new Feature({
-                                radius: sub_area.radius,
-                                height: sub_area.height,
                                 color: sub_area.color,
+                                height: sub_area.height,
                                 level: sub_area.level,
+                                radius: sub_area.radius,
                                 shape: sub_area.shape,
+                                lng: sub_area.lng,
+                                lat: sub_area.lat,
                                 geometry:
                                     new Circle(
                                         [sub_area.lng, sub_area.lat],

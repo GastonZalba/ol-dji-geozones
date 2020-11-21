@@ -100,49 +100,58 @@
   	name: "Warning Zones",
   	desc: "In these Zones, which may not necessarily appear on the DJI GO map, users will be prompted with a warning message. Example Warning Zone: Class E airspace",
   	color: "#FFCC00",
-  	icon: "https://www1.djicdn.com/dps/6734f5340f66c7be37db48c8889392bf.png"
+  	markerIcon: "https://www1.djicdn.com/dps/6734f5340f66c7be37db48c8889392bf.png",
+  	markerCircle: "//www2.djicdn.com/assets/images/flysafe/geo-system/warning-98a8a2c8d6768e22957488ce962d77c3.png?from=cdnMap"
   },
   	"1": {
   	name: "Authorization Zones",
   	desc: "In these Zones, which appear blue in the DJI GO map, users will be prompted with a warning and flight is limited by default. Authorization Zones may be unlocked by authorized users using a DJI verified account.",
   	color: "#1088F2",
-  	icon: "https://www1.djicdn.com/dps/fbbea9e33581907cac182adb4bcd0c94.png"
+  	markerIcon: "https://www1.djicdn.com/dps/fbbea9e33581907cac182adb4bcd0c94.png",
+  	markerCircle: "//www4.djicdn.com/assets/images/flysafe/geo-system/authorization-878e879982c9555bcaab7bb6bce3c6ca.png?from=cdnMap"
   },
   	"2": {
   	name: "Restricted Zones",
   	desc: "In these Zones, which appear red the DJI GO app, users will be prompted with a warning and flight is prevented. If you believe you have the authorization to operate in a Restricted Zone, please contact flysafe@dji.com or Online Unlocking.",
   	color: "#DE4329",
-  	icon: "https://www1.djicdn.com/dps/d47dfe9f089f259631fbed99610b8b5a.png"
+  	markerIcon: "https://www1.djicdn.com/dps/d47dfe9f089f259631fbed99610b8b5a.png",
+  	markerCircle: "//www5.djicdn.com/assets/images/flysafe/geo-system/restricted-e0ce1467a8df2d07ec6a33cf11f4279e.png?from=cdnMap"
   },
   	"3": {
   	name: "Enhanced Warning Zones",
   	desc: "In these Zones, you will be prompted by GEO at the time of flight to unlock the zone using the same steps as in an Authorization Zone, but you do not require a verified account or an internet connection at the time of your flight.",
   	color: "#EE8815",
-  	icon: "https://www1.djicdn.com/dps/df822149e1e6e9e804e177813e044238.png"
+  	markerIcon: "https://www1.djicdn.com/dps/df822149e1e6e9e804e177813e044238.png",
+  	markerCircle: "//www4.djicdn.com/assets/images/flysafe/geo-system/enhanced_warning-623fea05bff2f83f3c0ff5a65a41a1df.png?from=cdnMap"
   },
   	"4": {
   	name: "Regulatory Restricted Zones",
   	desc: "Due to local regulations and policies, flights are prohibited within the scope of some special areas. (Example：Prison)",
   	color: "#37C4DB",
-  	icon: "https://www1.djicdn.com/dps/53b33783709b6ed06bc3afdd21ac2a81.png"
+  	markerIcon: "https://www1.djicdn.com/dps/53b33783709b6ed06bc3afdd21ac2a81.png",
+  	markerCircle: "//www4.djicdn.com/assets/images/flysafe/geo-system/recommended-e92f991d039ae145c9b1c72ad62b26b2.png?from=cdnMap"
   },
   	"5": {
-  	icon: "//www3.djicdn.com/assets/images/flysafe/geo-system/dark-green-marker-a45d865ea1fb9df5346ad5b06084d9ba.png?from=cdnMap"
+  	markerIcon: "//www3.djicdn.com/assets/images/flysafe/geo-system/dark-green-marker-a45d865ea1fb9df5346ad5b06084d9ba.png?from=cdnMap",
+  	markerCircle: "//www4.djicdn.com/assets/images/flysafe/geo-system/recommended-e92f991d039ae145c9b1c72ad62b26b2.png?from=cdnMap"
   },
   	"6": {
   	name: "Altitude Zones",
   	desc: "Altitude zones will appear in gray on the map. Users receive warnings in DJI GO, or DJI GO 4 and flight altitude is limited.",
   	color: "#979797",
-  	icon: "https://www1.djicdn.com/dps/f5961991d664e130fcf9ad01b1f28043.png"
+  	markerIcon: "https://www1.djicdn.com/dps/f5961991d664e130fcf9ad01b1f28043.png",
+  	markerCircle: "//www1.djicdn.com/assets/images/flysafe/geo-system/Oval-34907c1071d63a3f1fffdc739b0943d9.png?from=cdnMap"
   },
   	"7": {
   	name: "Recommended Zones",
   	desc: "This area is shown in green on the map. It is recommended that you choose these areas for flight arrangements.",
   	color: "#00BE00",
-  	icon: "'https://www1.djicdn.com/dps/9d922ae5fbd80d3166a844a9e249ceb3.png"
+  	markerIcon: "'https://www1.djicdn.com/dps/9d922ae5fbd80d3166a844a9e249ceb3.png",
+  	markerCircle: "//www1.djicdn.com/assets/images/flysafe/geo-system/regulations-2dfeef5b11017811dcaa720c86c49406.png?from=cdnMap"
   },
   	"8": {
-  	icon: "https://www1.djicdn.com/dps/53b33783709b6ed06bc3afdd21ac2a81.png"
+  	markerIcon: "https://www1.djicdn.com/dps/53b33783709b6ed06bc3afdd21ac2a81.png",
+  	markerCircle: "https://www1.djicdn.com/dps/a968914208241c3f6a5a3c64c221b8ff.png"
   }
   };
 
@@ -249,6 +258,87 @@
   	}
   ];
 
+  var typeList = {
+  	"1": {
+  	name: "Special Zone"
+  },
+  	"2": {
+  	name: "Military Zone"
+  },
+  	"4": {
+  	name: "Recommended Zones"
+  },
+  	"10": {
+  	name: "Airport"
+  },
+  	"13": {
+  	name: "Recreational airport"
+  },
+  	"14": {
+  	name: "Recreational airport"
+  },
+  	"15": {
+  	name: "Class B Airspace"
+  },
+  	"16": {
+  	name: "Class C Airspace"
+  },
+  	"17": {
+  	name: "Class D Airspace"
+  },
+  	"18": {
+  	name: "Class E Airspace"
+  },
+  	"19": {
+  	name: "Heliport"
+  },
+  	"23": {
+  	name: "Power plant"
+  },
+  	"24": {
+  	name: "Prison"
+  },
+  	"26": {
+  	name: "Stadium"
+  },
+  	"27": {
+  	name: "Prohibited Airspace"
+  },
+  	"28": {
+  	name: "Restricted Airspace"
+  },
+  	"29": {
+  	name: "Temporary Flight Restriction"
+  },
+  	"30": {
+  	name: "Nuclear Power Plant"
+  },
+  	"31": {
+  	name: "Unpaved Airports"
+  },
+  	"32": {
+  	name: "Special Zones"
+  },
+  	"33": {
+  	name: "Military Zones"
+  },
+  	"34": {
+  	name: "Heliport"
+  },
+  	"35": {
+  	name: "Seaplane Base"
+  },
+  	"36": {
+  	name: "Temporary Flight Restriction"
+  },
+  	"39": {
+  	name: "Approved Zones for Light UAVs"
+  },
+  	"41": {
+  	name: "Regulatory Restricted Zones for Light UAVs"
+  }
+  };
+
   var API_AREAS_ENDPOINT = 'www-api.dji.com/api/geo/areas';
   var API_INFO_ENDPOINT = 'www-api.dji.com/api/geo/point-info';
   var MIN_ZOOM = 9; // >= 9 or breaks the API
@@ -318,7 +408,7 @@
         } else if (geomType === 'Point') {
           style$1 = new style.Style({
             image: new style.Icon({
-              src: this.levelParams[feature.get('level')].icon,
+              src: this.levelParams[feature.get('level')].markerIcon,
               scale: 0.35,
               anchor: [0.5, 0.9]
             }),
@@ -440,13 +530,13 @@
           var disabled = !this.isVisible;
           var id = 'level' + value;
           var divContainer = document.createElement('div');
-          divContainer.className = "ol-dji-geozone--item ol-dji-geozone--item-".concat(value);
+          divContainer.className = "ol-dji-geozone--item-ctl ol-dji-geozone--item-ctl-".concat(value);
           divContainer.title = desc;
           divContainer.setAttribute('data-level', value);
           divContainer.append(createCheckbox(id, value, disabled));
           divContainer.append(createLabel(name, id, color));
           return divContainer;
-        }; // Use the same DJI order
+        }; // Same DJI order
 
 
         var level2 = createLevelItem(2, this.levelParams[2]);
@@ -457,7 +547,7 @@
         var level4 = createLevelItem(4, this.levelParams[4]);
         var level7 = createLevelItem(7, this.levelParams[7]);
         var levelSelector = document.createElement('div');
-        levelSelector.className = 'ol-dji-geozone--level-selector'; // Use the same DJI order
+        levelSelector.className = 'ol-dji-geozone--level-selector'; // Same DJI order
 
         levelSelector.append(level2);
         levelSelector.append(level6);
@@ -541,11 +631,21 @@
       this.map.on('singleclick', evt => {
         if (!this.isVisible) return;
         this.map.forEachFeatureAtPixel(evt.pixel, (feature, layer) => {
-          this.getInfoFromLatLng(evt.coordinate);
-          console.log(feature);
+          if (layer === this.layer) this.getInfoFromLatLng(evt.coordinate); //this.showFeatureInfo()
+
           return true;
         });
       });
+    }
+
+    createPopUp(_ref4) {
+      var {
+        name,
+        level,
+        type,
+        height
+      } = _ref4;
+      return "\n        <div class=\"item\">\n            <div class=\"marker\">\n                <img src=\"".concat(levelParams[level].markerCircle, "\">\n            </div>\n            <div class=\"main\">\n            <h3 class=\"title\">").concat(name, "</h3>\n                <p class=\"level\">Level: ").concat(level, "</p>\n                <p class=\"type\">Type: ").concat(typeList[type], "</p>      \n                ").concat(height ? "<p class=\"height\">Max. Altitude (m): ".concat(height, "</p>") : '', "; \n            </div >\n        </div > ");
     }
 
     getInfoFromLatLng(latLng) {
@@ -576,11 +676,11 @@
       }; // adapted from https://stackoverflow.com/questions/44575654/get-radius-of-the-displayed-openlayers-map
 
 
-      var getMapRadius = (_ref4) => {
+      var getMapRadius = (_ref5) => {
         var {
           lng,
           lat
-        } = _ref4;
+        } = _ref5;
         var center = [lng, lat];
         var size = this.map.getSize();
         var extent = this.view.calculateExtent(size);
@@ -591,11 +691,11 @@
       };
 
       var apiRequest = /*#__PURE__*/function () {
-        var _ref6 = _asyncToGenerator(function* (type, _ref5, searchRadius) {
+        var _ref7 = _asyncToGenerator(function* (type, _ref6, searchRadius) {
           var {
             lng,
             lat
-          } = _ref5;
+          } = _ref6;
           showLoading(true);
           var api_endpoint = type === 'areas' ? API_AREAS_ENDPOINT : API_INFO_ENDPOINT; // If not proxy is passed, make a direct request
           // Maybe in the future the api will has updated CORS restrictions
@@ -618,7 +718,7 @@
         });
 
         return function apiRequest(_x, _x2, _x3) {
-          return _ref6.apply(this, arguments);
+          return _ref7.apply(this, arguments);
         };
       }();
 
@@ -634,12 +734,14 @@
           }
 
           var feature = new Feature__default['default']({
-            name: area.name,
-            shape: area.shape,
-            level: area.level,
-            radius: area.radius,
             color: area.color,
             country: area.country,
+            height: area.height,
+            level: area.level,
+            name: area.name,
+            radius: area.radius,
+            shape: area.shape,
+            type: area.type,
             geometry: new geom.Point([area.lng, area.lat]).transform('EPSG:4326', this.projection)
           }); // Store the id to avoid duplicates
 
@@ -651,19 +753,19 @@
 
               if (sub_area.polygon_points) {
                 subFeature = new Feature__default['default']({
-                  radius: sub_area.radius,
-                  height: sub_area.height,
                   color: sub_area.color,
+                  height: sub_area.height,
                   level: sub_area.level,
+                  radius: sub_area.radius,
                   shape: sub_area.shape,
                   geometry: new geom.Polygon(sub_area.polygon_points).transform('EPSG:4326', this.projection)
                 });
               } else {
                 subFeature = new Feature__default['default']({
-                  radius: sub_area.radius,
-                  height: sub_area.height,
                   color: sub_area.color,
+                  height: sub_area.height,
                   level: sub_area.level,
+                  radius: sub_area.radius,
                   shape: sub_area.shape,
                   geometry: new geom.Circle([sub_area.lng, sub_area.lat], sub_area.radius / 100000).transform('EPSG:4326', this.projection)
                 });
@@ -685,7 +787,7 @@
         this.idInfoRequest += 1;
         var request = this.idInfoRequest;
         setTimeout( /*#__PURE__*/function () {
-          var _ref7 = _asyncToGenerator(function* (_) {
+          var _ref8 = _asyncToGenerator(function* (_) {
             if (request == _this.idInfoRequest) {
               try {
                 var data = yield apiRequest('info', latLng, searchRadius);
@@ -698,7 +800,7 @@
           });
 
           return function (_x4) {
-            return _ref7.apply(this, arguments);
+            return _ref8.apply(this, arguments);
           };
         }(), 100);
       };
@@ -709,7 +811,7 @@
         var request = this.idAreasRequest; // Original DJI map same behavior to prevent multiples requests
 
         setTimeout( /*#__PURE__*/function () {
-          var _ref8 = _asyncToGenerator(function* (_) {
+          var _ref9 = _asyncToGenerator(function* (_) {
             if (request == _this.idAreasRequest) {
               try {
                 if (clear) {
@@ -752,7 +854,7 @@
           });
 
           return function (_x5) {
-            return _ref8.apply(this, arguments);
+            return _ref9.apply(this, arguments);
           };
         }(), 300);
       };

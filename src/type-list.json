@@ -1,0 +1,80 @@
+{
+    "1": {
+        "name": "Special Zone"
+    },
+    "2": {
+        "name": "Military Zone"
+    },
+    "4": {
+        "name": "Recommended Zones"
+    },
+    "10": {
+        "name": "Airport"
+    },
+    "13": {
+        "name": "Recreational airport"
+    },
+    "14": {
+        "name": "Recreational airport"
+    },
+    "15": {
+        "name": "Class B Airspace"
+    },
+    "16": {
+        "name": "Class C Airspace"
+    },
+    "17": {
+        "name": "Class D Airspace"
+    },
+    "18": {
+        "name": "Class E Airspace"
+    },
+    "19": {
+        "name": "Heliport"
+    },
+    "23": {
+        "name": "Power plant"
+    },
+    "24": {
+        "name": "Prison"
+    },
+    "26": {
+        "name": "Stadium"
+    },
+    "27": {
+        "name": "Prohibited Airspace"
+    },
+    "28": {
+        "name": "Restricted Airspace"
+    },
+    "29": {
+        "name": "Temporary Flight Restriction"
+    },
+    "30": {
+        "name": "Nuclear Power Plant"
+    },
+    "31": {
+        "name": "Unpaved Airports"
+    },
+    "32": {
+        "name": "Special Zones"
+    },
+    "33": {
+        "name": "Military Zones"
+    },
+    "34": {
+        "name": "Heliport"
+    },
+    "35": {
+        "name": "Seaplane Base"
+    },
+    "36": {
+        "name": "Temporary Flight Restriction"
+    },
+    "39": {
+        "name": "Approved Zones for Light UAVs"
+    },
+    "41": {
+        "name": "Regulatory Restricted Zones for Light UAVs"
+    }
+}
