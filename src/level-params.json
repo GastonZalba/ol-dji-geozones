@@ -27,7 +27,7 @@
         "name": "Enhanced Warning Zones",
         "desc": "In these Zones, you will be prompted by GEO at the time of flight to unlock the zone using the same steps as in an Authorization Zone, but you do not require a verified account or an internet connection at the time of your flight.",
         "color": "#EE8815",
-        "zIndex": 1,
+        "zIndex": 2,
         "markerIcon" : "https://www1.djicdn.com/dps/df822149e1e6e9e804e177813e044238.png",
         "markerCircle" : "https://www4.djicdn.com/assets/images/flysafe/geo-system/enhanced_warning-623fea05bff2f83f3c0ff5a65a41a1df.png?from=cdnMap"
     },
@@ -50,7 +50,7 @@
         "name": "Altitude Zones",
         "desc": "Altitude zones will appear in gray on the map. Users receive warnings in DJI GO, or DJI GO 4 and flight altitude is limited.",
         "color": "#979797",
-        "zIndex": 2,
+        "zIndex": 1,
         "markerIcon" : "https://www1.djicdn.com/dps/f5961991d664e130fcf9ad01b1f28043.png",
         "markerCircle" : "https://www1.djicdn.com/assets/images/flysafe/geo-system/Oval-34907c1071d63a3f1fffdc739b0943d9.png?from=cdnMap"
     },

@@ -17,6 +17,9 @@ import typeList from './type-list.json';
 
 const API_AREAS_ENDPOINT = 'www-api.dji.com/api/geo/areas';
 const API_INFO_ENDPOINT = 'www-api.dji.com/api/geo/point-info';
+const API_LEVELS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] // request all the levels, we filter later to avoid some api problems
+
+const LOADING_ELEMENT = '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>';
 
 const MIN_ZOOM = 9; // > 9 breaks the API
 /**
@@ -46,12 +49,16 @@ export default class DjiGeozones {
         this.levelsToDisplay = opt_options.levelsToDisplay || [2, 6, 1, 0, 3, 4, 7];
         this.levelsActivated = opt_options.levelsActivated || [2, 6, 1, 0, 3, 4, 7];
 
+        // Get the colors, info, icons and more from each level
         this.levelParams = (!opt_options.levelParams) ? levelParams : { ...levelParams, ...opt_options.levelParams };
-        this.apiLevels = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]// request all the levels, we filter later to by pass some api problems
 
         this.url_proxy = url_proxy;
 
-        this.useInfoApi = false;
+        // We can use the features properties to show in the popup, or make an extra request to the Info API.
+        // The original DJI map makes extras requests to this API to get these values, but I don't understand why:
+        // It's more slow and requieres extra requests to an already downloaded data.
+        // Either way, this extra API calls are supported.
+        this.useApiForPopUp = false;
 
         // MAP 
         let addControl = ('control' in opt_options) ? opt_options.control : true;
@@ -64,488 +71,391 @@ export default class DjiGeozones {
 
         this.layers = [];
         this.divControl = null;
-        this.idAreasRequest = 0;
-        this.idInfoRequest = 0;
         this.areaDownloaded = null;
+        this.initiated = false;
 
-        this.loadingElement = '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>';
-
-        this.createLayer();
-        this.addMapEvents();
-        this.createPopUpOverlay();
-
-        if (addControl)
-            this.addMapControl(targetControl);
-
-    }
-
-
-    createLayer() {
-
-        const styleFunction = feature => {
-
-            let geomType = feature.getGeometry().getType();
-
-            let style;
-            let level = feature.get('level');
-
-            if (geomType === 'Polygon' || geomType === 'Circle') {
-
-                let color = feature.get('color');
-
-                style = new Style({
-                    fill: new Fill({
-                        color: colorWithAlpha(color, 0.3)
-                    }),
-                    stroke: new Stroke({
-                        color: color,
-                        width: 1
-                    }),
-                    zIndex: this.levelParams[level].zIndex
-                })
-
-            } else if (geomType === 'Point') {
-                style = new Style({
-                    image: new Icon({
-                        src: this.levelParams[level].markerIcon,
-                        scale: 0.35,
-                        anchor: [0.5, 0.9]
-                    }),
-                    zIndex: this.levelParams[level].zIndex * 2
-                })
-            }
-
-            return style;
-
-        }
-
-        // this.source = new VectorSource({
-        //     attributions: '<a href="https://www.dji.com/flysafe/geo-map" rel="nofollow noopener noreferrer" target="_blank">DJI GeoZoneMap</a>'
-        // });
-
-        // this.layers = new VectorLayer({
-        //     zIndex: 99,
-        //     name: `ol-dji-geozones`,
-        //     source: this.source,
-        //     style: styleFunction
-        // });
-
-        // this.map.addLayer(this.layers);
-
-        this.apiLevels.forEach(level => {
-
-            let layer = new VectorLayer({
-                zIndex: this.levelParams[level].zIndex * 2,
-                name: 'ol-dji-geozones',
-                level: level,
-                visible: this.levelsActivated.includes(level) ? true : false,
-                source: new VectorSource({
-                    attributions: '<a href="https://www.dji.com/flysafe/geo-map" rel="nofollow noopener noreferrer" target="_blank">DJI GeoZoneMap</a>'
-                }),
-                style: styleFunction
-            });
-
-
-            this.map.addLayer(layer);
-            this.layers.push(layer);
-
-        })
+        this.init(addControl, targetControl);
 
 
     }
 
-    /**
-     * 
-     * @param {HTMLElement | string} targetControl 
-     */
-    addMapControl(targetControl) {
+    init(addControl, targetControl) {
 
-        /**
-          * Show or hides the control
-          * @param {Boolean} visible 
-          */
-        this.setControlVisible = (visible) => {
+        const createVectorLayers = () => {
 
-            if (visible)
-                this.divControl.classList.addClass('ol-dji-geozones--ctrl-hidden');
-            else
-                this.divControl.classList.removeClass('ol-dji-geozones--ctrl-hidden');
+            const styleFunction = feature => {
 
-        }
+                let geomType = feature.getGeometry().getType();
 
-        const createDroneSelector = _ => {
+                let style;
+                let level = feature.get('level');
 
-            const handleChange = ({ target }) => {
-                this.drone = (target.value || target.options[target.selectedIndex].value);
-                this.getInfoFromView(/* clear = */ true);
-            }
+                if (geomType === 'Polygon' || geomType === 'Circle') {
 
-            let droneSelector = document.createElement('div');
-            droneSelector.className = 'ol-dji-geozones--drone-selector';
+                    let color = feature.get('color');
 
-            let select = document.createElement('select');
-            select.onchange = handleChange;
+                    style = new Style({
+                        fill: new Fill({
+                            color: colorWithAlpha(color, 0.3)
+                        }),
+                        stroke: new Stroke({
+                            color: color,
+                            width: 1
+                        }),
+                        zIndex: this.levelParams[level].zIndex
+                    })
 
-            if (!this.isVisible) select.setAttribute('disabled', 'disabled');
-
-            let options = '';
-
-            droneList.forEach(drone => {
-                let selected = (this.drone === drone.value) ? 'selected' : '';
-                options += `<option value="${drone.value}" ${selected}>${drone.name}</option>`
-            })
-
-            select.innerHTML = options;
-
-            droneSelector.append(select);
-
-            return droneSelector;
-
-        }
-
-        const createLevelSelector = _ => {
-
-            const handleClick = ({ target }) => {
-
-                let value = Number(target.value);
-                let bool;
-
-                if (target.checked === true) {
-                    this.levelsActivated = [...this.levelsActivated, value];
-                    bool = true;
-                } else {
-                    let index = this.levelsActivated.indexOf(value);
-                    if (index !== -1) {
-                        this.levelsActivated.splice(index, 1);
-                    }
-                    bool = false;
+                } else if (geomType === 'Point') {
+                    style = new Style({
+                        image: new Icon({
+                            src: this.levelParams[level].markerIcon,
+                            scale: 0.35,
+                            anchor: [0.5, 0.9]
+                        }),
+                        zIndex: this.levelParams[level].zIndex * 2
+                    })
                 }
 
-                let layer = this.getLayerByLevel(value);
-                layer.setVisible(bool);
+                return style;
+
             }
 
-            const createLegend = color => {
-                let span = document.createElement('span');
-                span.className = 'ol-dji-geozones--mark'
-                span.style.border = `1px ${color} solid`;
-                span.style.backgroundColor = colorWithAlpha(color, 0.4);
+            API_LEVELS.forEach(level => {
 
-                return span;
-            }
+                let layer = new VectorLayer({
+                    zIndex: this.levelParams[level].zIndex * 2,
+                    name: 'ol-dji-geozones',
+                    level: level,
+                    visible: this.levelsActivated.includes(level) ? true : false,
+                    source: new VectorSource({
+                        attributions: '<a href="https://www.dji.com/flysafe/geo-map" rel="nofollow noopener noreferrer" target="_blank">DJI GeoZoneMap</a>'
+                    }),
+                    style: styleFunction
+                });
 
-            const createLabel = (label, name, color) => {
-                let labelEl = document.createElement('label');
-                labelEl.htmlFor = name;
-                labelEl.append(createLegend(color));
-                labelEl.append(label);
 
-                return labelEl;
-            }
+                this.map.addLayer(layer);
+                this.layers.push(layer);
 
-            const createCheckbox = (name, value, disabled) => {
-                let checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.name = name;
-                checkbox.id = name;
-                checkbox.value = value;
-
-                checkbox.onclick = handleClick;
-
-                if (this.levelsActivated.indexOf(value) !== -1)
-                    checkbox.checked = 'checked';
-
-                if (disabled)
-                    checkbox.disabled = 'disabled';
-
-                return checkbox;
-            }
-
-            const createLevelItem = (value, { name, desc, color }) => {
-
-                let disabled = !this.isVisible;
-                let id = 'level' + value;
-
-                let divContainer = document.createElement('div');
-                divContainer.className = `ol-dji-geozones--item-ctl ol-dji-geozones--item-ctl-${value}`;
-                divContainer.title = desc;
-                divContainer.setAttribute('data-level', value);
-                divContainer.append(createCheckbox(id, value, disabled));
-                divContainer.append(createLabel(name, id, color));
-
-                return divContainer;
-            }
-
-            let levelSelector = document.createElement('div');
-            levelSelector.className = 'ol-dji-geozones--level-selector';
-
-            this.levelsToDisplay.forEach(lev => {
-                let level = createLevelItem(lev, this.levelParams[lev]);
-                levelSelector.append(level);
             })
 
-            return levelSelector;
 
         }
 
-        let divControl = document.createElement('div');
-        divControl.className = 'ol-dji-geozones ol-control ol-dji-geozones--ctrl-disabled';
-        divControl.innerHTML = `
+        const createPopUpOverlay = () => {
+
+            const popupContainer = document.createElement('div');
+            popupContainer.id = 'ol-dji-geozones--popup';
+            popupContainer.className = 'ol-popup ol-dji-geozones--ol-popup';
+
+            this.popupContent = document.createElement('div');
+            this.popupContent.id = 'ol-dji-geozones--popup-content';
+            this.popupContent.className = 'ol-dji-geozones--ol-popup-content'
+
+            let popupCloser = document.createElement('a');
+            popupCloser.id = 'ol-dji-geozones--popup-closer';
+            popupCloser.className = 'ol-dji-geozones--ol-popup-closer';
+            popupCloser.href = '#';
+            popupCloser.onclick = () => {
+                this.overlay.setPosition(undefined);
+                popupCloser.blur();
+                return false;
+            };
+
+            popupContainer.append(popupCloser);
+            popupContainer.append(this.popupContent);
+
+            this.overlay = new Overlay({
+                element: popupContainer,
+                autoPan: true,
+                autoPanAnimation: {
+                    duration: 250,
+                },
+            });
+
+            this.map.addOverlay(this.overlay);
+        }
+
+        /**
+         * 
+         * @param {HTMLElement | string} targetControl 
+         */
+        const addMapControl = (targetControl) => {
+
+            const createDroneSelector = _ => {
+
+                const handleChange = ({ target }) => {
+                    this.drone = (target.value || target.options[target.selectedIndex].value);
+                    this.getInfoFromView(/* clear = */ true);
+                }
+
+                let droneSelector = document.createElement('div');
+                droneSelector.className = 'ol-dji-geozones--drone-selector';
+
+                let select = document.createElement('select');
+                select.onchange = handleChange;
+
+                if (!this.isVisible) select.setAttribute('disabled', 'disabled');
+
+                let options = '';
+
+                droneList.forEach(drone => {
+                    let selected = (this.drone === drone.value) ? 'selected' : '';
+                    options += `<option value="${drone.value}" ${selected}>${drone.name}</option>`
+                })
+
+                select.innerHTML = options;
+
+                droneSelector.append(select);
+
+                return droneSelector;
+
+            }
+
+            const createLevelSelector = _ => {
+
+                const handleClick = ({ target }) => {
+
+                    let value = Number(target.value);
+                    let bool;
+
+                    if (target.checked === true) {
+                        this.levelsActivated = [...this.levelsActivated, value];
+                        bool = true;
+                    } else {
+                        let index = this.levelsActivated.indexOf(value);
+                        if (index !== -1) {
+                            this.levelsActivated.splice(index, 1);
+                        }
+                        bool = false;
+                    }
+
+                    let layer = this.getLayerByLevel(value);
+                    layer.setVisible(bool);
+                }
+
+                const createLegend = color => {
+                    let span = document.createElement('span');
+                    span.className = 'ol-dji-geozones--mark'
+                    span.style.border = `1px ${color} solid`;
+                    span.style.backgroundColor = colorWithAlpha(color, 0.4);
+
+                    return span;
+                }
+
+                const createLabel = (label, name, color) => {
+                    let labelEl = document.createElement('label');
+                    labelEl.htmlFor = name;
+                    labelEl.append(createLegend(color));
+                    labelEl.append(label);
+
+                    return labelEl;
+                }
+
+                const createCheckbox = (name, value, disabled) => {
+                    let checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.name = name;
+                    checkbox.id = name;
+                    checkbox.value = value;
+
+                    checkbox.onclick = handleClick;
+
+                    if (this.levelsActivated.indexOf(value) !== -1)
+                        checkbox.checked = 'checked';
+
+                    if (disabled)
+                        checkbox.disabled = 'disabled';
+
+                    return checkbox;
+                }
+
+                const createLevelItem = (value, { name, desc, color }) => {
+
+                    let disabled = !this.isVisible;
+                    let id = 'level' + value;
+
+                    let divContainer = document.createElement('div');
+                    divContainer.className = `ol-dji-geozones--item-ctl ol-dji-geozones--item-ctl-${value}`;
+                    divContainer.title = desc;
+                    divContainer.setAttribute('data-level', value);
+                    divContainer.append(createCheckbox(id, value, disabled));
+                    divContainer.append(createLabel(name, id, color));
+
+                    return divContainer;
+                }
+
+                let levelSelector = document.createElement('div');
+                levelSelector.className = 'ol-dji-geozones--level-selector';
+
+                this.levelsToDisplay.forEach(lev => {
+                    let level = createLevelItem(lev, this.levelParams[lev]);
+                    levelSelector.append(level);
+                })
+
+                return levelSelector;
+
+            }
+
+            let divControl = document.createElement('div');
+            divControl.className = 'ol-dji-geozones ol-control ol-dji-geozones--ctrl-disabled';
+            divControl.innerHTML = `
         <div>
             <h3>DJI Geo Zone</h3>
             <span class="ol-dji-geozones--loading">
-                ${this.loadingElement}
+                ${LOADING_ELEMENT}
             </span>
             <span class="ol-dji-geozones--advice">(Zoom in)</span>
         </div>`;
 
-        let droneSelector = createDroneSelector();
-        divControl.append(droneSelector);
+            let droneSelector = createDroneSelector();
+            divControl.append(droneSelector);
 
-        let levelSelector = createLevelSelector();
-        divControl.append(levelSelector);
+            let levelSelector = createLevelSelector();
+            divControl.append(levelSelector);
 
-        this.divControl = divControl;
+            this.divControl = divControl;
 
-        let options = {
-            element: divControl
-        };
+            let options = {
+                element: divControl
+            };
 
-        if (targetControl) {
-            options.target = target;
-        }
-
-        this.control = new Control(options)
-
-        this.map.addControl(this.control);
-
-    }
-
-    createPopUpOverlay() {
-
-        const popupContainer = document.createElement('div');
-        popupContainer.id = 'ol-dji-geozones--popup';
-        popupContainer.className = 'ol-popup ol-dji-geozones--ol-popup';
-
-        this.popupContent = document.createElement('div');
-        this.popupContent.id = 'ol-dji-geozones--popup-content';
-        this.popupContent.className = 'ol-dji-geozones--ol-popup-content'
-
-        let popupCloser = document.createElement('a');
-        popupCloser.id = 'ol-dji-geozones--popup-closer';
-        popupCloser.className = 'ol-dji-geozones--ol-popup-closer';
-        popupCloser.href = '#';
-        popupCloser.onclick = () => {
-            this.overlay.setPosition(undefined);
-            popupCloser.blur();
-            return false;
-        };
-
-        popupContainer.append(popupCloser);
-        popupContainer.append(this.popupContent);
-
-        this.overlay = new Overlay({
-            element: popupContainer,
-            autoPan: true,
-            autoPanAnimation: {
-                duration: 250,
-            },
-        });
-
-        this.map.addOverlay(this.overlay);
-    }
-
-    addMapEvents() {
-
-        /**
-         * Enable or disable the inputs and the select in the control
-         * @param {Boolean} enabled 
-         */
-        const setControlEnabled = (enabled) => {
-
-            const changeState = array => {
-                array.forEach(el => {
-
-                    if (enabled)
-                        el.removeAttribute('disabled');
-                    else
-                        el.disabled = 'disabled';
-
-                });
+            if (targetControl) {
+                options.target = target;
             }
 
-            if (enabled)
-                this.divControl.classList.remove('ol-dji-geozones--ctrl-disabled');
-            else
-                this.divControl.classList.add('ol-dji-geozones--ctrl-disabled');
+            this.control = new Control(options)
 
-            changeState(this.divControl.querySelectorAll('input'));
-            changeState(this.divControl.querySelectorAll('select'));
+            this.map.addControl(this.control);
 
         }
 
-        const handleZoomEnd = _ => {
+        const addMapEvents = () => {
 
-            const setVisible = (bool) => {
-                this.layers.forEach(layer => {
+            /**
+             * Enable or disable the inputs and the select in the control
+             * @param {Boolean} enabled 
+             */
+            const setControlEnabled = (enabled) => {
 
-                    if (!bool) {
-                        layer.setVisible(bool)
-                    } else if (bool && this.levelsActivated.includes(layer.get('level'))) {
-                        layer.setVisible(bool);
+                const changeState = array => {
+                    array.forEach(el => {
+
+                        if (enabled)
+                            el.removeAttribute('disabled');
+                        else
+                            el.disabled = 'disabled';
+
+                    });
+                }
+
+                if (enabled)
+                    this.divControl.classList.remove('ol-dji-geozones--ctrl-disabled');
+                else
+                    this.divControl.classList.add('ol-dji-geozones--ctrl-disabled');
+
+                changeState(this.divControl.querySelectorAll('input'));
+                changeState(this.divControl.querySelectorAll('select'));
+
+            }
+
+            const handleZoomEnd = _ => {
+
+                const setVisible = (bool) => {
+                    this.layers.forEach(layer => {
+
+                        if (!bool) {
+                            layer.setVisible(bool)
+                        } else if (bool && this.levelsActivated.includes(layer.get('level'))) {
+                            layer.setVisible(bool);
+                        }
+
+                    })
+                }
+
+                if (this.currentZoom < MIN_ZOOM) {
+
+                    // Hide the layer and disable the control
+                    if (this.isVisible) {
+                        setVisible(false);
+                        this.isVisible = false;
+                        setControlEnabled(false);
                     }
 
-                })
+                } else {
+
+                    // Show the layers and enable the control
+                    if (!this.isVisible) {
+                        setVisible(true);
+                        this.isVisible = true;
+                        setControlEnabled(true);
+                    } else {
+                        // If the view is closer, don't do anything, we already had the features
+                        if (this.currentZoom > this.lastZoom)
+                            return;
+                    }
+
+                    this.getInfoFromView();
+                }
+
             }
 
-            if (this.currentZoom < MIN_ZOOM) {
-
-                // Hide the layer and disable the control
-                if (this.isVisible) {
-                    setVisible(false);
-                    this.isVisible = false;
-                    setControlEnabled(false);
-                }
-
-            } else {
-
-                // Show the layers and enable the control
-                if (!this.isVisible) {
-                    setVisible(true);
-                    this.isVisible = true;
-                    setControlEnabled(true);
-                } else {
-                    // If the view is closer, don't do anything, we already had the features
-                    if (this.currentZoom > this.lastZoom)
-                        return;
-                }
-
+            const handleDragEnd = _ => {
+                if (!this.isVisible) return;
                 this.getInfoFromView();
             }
 
-        }
-
-        const handleDragEnd = _ => {
-            if (!this.isVisible) return;
-            this.getInfoFromView();
-        }
-
-        const clickHandler = (evt) => this.getPointInfoFromClick(evt);
-
-        this.map.on('moveend', _ => {
-
-            this.currentZoom = this.view.getZoom();
-
-            if (this.currentZoom !== this.lastZoom)
-                handleZoomEnd();
-            else
-                handleDragEnd();
-
-            this.lastZoom = this.currentZoom;
-
-        });
-
-        this.map.on('singleclick', clickHandler);
-
-    }
-
-    clearFeatures() {
-        this.layers.forEach(layer => {
-            layer.getSource().clear();
-        })
-
-    }
-
-    getFeatureById(id) {
-        let feature;
-        for (let layer of this.layers) {
-            feature = layer.getSource().getFeatureById(id);
-            if (feature) break;
-        }
-        return feature;
-    }
-
-    getLayerByLevel(level) {
-        let find;
-        for (let layer of this.layers) {
-            if (layer.get('level') != undefined && layer.get('level') == level) {
-                find = layer;
-                break;
+            const clickHandler = (evt) => {
+                let type = (this.useApiForPopUp) ? 'useApiForPopUp' : 'useFeatures';
+                this.getPointInfoFromClick(evt, type);
             }
-        };
-        return find;
-    }
 
-    addFeatures(features) {
+            this.map.on('moveend', _ => {
 
-        features.forEach(feature => {
-            let level = feature.get('level');
-            let layer = this.getLayerByLevel(level);
-            layer.getSource().addFeature(feature);
-        })
-    }
+                this.currentZoom = this.view.getZoom();
 
-    showGeozoneDataInPopUp(geozonesData, coordinates) {
+                if (this.currentZoom !== this.lastZoom)
+                    handleZoomEnd();
+                else
+                    handleDragEnd();
 
-        const parseDataToHtml = ({ name, level, type, height, description, begin_at, end_at, address, url }) => {
+                this.lastZoom = this.currentZoom;
 
-            return `
-            <div class="ol-dji-geozones--item">
-                <div class="ol-dji-geozones--marker">
-                    <img src="${levelParams[level].markerCircle}">
-                </div>
-                <div class="ol-dji-geozones--main">
-                <h3 class="ol-dji-geozones--title">${name}</h3>
-                    <p class="level">Level: ${levelParams[level].name}</p>
-                    <p class="type">Type: ${typeList[type].name}</p>
-                    ${(begin_at) ? `<p class="start_time">End Time: ${begin_at}</p>` : ''}
-                    ${(end_at) ? `<p class="end_time">End Time: ${end_at}</p><p class="time_tips">Time: 24-hour clock</p>` : ''}         
-                    ${(height) ? `<p class="height">Max. Altitude (m): ${height}</p>` : ''} 
-                    ${(address) ? `<p class="address">Address: ${address}</p>` : ''}
-                    ${(description) ? `<p class="desc">Tips: ${description}</p>` : ''}
-                    ${(url) ? `<p class="url">Link: <a href="${url}">Learn More</a></p>` : ''}
-                </div>
-            </div> `;
+            });
+
+            this.map.on('singleclick', clickHandler);
 
         }
 
-        let html = [];
-        let preventDuplicates = [];
+        if (this.initiated) return;
 
-        geozonesData = Array.isArray(geozonesData) ? geozonesData : [geozonesData];
+        this.initiated = true;
 
-        geozonesData.forEach(geozoneProps => {
+        createVectorLayers();
+        createPopUpOverlay();
+        addMapEvents();
 
-            let htmlItem = parseDataToHtml(geozoneProps, coordinates);
-            // The oficial DJI map show duplicates, but we don't want that
-            if (preventDuplicates.indexOf(htmlItem) === -1) {
-                preventDuplicates.push(htmlItem);
-                html.push(htmlItem);
-            }
-        })
-
-        this.popupContent.innerHTML = html.join('<hr>');
-
-        this.overlay.setPosition(coordinates);
+        if (addControl)
+            addMapControl(targetControl);
 
     }
 
-
-    async getPointInfoFromClick(evt) {
+    async getPointInfoFromClick(evt, type) {
 
         let infoKeys = ['name', 'level', 'type', 'height', 'shape', 'start_at', 'end_at', 'url', 'address', 'description'];
+        let idInfoRequest = 0;
 
         const getInfoFromApiLatLng = async (coordinate) => {
 
             // Prevent multiples requests
-            this.idInfoRequest += 1;
-            let request = this.idInfoRequest;
+            idInfoRequest += 1;
+            let request = idInfoRequest;
 
             return new Promise((resolve, reject) => {
 
                 setTimeout(async _ => {
 
-                    if (request !== this.idInfoRequest) return;
+                    if (request !== idInfoRequest) return;
 
                     let center4326 = transform(coordinate, this.projection, 'EPSG:4326');
 
@@ -595,6 +505,52 @@ export default class DjiGeozones {
 
         }
 
+        const showGeozoneDataInPopUp = (geozonesData, coordinates) => {
+
+            const parseDataToHtml = ({ name, level, type, height, description, begin_at, end_at, address, url }) => {
+
+                return `
+                <div class="ol-dji-geozones--item">
+                    <div class="ol-dji-geozones--marker">
+                        <img src="${levelParams[level].markerCircle}">
+                    </div>
+                    <div class="ol-dji-geozones--main">
+                    <h3 class="ol-dji-geozones--title">${name}</h3>
+                        <p class="level">Level: ${levelParams[level].name}</p>
+                        <p class="type">Type: ${typeList[type].name}</p>
+                        ${(begin_at) ? `<p class="start_time">End Time: ${begin_at}</p>` : ''}
+                        ${(end_at) ? `<p class="end_time">End Time: ${end_at}</p><p class="time_tips">Time: 24-hour clock</p>` : ''}         
+                        ${(height) ? `<p class="height">Max. Altitude (m): ${height}</p>` : ''} 
+                        ${(address) ? `<p class="address">Address: ${address}</p>` : ''}
+                        ${(description) ? `<p class="desc">Tips: ${description}</p>` : ''}
+                        ${(url) ? `<p class="url">Link: <a href="${url}">Learn More</a></p>` : ''}
+                    </div>
+                </div> `;
+
+            }
+
+            let html = [];
+            let preventDuplicates = [];
+
+            geozonesData = Array.isArray(geozonesData) ? geozonesData : [geozonesData];
+
+            geozonesData.forEach(geozoneProps => {
+
+                let htmlItem = parseDataToHtml(geozoneProps, coordinates);
+                // The oficial DJI map show duplicates, but we don't want that
+                if (preventDuplicates.indexOf(htmlItem) === -1) {
+                    preventDuplicates.push(htmlItem);
+                    html.push(htmlItem);
+                }
+            })
+
+            this.popupContent.innerHTML = html.join('<hr>');
+
+            this.overlay.setPosition(coordinates);
+
+        }
+
+
         try {
 
             if (!this.isVisible) {
@@ -609,11 +565,11 @@ export default class DjiGeozones {
             let data;
 
             // Call the API  to download the information
-            if (this.useInfoApi) {
+            if (type === 'useApiForPopUp') {
 
                 if (this.map.hasFeatureAtPixel(evt.pixel, opt_options)) {
 
-                    this.popupContent.innerHTML = this.loadingElement;
+                    this.popupContent.innerHTML = LOADING_ELEMENT;
                     this.overlay.setPosition(evt.coordinate);
 
                     data = await getInfoFromApiLatLng(evt.coordinate);
@@ -629,7 +585,7 @@ export default class DjiGeozones {
 
             }
 
-            if (data && data.length) this.showGeozoneDataInPopUp(data, evt.coordinate);
+            if (data && data.length) showGeozoneDataInPopUp(data, evt.coordinate);
             else this.overlay.setPosition(undefined);
 
 
@@ -640,6 +596,8 @@ export default class DjiGeozones {
     }
 
     getInfoFromView(clear = false) {
+
+        let idAreasRequest = 0;
 
         /**
          * The level parameter returned by the API is wrong, so wee need to fixed using the color
@@ -710,10 +668,9 @@ export default class DjiGeozones {
                     geometry: new Point([area.lng, area.lat]).transform('EPSG:4326', this.projection)
                 });
 
-                features.push(fixLevelValue(feature));
-
                 // Store the id to avoid duplicates
                 feature.setId(area.area_id);
+                features.push(fixLevelValue(feature));           
 
                 if (area.sub_areas) {
 
@@ -782,13 +739,13 @@ export default class DjiGeozones {
         }
 
         // Prevent multiples requests
-        this.idAreasRequest += 1;
-        let request = this.idAreasRequest;
+        idAreasRequest += 1;
+        let request = idAreasRequest;
 
         // Original DJI map same behavior to prevent multiples requests
         setTimeout(async _ => {
 
-            if (request !== this.idAreasRequest) return;
+            if (request !== idAreasRequest) return;
 
             try {
 
@@ -847,7 +804,7 @@ export default class DjiGeozones {
                 'drone': this.drone,
                 'zones_mode': this.zones_mode,
                 'country': this.country,
-                'level': this.apiLevels,
+                'level': API_LEVELS,
                 'lng': lng,
                 'lat': lat,
                 'search_radius': searchRadius
@@ -922,6 +879,54 @@ export default class DjiGeozones {
 
         return data;
 
+    }
+
+    /**
+     * Show or hides the control
+     * @param {Boolean} visible 
+     */
+    setControlVisible(visible) {
+
+        if (visible)
+            this.divControl.classList.addClass('ol-dji-geozones--ctrl-hidden');
+        else
+            this.divControl.classList.removeClass('ol-dji-geozones--ctrl-hidden');
+
+    }
+
+    clearFeatures() {
+        this.layers.forEach(layer => {
+            layer.getSource().clear();
+        })
+
+    }
+
+    getFeatureById(id) {
+        let feature;
+        for (let layer of this.layers) {
+           feature = layer.getSource().getFeatureById(id);
+           if (feature) break;
+        }
+        return feature;
+    }
+
+    getLayerByLevel(level) {
+        let find;
+        for (let layer of this.layers) {
+            if (layer.get('level') != undefined && layer.get('level') == level) {
+                find = layer;
+                break;
+            }
+        };
+        return find;
+    }
+
+    addFeatures(features) {
+        features.forEach(feature => {
+            let level = feature.get('level');
+            let layer = this.getLayerByLevel(level);
+            layer.getSource().addFeature(feature);
+        })
     }
 
 }

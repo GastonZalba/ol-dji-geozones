@@ -16,12 +16,12 @@ Now days, DJI doesn't offer any API documentation, so future support and access 
 ```js
 // Default values
 let opt_options = {
-    drone: 'spark',
-    zonesMode: 'total',
-    country: 'US',
-    levelsToDisplay: [2, 6, 1, 0, 3, 4, 7], // The order is respeted in the control
-    levelsActivated: [0, 1, 2, 3, 4, 6, 7],
-    control: true, // Create or not the control
+    drone: 'spark', // {string} See drone parameter in the DJI API section
+    zonesMode: 'total', // {string}
+    country: 'US', // {string} See country parameter in the DJI API section
+    levelsToDisplay: [2, 6, 1, 0, 3, 4, 7], // {array} Order is kept in the Control
+    levelsActivated: [2, 6, 1, 0, 3, 4, 7], // {array}
+    control: true, // {boolean} Create or not the control
     targetControl: null // {HTMLElement | string} Specify a target if you want the control to be rendered outside of the map's viewport.
 }
 
@@ -44,11 +44,8 @@ let source = djiGeozones.getSource(); // returns the ol/source/Vector~VectorSour
 ```
 ## [DJI API](https://www-api.dji.com/api/geo/areas) - What we know
 ### Problems
-The data returnrd by the API has some problems:
-- The elements in level 6 (Altitude Zones, grey features) are returning from the api tagged with level 2 (Restricted Zones, red features). 
-- The elements in level 4 (Regulatory Restricted Zones, light blue features) are returning from the api tagged with level 7 (Recommended Zones, green features). 
-This imposibilites filter theses levels separatedly in the requests.
-To bypass this problem, this module functions completely different of the official map. 
+The data returned by the API has some problems/strange behaviors:
+- The elements in *level 6* (Altitude Zones, grey color) are returning from the api with *level 2* in the properties (Restricted Zones, red color), and the elements in *level 4* (Regulatory Restricted Zones, light blue color) with *level 7* (Recommended Zones, green color). This makes very messy the frontend, and make it impossible to filter these levels accordingly in each request. To avoid this problem, this module functions completely different from the official map: performss the API requests including all *levels*, distributing the results in differents layers according to each level.
 
 ### Required parameters
 - `level`
@@ -57,11 +54,11 @@ To bypass this problem, this module functions completely different of the offici
     - `1` - Authorization Zones: In these Zones, which appear blue in the DJI GO map, users will be prompted with a warning and flight is limited by default. Authorization Zones may be unlocked by authorized users using a DJI verified account.
     - `0` - Warning Zones: In these Zones, which may not necessarily appear on the DJI GO map, users will be prompted with a warning message. Example Warning Zone: Class E airspace.
     - `3` - Enhanced Warning Zones: In these Zones, you will be prompted by GEO at the time of flight to unlock the zone using the same steps as in an Authorization Zone, but you do not require a verified account or an internet connection at the time of your flight.
-    - `9` - Densely Populated Area: This area is shown in red on the map. Under normal circumstances, the population of this area is more concentrated, so please do not fly over this area. (Example: Commercial Block). **NOT SUPPORTED - This level exists in the oficial Geo Zone Map, but this data is not provided by this api. Now days, apparently this level is valid only for Japan and China**
+    - `9` - Densely Populated Area: This area is shown in red on the map. Under normal circumstances, the population of this area is more concentrated, so please do not fly over this area. (Example: Commercial Block). **NOT SUPPORTED - This level exists in the oficial Geo Zone Map, but this data is not provided by the api. On the other hand, now days this level is apparently valid only for Japan and China**
     - `4` - Regulatory Restricted Zones: Due to local regulations and policies, flights are prohibited within the scope of some special areas. (Example：Prison).
     - `7` - Recommended Zones: This area is shown in green on the map. It is recommended that you choose these areas for flight arrangements.
     - `8` - Approved Zones for Light UAVs(China): For Approved Zones, pilots of light UAVs flying at an altitude of 120 m or less are not required to obtain permission to fly. Pilots who are planning to fly medium-sized UAVs in Approved Zones at an altitude higher than 120 m, or in GEO Zones other than Approved Zones, must obtain permission via UTMISS before taking off. **Only valid for China**
-    - `5` - Recommended Zones (2)  **Apparently this level is valid only for Japan**
+    - `5` - Recommended Zones (2)  **Apparently this level is only valid for Japan**
 
 - `drone`
     - `mavic-mini` (Mavic Mini)
@@ -94,12 +91,12 @@ To bypass this problem, this module functions completely different of the offici
     - `AR`
     - *etc* ([See the supported list](https://www.dji.com/flysafe/geo-map))
 - `lng`
-    - *Longitude of current the map view*
+    - *Center point Longitude*
 - `lat`
-    - *Latitude of current the map view*
+    - *Center point Latitude*
 - `zones_mode`
     - `total`
-    - *¿maybe accept others values?*
+    - *¿maybe accepts anothers values?*
 - `search_radius`
     - *Radius of the current view of the map*
 
