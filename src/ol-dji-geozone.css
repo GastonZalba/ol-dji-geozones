@@ -109,6 +109,13 @@
 .ol-dji-geozone--ol-popup-content p {
   margin: 0;
 }
+
+.ol-dji-geozone--ol-popup-content a {
+  color: #44a8f2;
+  font-size: 12px;
+  text-decoration: none;
+}
+
 .ol-dji-geozone--item {
     display: inline-block;
 }

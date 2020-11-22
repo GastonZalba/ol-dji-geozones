@@ -40,8 +40,10 @@
         "markerCircle" : "https://www4.djicdn.com/assets/images/flysafe/geo-system/recommended-e92f991d039ae145c9b1c72ad62b26b2.png?from=cdnMap"
     },
     "5": {
+        "name": "Recommended Zones",
+        "color": "#00BE00",
         "zIndex": 1,
-        "markerIcon": "https://www3.djicdn.com/assets/images/flysafe/geo-system/dark-green-marker-a45d865ea1fb9df5346ad5b06084d9ba.png?from=cdnMap",
+        "markerIcon": "https://www1.djicdn.com/dps/53b33783709b6ed06bc3afdd21ac2a81.png",
         "markerCircle" : "https://www4.djicdn.com/assets/images/flysafe/geo-system/recommended-e92f991d039ae145c9b1c72ad62b26b2.png?from=cdnMap"
     },
     "6": {
@@ -57,12 +59,23 @@
         "desc": "This area is shown in green on the map. It is recommended that you choose these areas for flight arrangements.",
         "color": "#00BE00",
         "zIndex": 1,
-        "markerIcon": "'https://www1.djicdn.com/dps/9d922ae5fbd80d3166a844a9e249ceb3.png",
+        "markerIcon": "https://www1.djicdn.com/dps/9d922ae5fbd80d3166a844a9e249ceb3.png",
         "markerCircle" : "https://www1.djicdn.com/assets/images/flysafe/geo-system/regulations-2dfeef5b11017811dcaa720c86c49406.png?from=cdnMap"
     },
     "8": {
+        "name": "Approved Zones for Light UAVs(China)",
+        "desc": "For Approved Zones, pilots of light UAVs flying at an altitude of 120 m or less are not required to obtain permission to fly. Pilots who are planning to fly medium-sized UAVs in Approved Zones at an altitude higher than 120 m, or in GEO Zones other than Approved Zones, must obtain permission via UTMISS before taking off",
+        "color": "#00BE00",
         "zIndex": 1,
         "markerIcon": "https://www1.djicdn.com/dps/53b33783709b6ed06bc3afdd21ac2a81.png",
         "markerCircle" : "https://www1.djicdn.com/dps/a968914208241c3f6a5a3c64c221b8ff.png"
+    },
+    "9": {
+        "name": "Densely Populated Area",
+        "desc": "This area is shown in red on the map. Under normal circumstances, the population of this area is more concentrated, so please do not fly over this area. (Example: Commercial Block)",
+        "color": "#DE4329",
+        "zIndex": 1,
+        "markerIcon" : "https://www1.djicdn.com/dps/d47dfe9f089f259631fbed99610b8b5a.png",
+        "markerCircle" : "https://www5.djicdn.com/assets/images/flysafe/geo-system/restricted-e0ce1467a8df2d07ec6a33cf11f4279e.png?from=cdnMap"
     }
 }
