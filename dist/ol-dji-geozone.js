@@ -1,14 +1,15 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('ol/layer/Vector'), require('ol/source/Vector'), require('ol/Feature'), require('ol/proj'), require('ol/sphere'), require('ol/geom'), require('ol/style'), require('ol/control'), require('ol/color'), require('ol/geom/Polygon'), require('ol/extent')) :
-  typeof define === 'function' && define.amd ? define(['ol/layer/Vector', 'ol/source/Vector', 'ol/Feature', 'ol/proj', 'ol/sphere', 'ol/geom', 'ol/style', 'ol/control', 'ol/color', 'ol/geom/Polygon', 'ol/extent'], factory) :
-  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.DjiGeozone = factory(global.ol.layer.Vector, global.ol.source.Vector, global.ol.Feature, global.ol.proj, global.ol.sphere, global.ol.geom, global.ol.style, global.ol.control, global.ol.color, global.ol.geom.Polygon, global.ol.extent));
-}(this, (function (VectorLayer, VectorSource, Feature, proj, sphere, geom, style, control, color, Polygon, extent) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('ol/layer/Vector'), require('ol/source/Vector'), require('ol/Feature'), require('ol/Overlay'), require('ol/proj'), require('ol/sphere'), require('ol/geom'), require('ol/style'), require('ol/control'), require('ol/color'), require('ol/geom/Polygon'), require('ol/extent')) :
+  typeof define === 'function' && define.amd ? define(['ol/layer/Vector', 'ol/source/Vector', 'ol/Feature', 'ol/Overlay', 'ol/proj', 'ol/sphere', 'ol/geom', 'ol/style', 'ol/control', 'ol/color', 'ol/geom/Polygon', 'ol/extent'], factory) :
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.DjiGeozone = factory(global.ol.layer.Vector, global.ol.source.Vector, global.ol.Feature, global.ol.Overlay, global.ol.proj, global.ol.sphere, global.ol.geom, global.ol.style, global.ol.control, global.ol.color, global.ol.geom.Polygon, global.ol.extent));
+}(this, (function (VectorLayer, VectorSource, Feature, Overlay, proj, sphere, geom, style, control, color, Polygon, extent) { 'use strict';
 
   function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 
   var VectorLayer__default = /*#__PURE__*/_interopDefaultLegacy(VectorLayer);
   var VectorSource__default = /*#__PURE__*/_interopDefaultLegacy(VectorSource);
   var Feature__default = /*#__PURE__*/_interopDefaultLegacy(Feature);
+  var Overlay__default = /*#__PURE__*/_interopDefaultLegacy(Overlay);
 
   function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
     try {
@@ -100,56 +101,65 @@
   	name: "Warning Zones",
   	desc: "In these Zones, which may not necessarily appear on the DJI GO map, users will be prompted with a warning message. Example Warning Zone: Class E airspace",
   	color: "#FFCC00",
+  	zIndex: 1,
   	markerIcon: "https://www1.djicdn.com/dps/6734f5340f66c7be37db48c8889392bf.png",
-  	markerCircle: "//www2.djicdn.com/assets/images/flysafe/geo-system/warning-98a8a2c8d6768e22957488ce962d77c3.png?from=cdnMap"
+  	markerCircle: "https://www2.djicdn.com/assets/images/flysafe/geo-system/warning-98a8a2c8d6768e22957488ce962d77c3.png?from=cdnMap"
   },
   	"1": {
   	name: "Authorization Zones",
   	desc: "In these Zones, which appear blue in the DJI GO map, users will be prompted with a warning and flight is limited by default. Authorization Zones may be unlocked by authorized users using a DJI verified account.",
   	color: "#1088F2",
+  	zIndex: 2,
   	markerIcon: "https://www1.djicdn.com/dps/fbbea9e33581907cac182adb4bcd0c94.png",
-  	markerCircle: "//www4.djicdn.com/assets/images/flysafe/geo-system/authorization-878e879982c9555bcaab7bb6bce3c6ca.png?from=cdnMap"
+  	markerCircle: "https://www4.djicdn.com/assets/images/flysafe/geo-system/authorization-878e879982c9555bcaab7bb6bce3c6ca.png?from=cdnMap"
   },
   	"2": {
   	name: "Restricted Zones",
   	desc: "In these Zones, which appear red the DJI GO app, users will be prompted with a warning and flight is prevented. If you believe you have the authorization to operate in a Restricted Zone, please contact flysafe@dji.com or Online Unlocking.",
   	color: "#DE4329",
+  	zIndex: 3,
   	markerIcon: "https://www1.djicdn.com/dps/d47dfe9f089f259631fbed99610b8b5a.png",
-  	markerCircle: "//www5.djicdn.com/assets/images/flysafe/geo-system/restricted-e0ce1467a8df2d07ec6a33cf11f4279e.png?from=cdnMap"
+  	markerCircle: "https://www5.djicdn.com/assets/images/flysafe/geo-system/restricted-e0ce1467a8df2d07ec6a33cf11f4279e.png?from=cdnMap"
   },
   	"3": {
   	name: "Enhanced Warning Zones",
   	desc: "In these Zones, you will be prompted by GEO at the time of flight to unlock the zone using the same steps as in an Authorization Zone, but you do not require a verified account or an internet connection at the time of your flight.",
   	color: "#EE8815",
+  	zIndex: 1,
   	markerIcon: "https://www1.djicdn.com/dps/df822149e1e6e9e804e177813e044238.png",
-  	markerCircle: "//www4.djicdn.com/assets/images/flysafe/geo-system/enhanced_warning-623fea05bff2f83f3c0ff5a65a41a1df.png?from=cdnMap"
+  	markerCircle: "https://www4.djicdn.com/assets/images/flysafe/geo-system/enhanced_warning-623fea05bff2f83f3c0ff5a65a41a1df.png?from=cdnMap"
   },
   	"4": {
   	name: "Regulatory Restricted Zones",
   	desc: "Due to local regulations and policies, flights are prohibited within the scope of some special areas. (Example：Prison)",
   	color: "#37C4DB",
+  	zIndex: 1,
   	markerIcon: "https://www1.djicdn.com/dps/53b33783709b6ed06bc3afdd21ac2a81.png",
-  	markerCircle: "//www4.djicdn.com/assets/images/flysafe/geo-system/recommended-e92f991d039ae145c9b1c72ad62b26b2.png?from=cdnMap"
+  	markerCircle: "https://www4.djicdn.com/assets/images/flysafe/geo-system/recommended-e92f991d039ae145c9b1c72ad62b26b2.png?from=cdnMap"
   },
   	"5": {
-  	markerIcon: "//www3.djicdn.com/assets/images/flysafe/geo-system/dark-green-marker-a45d865ea1fb9df5346ad5b06084d9ba.png?from=cdnMap",
-  	markerCircle: "//www4.djicdn.com/assets/images/flysafe/geo-system/recommended-e92f991d039ae145c9b1c72ad62b26b2.png?from=cdnMap"
+  	zIndex: 1,
+  	markerIcon: "https://www3.djicdn.com/assets/images/flysafe/geo-system/dark-green-marker-a45d865ea1fb9df5346ad5b06084d9ba.png?from=cdnMap",
+  	markerCircle: "https://www4.djicdn.com/assets/images/flysafe/geo-system/recommended-e92f991d039ae145c9b1c72ad62b26b2.png?from=cdnMap"
   },
   	"6": {
   	name: "Altitude Zones",
   	desc: "Altitude zones will appear in gray on the map. Users receive warnings in DJI GO, or DJI GO 4 and flight altitude is limited.",
   	color: "#979797",
+  	zIndex: 2,
   	markerIcon: "https://www1.djicdn.com/dps/f5961991d664e130fcf9ad01b1f28043.png",
-  	markerCircle: "//www1.djicdn.com/assets/images/flysafe/geo-system/Oval-34907c1071d63a3f1fffdc739b0943d9.png?from=cdnMap"
+  	markerCircle: "https://www1.djicdn.com/assets/images/flysafe/geo-system/Oval-34907c1071d63a3f1fffdc739b0943d9.png?from=cdnMap"
   },
   	"7": {
   	name: "Recommended Zones",
   	desc: "This area is shown in green on the map. It is recommended that you choose these areas for flight arrangements.",
   	color: "#00BE00",
+  	zIndex: 1,
   	markerIcon: "'https://www1.djicdn.com/dps/9d922ae5fbd80d3166a844a9e249ceb3.png",
-  	markerCircle: "//www1.djicdn.com/assets/images/flysafe/geo-system/regulations-2dfeef5b11017811dcaa720c86c49406.png?from=cdnMap"
+  	markerCircle: "https://www1.djicdn.com/assets/images/flysafe/geo-system/regulations-2dfeef5b11017811dcaa720c86c49406.png?from=cdnMap"
   },
   	"8": {
+  	zIndex: 1,
   	markerIcon: "https://www1.djicdn.com/dps/53b33783709b6ed06bc3afdd21ac2a81.png",
   	markerCircle: "https://www1.djicdn.com/dps/a968914208241c3f6a5a3c64c221b8ff.png"
   }
@@ -384,6 +394,7 @@
       this.areaDownloaded = null;
       this.createLayer();
       this.addMapEvents();
+      this.createPopUpOverlay();
       if (addControl) this.addMapControl(targetControl);
     }
 
@@ -393,7 +404,6 @@
         var style$1;
 
         if (geomType === 'Polygon' || geomType === 'Circle') {
-          var height = feature.get('height');
           var color = feature.get('color');
           style$1 = new style.Style({
             fill: new style.Fill({
@@ -403,7 +413,7 @@
               color: color,
               width: 1
             }),
-            zIndex: height
+            zIndex: this.levelParams[feature.get('level')].zIndex
           });
         } else if (geomType === 'Point') {
           style$1 = new style.Style({
@@ -412,7 +422,7 @@
               scale: 0.35,
               anchor: [0.5, 0.9]
             }),
-            zIndex: 300
+            zIndex: this.levelParams[feature.get('level')].zIndex * 2
           });
         }
 
@@ -451,7 +461,7 @@
             target
           } = _ref;
           this.drone = target.value || target.options[target.selectedIndex].value;
-          this.getAreasFromView(
+          this.getInfoFromView(
           /* clear = */
           true);
         };
@@ -488,7 +498,7 @@
             }
           }
 
-          this.getAreasFromView(
+          this.getInfoFromView(
           /* clear = */
           true);
         };
@@ -579,6 +589,36 @@
       this.map.addControl(this.control);
     }
 
+    createPopUpOverlay() {
+      var popupContainer = document.createElement('div');
+      popupContainer.id = 'ol-dji-geozone--popup';
+      popupContainer.className = 'ol-popup ol-dji-geozone--ol-popup';
+      this.popupContent = document.createElement('div');
+      this.popupContent.id = 'ol-dji-geozone--popup-content';
+      this.popupContent.className = 'ol-dji-geozone--ol-popup-content';
+      var popupCloser = document.createElement('a');
+      popupCloser.id = 'ol-dji-geozone--popup-closer';
+      popupCloser.className = 'ol-dji-geozone--ol-popup-closer';
+      popupCloser.href = '#';
+
+      popupCloser.onclick = () => {
+        this.overlay.setPosition(undefined);
+        popupCloser.blur();
+        return false;
+      };
+
+      popupContainer.append(popupCloser);
+      popupContainer.append(this.popupContent);
+      this.overlay = new Overlay__default['default']({
+        element: popupContainer,
+        autoPan: true,
+        autoPanAnimation: {
+          duration: 250
+        }
+      });
+      this.map.addOverlay(this.overlay);
+    }
+
     addMapEvents() {
       /**
        * Enable or disable the inputs and the select in the control
@@ -615,134 +655,171 @@
             if (this.currentZoom > this.lastZoom) return;
           }
 
-          this.getAreasFromView();
+          this.getInfoFromView();
         }
       };
 
       var handleDragEnd = _ => {
-        this.getAreasFromView();
+        this.getInfoFromView();
       };
+
+      var clickHandler = evt => this.getPointInfoFromClick(evt);
 
       this.map.on('moveend', _ => {
         this.currentZoom = this.view.getZoom();
         if (this.currentZoom !== this.lastZoom) handleZoomEnd();else handleDragEnd();
         this.lastZoom = this.currentZoom;
       });
-      this.map.on('singleclick', evt => {
-        if (!this.isVisible) return;
-        this.map.forEachFeatureAtPixel(evt.pixel, (feature, layer) => {
-          if (layer === this.layer) this.getInfoFromLatLng(evt.coordinate); //this.showFeatureInfo()
+      this.map.on('singleclick', clickHandler);
+    }
 
-          return true;
-        });
+    showGeozoneDataInPopUp(geozonesData, coordinates) {
+      var parseDataToHtml = (_ref4) => {
+        var {
+          name,
+          level,
+          type,
+          height,
+          description,
+          begin_at,
+          end_at,
+          address,
+          url
+        } = _ref4;
+        return "\n            <div class=\"ol-dji-geozone--item\">\n                <div class=\"ol-dji-geozone--marker\">\n                    <img src=\"".concat(levelParams[level].markerCircle, "\">\n                </div>\n                <div class=\"ol-dji-geozone--main\">\n                <h3 class=\"ol-dji-geozone--title\">").concat(name, "</h3>\n                    <p class=\"level\">Level: ").concat(levelParams[level].name, "</p>\n                    <p class=\"type\">Type: ").concat(typeList[type].name, "</p>\n                    ").concat(begin_at ? "<p class=\"start_time\">End Time: ".concat(begin_at, "</p>") : '', "\n                    ").concat(end_at ? "<p class=\"end_time\">End Time: ".concat(end_at, "</p><p class=\"time_tips\">Time: 24-hour clock</p>") : '', "         \n                    ").concat(height ? "<p class=\"height\">Max. Altitude (m): ".concat(height, "</p>") : '', " \n                    ").concat(address ? "<p class=\"address\">Address: ".concat(address, "</p>") : '', "\n                    ").concat(description ? "<p class=\"desc\">Tips: ".concat(description, "</p>") : '', "\n                    ").concat(url ? "<p class=\"url\">Link: <a href=\"".concat(url, "\">Learn More</a></p>") : '', "\n                </div>\n            </div> ");
+      };
+
+      var html = [];
+      var preventDuplicates = [];
+      geozonesData = Array.isArray(geozonesData) ? geozonesData : [geozonesData];
+      geozonesData.forEach(geozoneProps => {
+        var dataString = JSON.stringify(geozoneProps); // The oficial DJI map show duplicates, but we don't want that
+
+        if (preventDuplicates.indexOf(dataString) === -1) {
+          preventDuplicates.push(dataString);
+          html.push(parseDataToHtml(geozoneProps));
+          console.log(geozoneProps);
+        }
       });
+      this.popupContent.innerHTML = html.join('<hr>');
+      this.overlay.setPosition(coordinates);
     }
 
-    createPopUp(_ref4) {
-      var {
-        name,
-        level,
-        type,
-        height
-      } = _ref4;
-      return "\n        <div class=\"item\">\n            <div class=\"marker\">\n                <img src=\"".concat(levelParams[level].markerCircle, "\">\n            </div>\n            <div class=\"main\">\n            <h3 class=\"title\">").concat(name, "</h3>\n                <p class=\"level\">Level: ").concat(level, "</p>\n                <p class=\"type\">Type: ").concat(typeList[type], "</p>      \n                ").concat(height ? "<p class=\"height\">Max. Altitude (m): ".concat(height, "</p>") : '', "; \n            </div >\n        </div > ");
-    }
-
-    getInfoFromLatLng(latLng) {
-      var center4326 = proj.transform(latLng, this.projection, 'EPSG:4326');
-      var clickLatLng = {
-        lat: center4326[1],
-        lng: center4326[0]
-      };
-      this.getGeoData('info', clickLatLng);
-    }
-
-    getAreasFromView() {
-      var clear = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-      var center = this.view.getCenter();
-      var center4326 = proj.transform(center, this.projection, 'EPSG:4326');
-      var viewLatLng = {
-        lat: center4326[1],
-        lng: center4326[0]
-      };
-      this.getGeoData('areas', viewLatLng, clear);
-    }
-
-    getGeoData(type, latLng, clear) {
+    getPointInfoFromClick(evt) {
       var _this = this;
 
-      var showLoading = bool => {
-        if (bool) this.divControl.classList.add('ol-dji-geozone--isLoading');else this.divControl.classList.remove('ol-dji-geozone--isLoading');
-      }; // adapted from https://stackoverflow.com/questions/44575654/get-radius-of-the-displayed-openlayers-map
+      return _asyncToGenerator(function* () {
+        var getInfoFromApiLatLng = /*#__PURE__*/function () {
+          var _ref5 = _asyncToGenerator(function* (coordinate) {
+            // Prevent multiples requests
+            _this.idInfoRequest += 1;
+            var request = _this.idInfoRequest;
+            setTimeout( /*#__PURE__*/function () {
+              var _ref6 = _asyncToGenerator(function* (_) {
+                if (request !== _this.idInfoRequest) return;
+                var center4326 = proj.transform(coordinate, _this.projection, 'EPSG:4326');
+                var clickLatLng = {
+                  lat: center4326[1],
+                  lng: center4326[0]
+                };
+                var apiJson = yield _this.getApiGeoData('info', clickLatLng);
+                var areas = apiJson.areas;
+                if (!areas.length) return false;
+                var featuresProps = [];
 
+                for (var area of areas) {
+                  featuresProps.push(area);
+                }
 
-      var getMapRadius = (_ref5) => {
-        var {
-          lng,
-          lat
-        } = _ref5;
-        var center = [lng, lat];
-        var size = this.map.getSize();
-        var extent = this.view.calculateExtent(size);
-        extent = proj.transformExtent(extent, this.projection, 'EPSG:4326');
-        var posSW = [extent[0], extent[1]];
-        var centerToSW = sphere.getDistance(center, posSW);
-        return parseInt(centerToSW);
-      };
+                return featuresProps;
+              });
 
-      var apiRequest = /*#__PURE__*/function () {
-        var _ref7 = _asyncToGenerator(function* (type, _ref6, searchRadius) {
-          var {
-            lng,
-            lat
-          } = _ref6;
-          showLoading(true);
-          var api_endpoint = type === 'areas' ? API_AREAS_ENDPOINT : API_INFO_ENDPOINT; // If not proxy is passed, make a direct request
-          // Maybe in the future the api will has updated CORS restrictions
+              return function (_x2) {
+                return _ref6.apply(this, arguments);
+              };
+            }(), 100);
+          });
 
-          var url = new URL(_this.url_proxy ? _this.url_proxy + api_endpoint : 'https://' + api_endpoint);
-          var queryObj = {
-            'drone': _this.drone,
-            'zones_mode': _this.zones_mode,
-            'country': _this.country,
-            'level': _this.level,
-            'lng': lng,
-            'lat': lat,
-            'search_radius': searchRadius
+          return function getInfoFromApiLatLng(_x) {
+            return _ref5.apply(this, arguments);
           };
-          Object.keys(queryObj).forEach(key => url.searchParams.append(key, queryObj[key]));
-          var response = yield fetch(url);
-          showLoading(false);
-          if (!response.ok) throw new Error("HTTP-Error: " + response.status);
-          return yield response.json();
-        });
+        }();
 
-        return function apiRequest(_x, _x2, _x3) {
-          return _ref7.apply(this, arguments);
+        var getInfoFromFeatures = features => {
+          var featuresProps = [];
+          features.forEach(feature => {
+            var keys = ['name', 'level', 'type', 'height', 'shape', 'start_at', 'end_at', 'url', 'address', 'description']; // Point markers has duplicated data
+
+            if (feature.getGeometry().getType() !== 'Point') {
+              var props = {};
+              keys.forEach(key => props[key] = feature.get(key));
+              featuresProps.push(props);
+            }
+          });
+          return featuresProps;
         };
-      }();
+
+        try {
+          if (!_this.isVisible) return;
+          var useApi = false;
+          var opt_options = {
+            layerFilter: layer => layer === _this.layer
+          };
+          var data; // Call the API  to download the information
+
+          if (useApi) {
+            if (_this.map.hasFeatureAtPixel(evt.pixel, opt_options)) {
+              data = yield getInfoFromApiLatLng(evt.coordinate);
+            } // Use the previously downloaded features information
+
+          } else {
+            var features = _this.map.getFeaturesAtPixel(evt.pixel, opt_options);
+
+            data = getInfoFromFeatures(features);
+          }
+
+          if (data.length) _this.showGeozoneDataInPopUp(data, evt.coordinate);else _this.overlay.setPosition(undefined);
+        } catch (err) {
+          console.log(err);
+        }
+      })();
+    }
+
+    getInfoFromView() {
+      var _this2 = this;
+
+      var clear = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 
       var apiResponseToFeatures = djiJson => {
         var areas = djiJson.areas;
+        if (!areas || !areas.length) return false;
         var features = [];
-        if (!areas.length) return false;
 
-        for (var area of areas) {
+        var _loop = function _loop(area) {
           // If the feature already exists, continue
-          if (this.source.getFeatureById(area.area_id)) {
-            continue;
+          if (_this2.source.getFeatureById(area.area_id)) {
+            return "continue";
           }
 
           var feature = new Feature__default['default']({
+            address: area.address,
+            begin_at: area.begin_at,
             color: area.color,
+            city: area.city,
             country: area.country,
+            data_source: area.data_source,
+            description: area.description,
+            end_at: area.end_at,
             height: area.height,
             level: area.level,
             name: area.name,
             radius: area.radius,
             shape: area.shape,
             type: area.type,
-            geometry: new geom.Point([area.lng, area.lat]).transform('EPSG:4326', this.projection)
+            url: area.url,
+            lng: area.lng,
+            lat: area.lat,
+            geometry: new geom.Point([area.lng, area.lat]).transform('EPSG:4326', _this2.projection)
           }); // Store the id to avoid duplicates
 
           feature.setId(area.area_id);
@@ -756,18 +833,26 @@
                   color: sub_area.color,
                   height: sub_area.height,
                   level: sub_area.level,
+                  name: area.name,
                   radius: sub_area.radius,
                   shape: sub_area.shape,
-                  geometry: new geom.Polygon(sub_area.polygon_points).transform('EPSG:4326', this.projection)
+                  type: area.type,
+                  lng: sub_area.lng,
+                  lat: sub_area.lat,
+                  geometry: new geom.Polygon(sub_area.polygon_points).transform('EPSG:4326', _this2.projection)
                 });
               } else {
                 subFeature = new Feature__default['default']({
                   color: sub_area.color,
                   height: sub_area.height,
                   level: sub_area.level,
+                  name: area.name,
                   radius: sub_area.radius,
                   shape: sub_area.shape,
-                  geometry: new geom.Circle([sub_area.lng, sub_area.lat], sub_area.radius / 100000).transform('EPSG:4326', this.projection)
+                  type: area.type,
+                  lng: sub_area.lng,
+                  lat: sub_area.lat,
+                  geometry: new geom.Circle([sub_area.lng, sub_area.lat], sub_area.radius / 100000).transform('EPSG:4326', _this2.projection)
                 });
               }
 
@@ -777,91 +862,170 @@
           }
 
           features.push(feature);
+        };
+
+        for (var area of areas) {
+          var _ret = _loop(area);
+
+          if (_ret === "continue") continue;
         }
 
         return features;
       };
 
-      var getPointInfo = (latLng, searchRadius) => {
-        // Prevent multiples requests
-        this.idInfoRequest += 1;
-        var request = this.idInfoRequest;
-        setTimeout( /*#__PURE__*/function () {
-          var _ref8 = _asyncToGenerator(function* (_) {
-            if (request == _this.idInfoRequest) {
-              try {
-                var data = yield apiRequest('info', latLng, searchRadius);
-                console.log(data);
-              } catch (err) {
-                showLoading(false);
-                console.error(err);
-              }
+      var showLoading = bool => {
+        if (bool) this.divControl.classList.add('ol-dji-geozone--isLoading');else this.divControl.classList.remove('ol-dji-geozone--isLoading');
+      }; // Prevent multiples requests
+
+
+      this.idAreasRequest += 1;
+      var request = this.idAreasRequest; // Original DJI map same behavior to prevent multiples requests
+
+      setTimeout( /*#__PURE__*/function () {
+        var _ref7 = _asyncToGenerator(function* (_) {
+          if (request !== _this2.idAreasRequest) return;
+
+          try {
+            showLoading(true);
+
+            var center = _this2.view.getCenter();
+
+            var center4326 = proj.transform(center, _this2.projection, 'EPSG:4326');
+            var viewLatLng = {
+              lat: center4326[1],
+              lng: center4326[0]
+            };
+
+            if (clear) {
+              _this2.areaDownloaded = null; // Remove area already downloaded
             }
+
+            var data = yield _this2.getApiGeoData('areas', viewLatLng);
+
+            if (clear) {
+              _this2.source.clear(); // Remove features on layer
+
+            }
+
+            var features = apiResponseToFeatures(data);
+
+            _this2.source.addFeatures(features);
+
+            showLoading(false); // console.log(data);
+            // console.log(features);
+          } catch (err) {
+            console.error(err);
+            showLoading(false);
+          }
+        });
+
+        return function (_x3) {
+          return _ref7.apply(this, arguments);
+        };
+      }(), 300);
+    }
+
+    getApiGeoData(typeApiRequest, latLng) {
+      var _this3 = this;
+
+      return _asyncToGenerator(function* () {
+        var apiRequest = /*#__PURE__*/function () {
+          var _ref9 = _asyncToGenerator(function* (type, _ref8, searchRadius) {
+            var {
+              lng,
+              lat
+            } = _ref8;
+            var api_endpoint = type === 'areas' ? API_AREAS_ENDPOINT : API_INFO_ENDPOINT; // If not proxy is passed, make a direct request
+            // Maybe in the future the api will has updated CORS restrictions
+
+            var url = new URL(_this3.url_proxy ? _this3.url_proxy + api_endpoint : 'https://' + api_endpoint);
+            var queryObj = {
+              'drone': _this3.drone,
+              'zones_mode': _this3.zones_mode,
+              'country': _this3.country,
+              'level': _this3.level,
+              'lng': lng,
+              'lat': lat,
+              'search_radius': searchRadius
+            };
+            Object.keys(queryObj).forEach(key => url.searchParams.append(key, queryObj[key]));
+            var response = yield fetch(url);
+            if (!response.ok) throw new Error("HTTP-Error: " + response.status);
+            return yield response.json();
           });
 
-          return function (_x4) {
-            return _ref8.apply(this, arguments);
-          };
-        }(), 100);
-      };
-
-      var getAreas = (centerLatLng, searchRadius, clear) => {
-        // Prevent multiples requests
-        this.idAreasRequest += 1;
-        var request = this.idAreasRequest; // Original DJI map same behavior to prevent multiples requests
-
-        setTimeout( /*#__PURE__*/function () {
-          var _ref9 = _asyncToGenerator(function* (_) {
-            if (request == _this.idAreasRequest) {
-              try {
-                if (clear) {
-                  _this.areaDownloaded = null; // Remove area already downloaded
-                }
-
-                var extent$1 = _this.view.calculateExtent();
-
-                var polygon = Polygon.fromExtent(extent$1);
-
-                if (_this.areaDownloaded) {
-                  if (_this.areaDownloaded.intersectsCoordinate(extent.getCenter(extent$1)) && _this.areaDownloaded.intersectsCoordinate(extent.getBottomLeft(extent$1)) && _this.areaDownloaded.intersectsCoordinate(extent.getTopRight(extent$1)) && _this.areaDownloaded.intersectsCoordinate(extent.getBottomRight(extent$1)) && _this.areaDownloaded.intersectsCoordinate(extent.getTopLeft(extent$1))) {
-                    return;
-                  }
-                }
-
-                if (!_this.areaDownloaded) {
-                  _this.areaDownloaded = new geom.MultiPolygon({});
-                }
-
-                _this.areaDownloaded.appendPolygon(polygon);
-
-                var data = yield apiRequest('areas', centerLatLng, searchRadius);
-
-                if (clear) {
-                  _this.source.clear(); // Remove features on layer
-
-                }
-
-                var features = apiResponseToFeatures(data);
-
-                _this.source.addFeatures(features); // console.log(data);
-                // console.log(features);
-
-              } catch (err) {
-                showLoading(false);
-                console.error(err);
-              }
-            }
-          });
-
-          return function (_x5) {
+          return function apiRequest(_x4, _x5, _x6) {
             return _ref9.apply(this, arguments);
           };
-        }(), 300);
-      };
+        }();
 
-      if (!this.isVisible) return;
-      var searchRadius = getMapRadius(latLng);
-      if (type === 'areas') getAreas(latLng, searchRadius, clear);else getPointInfo(latLng, searchRadius);
+        var getPointInfo = /*#__PURE__*/function () {
+          var _ref10 = _asyncToGenerator(function* (latLng, searchRadius) {
+            var data = yield apiRequest('info', latLng, searchRadius);
+            return data;
+          });
+
+          return function getPointInfo(_x7, _x8) {
+            return _ref10.apply(this, arguments);
+          };
+        }();
+
+        var getAreas = /*#__PURE__*/function () {
+          var _ref11 = _asyncToGenerator(function* (centerLatLng, searchRadius) {
+            var extent$1 = _this3.view.calculateExtent();
+
+            var polygon = Polygon.fromExtent(extent$1);
+
+            if (_this3.areaDownloaded) {
+              if (_this3.areaDownloaded.intersectsCoordinate(extent.getCenter(extent$1)) && _this3.areaDownloaded.intersectsCoordinate(extent.getBottomLeft(extent$1)) && _this3.areaDownloaded.intersectsCoordinate(extent.getTopRight(extent$1)) && _this3.areaDownloaded.intersectsCoordinate(extent.getBottomRight(extent$1)) && _this3.areaDownloaded.intersectsCoordinate(extent.getTopLeft(extent$1))) {
+                // whe already have the data, do nothing
+                return;
+              }
+            } else {
+              _this3.areaDownloaded = new geom.MultiPolygon({});
+            }
+
+            _this3.areaDownloaded.appendPolygon(polygon);
+
+            var data = yield apiRequest('areas', centerLatLng, searchRadius);
+            return data;
+          });
+
+          return function getAreas(_x9, _x10) {
+            return _ref11.apply(this, arguments);
+          };
+        }(); // adapted from https://stackoverflow.com/questions/44575654/get-radius-of-the-displayed-openlayers-map
+
+
+        var getMapRadius = (_ref12) => {
+          var {
+            lng,
+            lat
+          } = _ref12;
+          var center = [lng, lat];
+
+          var size = _this3.map.getSize();
+
+          var extent = _this3.view.calculateExtent(size);
+
+          extent = proj.transformExtent(extent, _this3.projection, 'EPSG:4326');
+          var posSW = [extent[0], extent[1]];
+          var centerToSW = sphere.getDistance(center, posSW);
+          return parseInt(centerToSW);
+        };
+
+        if (!_this3.isVisible) return;
+        var searchRadius = getMapRadius(latLng);
+        var data;
+
+        if (typeApiRequest === 'areas') {
+          data = yield getAreas(latLng, searchRadius);
+        } else {
+          data = yield getPointInfo(latLng, searchRadius);
+        }
+
+        return data;
+      })();
     }
 
   } // https://stackoverflow.com/questions/28004153/setting-vector-feature-fill-opacity-when-you-have-a-hexadecimal-color

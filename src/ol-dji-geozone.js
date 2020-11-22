@@ -1,6 +1,7 @@
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
 import Feature from 'ol/Feature';
+import Overlay from 'ol/Overlay';
 import { transform, transformExtent } from 'ol/proj';
 import { getDistance } from 'ol/sphere';
 import { Polygon, MultiPolygon, Point, Circle } from 'ol/geom';
@@ -65,6 +66,7 @@ export default class DjiGeozone {
 
         this.createLayer();
         this.addMapEvents();
+        this.createPopUpOverlay();
 
         if (addControl)
             this.addMapControl(targetControl);
@@ -81,7 +83,6 @@ export default class DjiGeozone {
 
             if (geomType === 'Polygon' || geomType === 'Circle') {
 
-                let height = feature.get('height');
                 let color = feature.get('color');
 
                 style = new Style({
@@ -92,7 +93,7 @@ export default class DjiGeozone {
                         color: color,
                         width: 1
                     }),
-                    zIndex: height
+                    zIndex: this.levelParams[feature.get('level')].zIndex
                 })
 
             } else if (geomType === 'Point') {
@@ -102,7 +103,7 @@ export default class DjiGeozone {
                         scale: 0.35,
                         anchor: [0.5, 0.9]
                     }),
-                    zIndex: 300
+                    zIndex: this.levelParams[feature.get('level')].zIndex * 2
                 })
             }
 
@@ -147,7 +148,7 @@ export default class DjiGeozone {
 
             const handleChange = ({ target }) => {
                 this.drone = (target.value || target.options[target.selectedIndex].value);
-                this.getAreasFromView(/* clear = */ true);
+                this.getInfoFromView(/* clear = */ true);
             }
 
             let droneSelector = document.createElement('div');
@@ -188,7 +189,7 @@ export default class DjiGeozone {
                     }
                 }
 
-                this.getAreasFromView(/* clear = */ true);
+                this.getInfoFromView(/* clear = */ true);
             }
 
             const createLegend = color => {
@@ -300,6 +301,40 @@ export default class DjiGeozone {
 
     }
 
+    createPopUpOverlay() {
+
+        const popupContainer = document.createElement('div');
+        popupContainer.id = 'ol-dji-geozone--popup';
+        popupContainer.className = 'ol-popup ol-dji-geozone--ol-popup';
+
+        this.popupContent = document.createElement('div');
+        this.popupContent.id = 'ol-dji-geozone--popup-content';
+        this.popupContent.className = 'ol-dji-geozone--ol-popup-content'
+
+        let popupCloser = document.createElement('a');
+        popupCloser.id = 'ol-dji-geozone--popup-closer';
+        popupCloser.className = 'ol-dji-geozone--ol-popup-closer';
+        popupCloser.href = '#';
+        popupCloser.onclick = () => {
+            this.overlay.setPosition(undefined);
+            popupCloser.blur();
+            return false;
+        };
+
+        popupContainer.append(popupCloser);
+        popupContainer.append(this.popupContent);
+
+        this.overlay = new Overlay({
+            element: popupContainer,
+            autoPan: true,
+            autoPanAnimation: {
+                duration: 250,
+            },
+        });
+
+        this.map.addOverlay(this.overlay);
+    }
+
     addMapEvents() {
 
         /**
@@ -353,16 +388,18 @@ export default class DjiGeozone {
                         return;
                 }
 
-                this.getAreasFromView();
+                this.getInfoFromView();
             }
 
         }
 
         const handleDragEnd = _ => {
 
-            this.getAreasFromView();
+            this.getInfoFromView();
 
         }
+
+        const clickHandler = (evt) => this.getPointInfoFromClick(evt);
 
         this.map.on('moveend', _ => {
 
@@ -377,132 +414,166 @@ export default class DjiGeozone {
 
         });
 
-        this.map.on('singleclick', evt => {
+        this.map.on('singleclick', clickHandler);
+
+    }
+
+    showGeozoneDataInPopUp(geozonesData, coordinates) {
+
+        const parseDataToHtml = ({ name, level, type, height, description, begin_at, end_at, address, url }) => {
+
+            return `
+            <div class="ol-dji-geozone--item">
+                <div class="ol-dji-geozone--marker">
+                    <img src="${levelParams[level].markerCircle}">
+                </div>
+                <div class="ol-dji-geozone--main">
+                <h3 class="ol-dji-geozone--title">${name}</h3>
+                    <p class="level">Level: ${levelParams[level].name}</p>
+                    <p class="type">Type: ${typeList[type].name}</p>
+                    ${(begin_at) ? `<p class="start_time">End Time: ${begin_at}</p>` : ''}
+                    ${(end_at) ? `<p class="end_time">End Time: ${end_at}</p><p class="time_tips">Time: 24-hour clock</p>` : ''}         
+                    ${(height) ? `<p class="height">Max. Altitude (m): ${height}</p>` : ''} 
+                    ${(address) ? `<p class="address">Address: ${address}</p>` : ''}
+                    ${(description) ? `<p class="desc">Tips: ${description}</p>` : ''}
+                    ${(url) ? `<p class="url">Link: <a href="${url}">Learn More</a></p>` : ''}
+                </div>
+            </div> `;
+
+        }
+
+        let html = [];
+        let preventDuplicates = [];
+
+        geozonesData = Array.isArray(geozonesData) ? geozonesData : [geozonesData];
+
+        geozonesData.forEach(geozoneProps => {
+
+            let dataString = JSON.stringify(geozoneProps);
+
+            // The oficial DJI map show duplicates, but we don't want that
+            if (preventDuplicates.indexOf(dataString) === -1) {
+                preventDuplicates.push(dataString);
+                html.push(parseDataToHtml(geozoneProps, coordinates));
+            }
+        })
+
+        this.popupContent.innerHTML = html.join('<hr>');
+
+        this.overlay.setPosition(coordinates);
+
+    }
+
+
+    async getPointInfoFromClick(evt) {
+
+        const getInfoFromApiLatLng = async (coordinate) => {
+
+            // Prevent multiples requests
+            this.idInfoRequest += 1;
+            let request = this.idInfoRequest;
+
+            setTimeout(async _ => {
+
+                if (request !== this.idInfoRequest) return;
+
+                let center4326 = transform(coordinate, this.projection, 'EPSG:4326');
+
+                let clickLatLng = {
+                    lat: center4326[1],
+                    lng: center4326[0]
+                }
+
+                let apiJson = await this.getApiGeoData('info', clickLatLng);
+
+                let areas = apiJson.areas;
+
+                if (!areas.length) return false;
+
+                let featuresProps = [];
+
+                for (let area of areas) {
+                    featuresProps.push(area);
+                }
+
+                return featuresProps;
+
+            }, 100);
+
+        }
+
+        const getInfoFromFeatures = (features) => {
+
+            let featuresProps = [];
+
+            features.forEach(feature => {
+
+                let keys = ['name', 'level', 'type', 'height', 'shape', 'start_at', 'end_at', 'url', 'address', 'description'];
+
+                // Point markers has duplicated data
+                if (feature.getGeometry().getType() !== 'Point') {
+
+                    let props = {};
+
+                    keys.forEach(key => props[key] = feature.get(key));
+
+                    featuresProps.push(props);
+                }
+            })
+
+            return featuresProps;
+
+        }
+
+        try {
 
             if (!this.isVisible) return;
 
-            this.map.forEachFeatureAtPixel(evt.pixel, (feature, layer) => {
+            let useApi = false;
 
-                if (layer === this.layer) {
-                    this.getInfoFromLatLng(evt.coordinate);
-                    this.showFeatureInfo(feature, evt.coordinate);
+            let opt_options = {
+                layerFilter: layer => layer === this.layer
+            };
+
+            let data;
+
+            // Call the API  to download the information
+            if (useApi) {
+
+                if (this.map.hasFeatureAtPixel(evt.pixel, opt_options)) {
+
+                    data = await getInfoFromApiLatLng(evt.coordinate)
+
                 }
 
-                return true;
-            })
+                // Use the previously downloaded features information
+            } else {
 
-        });
+                let features = this.map.getFeaturesAtPixel(evt.pixel, opt_options);
 
-    }
+                data = getInfoFromFeatures(features);
 
-    showFeatureInfo(feature, coordinates) {
-        let properties = feature.getProperties();
-    }
-
-    createPopUp({ name, level, type, height }) {
-
-        return `
-        <div class="item">
-            <div class="marker">
-                <img src="${levelParams[level].markerCircle}">
-            </div>
-            <div class="main">
-            <h3 class="title">${name}</h3>
-                <p class="level">Level: ${level}</p>
-                <p class="type">Type: ${typeList[type]}</p>      
-                ${(height) ? `<p class="height">Max. Altitude (m): ${height}</p>` : ''}; 
-            </div >
-        </div > `;
-
-    }
-
-    getInfoFromLatLng(latLng) {
-
-        let center4326 = transform(latLng, this.projection, 'EPSG:4326');
-
-        let clickLatLng = {
-            lat: center4326[1],
-            lng: center4326[0]
-        }
-
-        this.getGeoData('info', clickLatLng);
-
-    }
-
-    getAreasFromView(clear = false) {
-
-        let center = this.view.getCenter();
-        let center4326 = transform(center, this.projection, 'EPSG:4326');
-
-        let viewLatLng = {
-            lat: center4326[1],
-            lng: center4326[0]
-        }
-
-        this.getGeoData('areas', viewLatLng, clear);
-
-    }
-
-    getGeoData(type, latLng, clear) {
-
-        const showLoading = (bool) => {
-
-            if (bool)
-                this.divControl.classList.add('ol-dji-geozone--isLoading');
-            else
-                this.divControl.classList.remove('ol-dji-geozone--isLoading');
-
-        }
-
-        // adapted from https://stackoverflow.com/questions/44575654/get-radius-of-the-displayed-openlayers-map
-        const getMapRadius = ({ lng, lat }) => {
-            let center = [lng, lat];
-            let size = this.map.getSize();
-            let extent = this.view.calculateExtent(size);
-            extent = transformExtent(extent, this.projection, 'EPSG:4326');
-            let posSW = [extent[0], extent[1]];
-            let centerToSW = getDistance(center, posSW);
-            return parseInt(centerToSW);
-        }
-
-        const apiRequest = async (type, { lng, lat }, searchRadius) => {
-
-            showLoading(true);
-
-            let api_endpoint = (type === 'areas') ? API_AREAS_ENDPOINT : API_INFO_ENDPOINT;
-
-            // If not proxy is passed, make a direct request
-            // Maybe in the future the api will has updated CORS restrictions
-            let url = new URL((this.url_proxy) ? this.url_proxy + api_endpoint : 'https://' + api_endpoint);
-
-            let queryObj = {
-                'drone': this.drone,
-                'zones_mode': this.zones_mode,
-                'country': this.country,
-                'level': this.level,
-                'lng': lng,
-                'lat': lat,
-                'search_radius': searchRadius
             }
 
-            Object.keys(queryObj).forEach(key => url.searchParams.append(key, queryObj[key]))
+            if (data.length) this.showGeozoneDataInPopUp(data, evt.coordinate);
+            else this.overlay.setPosition(undefined);
 
-            let response = await fetch(url);
 
-            showLoading(false);
-
-            if (!response.ok) throw new Error("HTTP-Error: " + response.status);
-
-            return await response.json();
-
+        } catch (err) {
+            console.log(err);
         }
 
-        const apiResponseToFeatures = (djiJson) => {
+    }
+
+    getInfoFromView(clear = false) {
+
+        const apiResponseToFeatures = djiJson => {
 
             let areas = djiJson.areas;
-            let features = [];
 
-            if (!areas.length) return false;
+            if (!areas || !areas.length) return false;
+
+            let features = [];
 
             for (let area of areas) {
 
@@ -512,14 +583,21 @@ export default class DjiGeozone {
                 }
 
                 const feature = new Feature({
+                    address: area.address,
+                    begin_at: area.begin_at,
                     color: area.color,
+                    city: area.city,
                     country: area.country,
+                    data_source: area.data_source,
+                    description: area.description,
+                    end_at: area.end_at,
                     height: area.height,
                     level: area.level,
                     name: area.name,
                     radius: area.radius,
                     shape: area.shape,
                     type: area.type,
+                    url: area.url,
                     lng: area.lng,
                     lat: area.lat,
                     geometry: new Point([area.lng, area.lat]).transform('EPSG:4326', this.projection)
@@ -540,8 +618,10 @@ export default class DjiGeozone {
                                 color: sub_area.color,
                                 height: sub_area.height,
                                 level: sub_area.level,
+                                name: area.name,
                                 radius: sub_area.radius,
                                 shape: sub_area.shape,
+                                type: area.type,
                                 lng: sub_area.lng,
                                 lat: sub_area.lat,
                                 geometry:
@@ -556,8 +636,10 @@ export default class DjiGeozone {
                                 color: sub_area.color,
                                 height: sub_area.height,
                                 level: sub_area.level,
+                                name: area.name,
                                 radius: sub_area.radius,
                                 shape: sub_area.shape,
+                                type: area.type,
                                 lng: sub_area.lng,
                                 lat: sub_area.lat,
                                 geometry:
@@ -582,94 +664,153 @@ export default class DjiGeozone {
             return features;
         }
 
-        const getPointInfo = (latLng, searchRadius) => {
+        const showLoading = (bool) => {
 
-            // Prevent multiples requests
-            this.idInfoRequest += 1;
-            let request = this.idInfoRequest;
-
-            setTimeout(async _ => {
-
-                if (request == this.idInfoRequest) {
-                    try {
-
-                        let data = await apiRequest('info', latLng, searchRadius);
-                        console.log(data);
-
-                    } catch (err) {
-                        showLoading(false);
-                        console.error(err);
-                    }
-                }
-
-            }, 100);
+            if (bool)
+                this.divControl.classList.add('ol-dji-geozone--isLoading');
+            else
+                this.divControl.classList.remove('ol-dji-geozone--isLoading');
 
         }
 
-        const getAreas = (centerLatLng, searchRadius, clear) => {
+        // Prevent multiples requests
+        this.idAreasRequest += 1;
+        let request = this.idAreasRequest;
 
-            // Prevent multiples requests
-            this.idAreasRequest += 1;
-            let request = this.idAreasRequest;
+        // Original DJI map same behavior to prevent multiples requests
+        setTimeout(async _ => {
 
-            // Original DJI map same behavior to prevent multiples requests
-            setTimeout(async _ => {
+            if (request !== this.idAreasRequest) return;
 
-                if (request == this.idAreasRequest) {
-                    try {
+            try {
 
-                        if (clear) {
-                            this.areaDownloaded = null; // Remove area already downloaded
-                        }
+                showLoading(true);
 
-                        let extent = this.view.calculateExtent();
-                        let polygon = fromExtent(extent);
+                let center = this.view.getCenter();
+                let center4326 = transform(center, this.projection, 'EPSG:4326');
 
-                        if (this.areaDownloaded) {
-
-                            if (this.areaDownloaded.intersectsCoordinate(getCenter(extent)) &&
-                                this.areaDownloaded.intersectsCoordinate(getBottomLeft(extent)) &&
-                                this.areaDownloaded.intersectsCoordinate(getTopRight(extent)) &&
-                                this.areaDownloaded.intersectsCoordinate(getBottomRight(extent)) &&
-                                this.areaDownloaded.intersectsCoordinate(getTopLeft(extent))) {
-                                return;
-                            }
-
-                        }
-
-                        if (!this.areaDownloaded) {
-                            this.areaDownloaded = new MultiPolygon({});
-                        }
-
-                        this.areaDownloaded.appendPolygon(polygon);
-
-                        let data = await apiRequest('areas', centerLatLng, searchRadius);
-
-                        if (clear) {
-                            this.source.clear(); // Remove features on layer
-                        }
-
-                        let features = apiResponseToFeatures(data);
-                        this.source.addFeatures(features);
-                        // console.log(data);
-                        // console.log(features);
-                    } catch (err) {
-                        showLoading(false);
-                        console.error(err);
-                    }
+                let viewLatLng = {
+                    lat: center4326[1],
+                    lng: center4326[0]
                 }
 
-            }, 300);
+                if (clear) {
+                    this.areaDownloaded = null; // Remove area already downloaded
+                }
+
+                let data = await this.getApiGeoData('areas', viewLatLng);
+
+                if (clear) {
+                    this.source.clear(); // Remove features on layer
+                }
+
+                let features = apiResponseToFeatures(data);
+                this.source.addFeatures(features);
+
+                showLoading(false);
+
+                // console.log(data);
+                // console.log(features);
+
+            } catch (err) {
+                console.error(err);
+                showLoading(false);
+            }
+
+
+        }, 300);
+
+
+    }
+
+    async getApiGeoData(typeApiRequest, latLng) {
+
+        const apiRequest = async (type, { lng, lat }, searchRadius) => {
+
+            let api_endpoint = (type === 'areas') ? API_AREAS_ENDPOINT : API_INFO_ENDPOINT;
+
+            // If not proxy is passed, make a direct request
+            // Maybe in the future the api will has updated CORS restrictions
+            let url = new URL((this.url_proxy) ? this.url_proxy + api_endpoint : 'https://' + api_endpoint);
+
+            let queryObj = {
+                'drone': this.drone,
+                'zones_mode': this.zones_mode,
+                'country': this.country,
+                'level': this.level,
+                'lng': lng,
+                'lat': lat,
+                'search_radius': searchRadius
+            }
+
+            Object.keys(queryObj).forEach(key => url.searchParams.append(key, queryObj[key]))
+
+            let response = await fetch(url);
+
+            if (!response.ok) throw new Error("HTTP-Error: " + response.status);
+
+            return await response.json();
+
+        }
+
+        const getPointInfo = async (latLng, searchRadius) => {
+
+            let data = await apiRequest('info', latLng, searchRadius);
+            return data;
+
+        }
+
+        const getAreas = async (centerLatLng, searchRadius) => {
+
+            let extent = this.view.calculateExtent();
+            let polygon = fromExtent(extent);
+
+            if (this.areaDownloaded) {
+
+                if (this.areaDownloaded.intersectsCoordinate(getCenter(extent)) &&
+                    this.areaDownloaded.intersectsCoordinate(getBottomLeft(extent)) &&
+                    this.areaDownloaded.intersectsCoordinate(getTopRight(extent)) &&
+                    this.areaDownloaded.intersectsCoordinate(getBottomRight(extent)) &&
+                    this.areaDownloaded.intersectsCoordinate(getTopLeft(extent))) {
+                    // whe already have the data, do nothing
+                    return;
+                }
+
+            } else {
+                this.areaDownloaded = new MultiPolygon({});
+            }
+
+            this.areaDownloaded.appendPolygon(polygon);
+
+            let data = await apiRequest('areas', centerLatLng, searchRadius);
+
+            return data;
+
+        }
+
+        // adapted from https://stackoverflow.com/questions/44575654/get-radius-of-the-displayed-openlayers-map
+        const getMapRadius = ({ lng, lat }) => {
+            let center = [lng, lat];
+            let size = this.map.getSize();
+            let extent = this.view.calculateExtent(size);
+            extent = transformExtent(extent, this.projection, 'EPSG:4326');
+            let posSW = [extent[0], extent[1]];
+            let centerToSW = getDistance(center, posSW);
+            return parseInt(centerToSW);
         }
 
         if (!this.isVisible) return;
 
         let searchRadius = getMapRadius(latLng);
+        let data;
 
-        if (type === 'areas')
-            getAreas(latLng, searchRadius, clear);
-        else
-            getPointInfo(latLng, searchRadius);
+        if (typeApiRequest === 'areas') {
+            data = await getAreas(latLng, searchRadius);
+        } else {
+            data = await getPointInfo(latLng, searchRadius);
+        }
+
+        return data;
 
     }
 

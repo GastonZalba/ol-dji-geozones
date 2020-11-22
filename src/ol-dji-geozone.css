@@ -6,7 +6,7 @@
 .ol-dji-geozone h3 {
     color: #181818;
     margin: 0.2em 0;
-    display: inline-block;
+    display: inline-block;    
 }
 
 .ol-dji-geozone--drone-selector select {
@@ -49,6 +49,66 @@
 }
 
 /* PopUp */
+.ol-dji-geozone--ol-popup {
+  position: absolute;
+  bottom: 12px;
+  left: -170px;
+}
+
+.ol-dji-geozone--ol-popup:after,
+.ol-dji-geozone--ol-popup:before {
+  top: 100%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+}
+.ol-dji-geozone--ol-popup:after {
+  border-top-color: white;
+  border-width: 10px;
+  left: 50%;
+  margin-left: -10px;
+}
+.ol-dji-geozone--ol-popup:before {
+  border-top-color: #cccccc;
+  border-width: 11px;
+  left: 50%;
+  margin-left: -11px;
+}
+.ol-dji-geozone--ol-popup-closer {
+  text-decoration: none;
+  position: absolute;
+  top: 2px;
+  right: 12px;
+  z-index: 1;
+  color: #8b8b8b;
+}
+.ol-dji-geozone--ol-popup-closer:after {
+  content: "✖";
+}
+
+.ol-dji-geozone--ol-popup-content {
+  width: 340px;
+  box-sizing: border-box;
+  position: relative;
+  background: #fff;
+  border-radius: 3px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  padding: 10px 10px 15px;
+  pointer-events: auto;
+  color: #707473;
+  font-size: 12px;
+  font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  max-height: 300px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.ol-dji-geozone--ol-popup-content p {
+  margin: 0;
+}
 .ol-dji-geozone--item {
     display: inline-block;
 }
@@ -68,10 +128,10 @@
     margin-left: 40px;
 }
 
-.ol-dji-geozone--main .title {
+.ol-dji-geozone--main .ol-dji-geozone--title {
     color: #707473;
     font-size: 14px;
-    margin-bottom: 5px;
+    margin: 0 0 5px;
 }
 
 .ol-dji-geozone--item:after {
@@ -82,6 +142,15 @@
     visibility: hidden;
     box-sizing: border-box;
 }
+
+.ol-dji-geozone--ol-popup-content hr {
+  margin: 20px 0;
+  box-sizing: content-box;
+  height: 0;
+  border: 0;
+  border-top: 1px solid #e5e7e6;
+}
+
 /* End PopUp */
 
 /* loading.io css spinner ( https://loading.io/css/ ) */
@@ -141,3 +210,14 @@
     }
   } 
   /* End loading */
+
+
+  .ol-dji-geozone--ol-popup-content::-webkit-scrollbar {
+    -webkit-appearance: none;
+    width: 7px;
+}
+  .ol-dji-geozone--ol-popup-content::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: rgba(0,0,0,.5);
+    -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
+}

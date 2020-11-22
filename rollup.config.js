@@ -15,6 +15,7 @@ module.exports = {
                 'ol/geom': 'ol.geom',
                 'ol/geom/Polygon': 'ol.geom.Polygon',
                 'ol/Feature': 'ol.Feature',
+                'ol/Overlay': 'ol.Overlay',
                 'ol/style': 'ol.style',
                 'ol/control': 'ol.control',
                 'ol/proj': 'ol.proj',
