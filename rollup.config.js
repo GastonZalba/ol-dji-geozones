@@ -2,12 +2,12 @@ import babel from '@rollup/plugin-babel';
 import json from "@rollup/plugin-json";
 
 module.exports = {
-    input: 'src/ol-dji-geozone.js',
+    input: 'src/ol-dji-geozones.js',
     output: [
         {
-            file: 'dist/ol-dji-geozone.js',
+            file: 'dist/ol-dji-geozones.js',
             format: 'umd',
-            name: 'DjiGeozone',
+            name: 'DjiGeozones',
             globals: {
                 'ol/Map': 'ol.Map',
                 'ol/source/Vector': 'ol.source.Vector',

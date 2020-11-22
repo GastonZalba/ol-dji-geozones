@@ -1,7 +1,7 @@
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('ol/layer/Vector'), require('ol/source/Vector'), require('ol/Feature'), require('ol/Overlay'), require('ol/proj'), require('ol/sphere'), require('ol/geom'), require('ol/style'), require('ol/control'), require('ol/color'), require('ol/geom/Polygon'), require('ol/extent')) :
     typeof define === 'function' && define.amd ? define(['ol/layer/Vector', 'ol/source/Vector', 'ol/Feature', 'ol/Overlay', 'ol/proj', 'ol/sphere', 'ol/geom', 'ol/style', 'ol/control', 'ol/color', 'ol/geom/Polygon', 'ol/extent'], factory) :
-    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.DjiGeozone = factory(global.ol.layer.Vector, global.ol.source.Vector, global.ol.Feature, global.ol.Overlay, global.ol.proj, global.ol.sphere, global.ol.geom, global.ol.style, global.ol.control, global.ol.color, global.ol.geom.Polygon, global.ol.extent));
+    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.DjiGeoones = factory(global.ol.layer.Vector, global.ol.source.Vector, global.ol.Feature, global.ol.Overlay, global.ol.proj, global.ol.sphere, global.ol.geom, global.ol.style, global.ol.control, global.ol.color, global.ol.geom.Polygon, global.ol.extent));
 }(this, (function (VectorLayer, VectorSource, Feature, Overlay, proj, sphere, geom, style, control, color, Polygon, extent) { 'use strict';
 
     function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
@@ -301,7 +301,7 @@
      * @param {HTMLElement | string} opt_options.targetControl // Specify a target if you want the control to be rendered outside of the map's viewport.
      */
 
-    class DjiGeozone {
+    class DjiGeozones {
       constructor(map, url_proxy, opt_options = {}) {
         // API PARAMETERS
         this.drone = opt_options.drone || 'spark';
@@ -370,7 +370,7 @@
         // });
         // this.layers = new VectorLayer({
         //     zIndex: 99,
-        //     name: `ol-dji-geozone`,
+        //     name: `ol-dji-geozones`,
         //     source: this.source,
         //     style: styleFunction
         // });
@@ -380,7 +380,7 @@
         this.apiLevels.forEach(level => {
           let layer = new VectorLayer__default['default']({
             zIndex: this.levelParams[level].zIndex * 2,
-            name: 'ol-dji-geozone',
+            name: 'ol-dji-geozones',
             level: level,
             visible: this.levelsActivated.includes(level) ? true : false,
             source: new VectorSource__default['default']({
@@ -404,7 +404,7 @@
           * @param {Boolean} visible 
           */
         this.setControlVisible = visible => {
-          if (visible) this.divControl.classList.addClass('ol-dji-geozone--ctrl-hidden');else this.divControl.classList.removeClass('ol-dji-geozone--ctrl-hidden');
+          if (visible) this.divControl.classList.addClass('ol-dji-geozones--ctrl-hidden');else this.divControl.classList.removeClass('ol-dji-geozones--ctrl-hidden');
         };
 
         const createDroneSelector = _ => {
@@ -418,7 +418,7 @@
           };
 
           let droneSelector = document.createElement('div');
-          droneSelector.className = 'ol-dji-geozone--drone-selector';
+          droneSelector.className = 'ol-dji-geozones--drone-selector';
           let select = document.createElement('select');
           select.onchange = handleChange;
           if (!this.isVisible) select.setAttribute('disabled', 'disabled');
@@ -458,7 +458,7 @@
 
           const createLegend = color => {
             let span = document.createElement('span');
-            span.className = 'ol-dji-geozone--mark';
+            span.className = 'ol-dji-geozones--mark';
             span.style.border = `1px ${color} solid`;
             span.style.backgroundColor = colorWithAlpha(color, 0.4);
             return span;
@@ -492,7 +492,7 @@
             let disabled = !this.isVisible;
             let id = 'level' + value;
             let divContainer = document.createElement('div');
-            divContainer.className = `ol-dji-geozone--item-ctl ol-dji-geozone--item-ctl-${value}`;
+            divContainer.className = `ol-dji-geozones--item-ctl ol-dji-geozones--item-ctl-${value}`;
             divContainer.title = desc;
             divContainer.setAttribute('data-level', value);
             divContainer.append(createCheckbox(id, value, disabled));
@@ -501,7 +501,7 @@
           };
 
           let levelSelector = document.createElement('div');
-          levelSelector.className = 'ol-dji-geozone--level-selector';
+          levelSelector.className = 'ol-dji-geozones--level-selector';
           this.levelsToDisplay.forEach(lev => {
             let level = createLevelItem(lev, this.levelParams[lev]);
             levelSelector.append(level);
@@ -510,14 +510,14 @@
         };
 
         let divControl = document.createElement('div');
-        divControl.className = 'ol-dji-geozone ol-control ol-dji-geozone--ctrl-disabled';
+        divControl.className = 'ol-dji-geozones ol-control ol-dji-geozones--ctrl-disabled';
         divControl.innerHTML = `
         <div>
             <h3>DJI Geo Zone</h3>
-            <span class="ol-dji-geozone--loading">
+            <span class="ol-dji-geozones--loading">
                 ${this.loadingElement}
             </span>
-            <span class="ol-dji-geozone--advice">(Zoom in)</span>
+            <span class="ol-dji-geozones--advice">(Zoom in)</span>
         </div>`;
         let droneSelector = createDroneSelector();
         divControl.append(droneSelector);
@@ -538,14 +538,14 @@
 
       createPopUpOverlay() {
         const popupContainer = document.createElement('div');
-        popupContainer.id = 'ol-dji-geozone--popup';
-        popupContainer.className = 'ol-popup ol-dji-geozone--ol-popup';
+        popupContainer.id = 'ol-dji-geozones--popup';
+        popupContainer.className = 'ol-popup ol-dji-geozones--ol-popup';
         this.popupContent = document.createElement('div');
-        this.popupContent.id = 'ol-dji-geozone--popup-content';
-        this.popupContent.className = 'ol-dji-geozone--ol-popup-content';
+        this.popupContent.id = 'ol-dji-geozones--popup-content';
+        this.popupContent.className = 'ol-dji-geozones--ol-popup-content';
         let popupCloser = document.createElement('a');
-        popupCloser.id = 'ol-dji-geozone--popup-closer';
-        popupCloser.className = 'ol-dji-geozone--ol-popup-closer';
+        popupCloser.id = 'ol-dji-geozones--popup-closer';
+        popupCloser.className = 'ol-dji-geozones--ol-popup-closer';
         popupCloser.href = '#';
 
         popupCloser.onclick = () => {
@@ -578,7 +578,7 @@
             });
           };
 
-          if (enabled) this.divControl.classList.remove('ol-dji-geozone--ctrl-disabled');else this.divControl.classList.add('ol-dji-geozone--ctrl-disabled');
+          if (enabled) this.divControl.classList.remove('ol-dji-geozones--ctrl-disabled');else this.divControl.classList.add('ol-dji-geozones--ctrl-disabled');
           changeState(this.divControl.querySelectorAll('input'));
           changeState(this.divControl.querySelectorAll('select'));
         };
@@ -681,12 +681,12 @@
           url
         }) => {
           return `
-            <div class="ol-dji-geozone--item">
-                <div class="ol-dji-geozone--marker">
+            <div class="ol-dji-geozones--item">
+                <div class="ol-dji-geozones--marker">
                     <img src="${levelParams[level].markerCircle}">
                 </div>
-                <div class="ol-dji-geozone--main">
-                <h3 class="ol-dji-geozone--title">${name}</h3>
+                <div class="ol-dji-geozones--main">
+                <h3 class="ol-dji-geozones--title">${name}</h3>
                     <p class="level">Level: ${levelParams[level].name}</p>
                     <p class="type">Type: ${typeList[type].name}</p>
                     ${begin_at ? `<p class="start_time">End Time: ${begin_at}</p>` : ''}
@@ -760,7 +760,7 @@
           }
 
           let opt_options = {
-            layerFilter: layer => layer.get('name') === 'ol-dji-geozone'
+            layerFilter: layer => layer.get('name') === 'ol-dji-geozones'
           };
           let data; // Call the API  to download the information
 
@@ -882,7 +882,7 @@
         };
 
         const showLoading = bool => {
-          if (bool) this.divControl.classList.add('ol-dji-geozone--isLoading');else this.divControl.classList.remove('ol-dji-geozone--isLoading');
+          if (bool) this.divControl.classList.add('ol-dji-geozones--isLoading');else this.divControl.classList.remove('ol-dji-geozones--isLoading');
         }; // Prevent multiples requests
 
 
@@ -999,6 +999,6 @@
       return color.asString([r, g, b, alpha]);
     }
 
-    return DjiGeozone;
+    return DjiGeozones;
 
 })));

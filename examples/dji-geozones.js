@@ -24,6 +24,6 @@
 
     let url_proxy = 'https://cors-anywhere.herokuapp.com/'; // You can use the public demo CORS Anywhere for testing
 
-    var djiGeozone = new DjiGeozone(map, url_proxy, opt_options);
+    var djiGeozone = new DjiGeozones(map, url_proxy, opt_options);
 
 })();

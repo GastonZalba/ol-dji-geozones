@@ -35,7 +35,7 @@ const MIN_ZOOM = 9; // > 9 breaks the API
  * @param {Boolean} opt_options.control Add Open Layers Controller to the map
  * @param {HTMLElement | string} opt_options.targetControl // Specify a target if you want the control to be rendered outside of the map's viewport.
  */
-export default class DjiGeozone {
+export default class DjiGeozones {
 
     constructor(map, url_proxy, opt_options = {}) {
 
@@ -125,7 +125,7 @@ export default class DjiGeozone {
 
         // this.layers = new VectorLayer({
         //     zIndex: 99,
-        //     name: `ol-dji-geozone`,
+        //     name: `ol-dji-geozones`,
         //     source: this.source,
         //     style: styleFunction
         // });
@@ -136,7 +136,7 @@ export default class DjiGeozone {
 
             let layer = new VectorLayer({
                 zIndex: this.levelParams[level].zIndex * 2,
-                name: 'ol-dji-geozone',
+                name: 'ol-dji-geozones',
                 level: level,
                 visible: this.levelsActivated.includes(level) ? true : false,
                 source: new VectorSource({
@@ -167,9 +167,9 @@ export default class DjiGeozone {
         this.setControlVisible = (visible) => {
 
             if (visible)
-                this.divControl.classList.addClass('ol-dji-geozone--ctrl-hidden');
+                this.divControl.classList.addClass('ol-dji-geozones--ctrl-hidden');
             else
-                this.divControl.classList.removeClass('ol-dji-geozone--ctrl-hidden');
+                this.divControl.classList.removeClass('ol-dji-geozones--ctrl-hidden');
 
         }
 
@@ -181,7 +181,7 @@ export default class DjiGeozone {
             }
 
             let droneSelector = document.createElement('div');
-            droneSelector.className = 'ol-dji-geozone--drone-selector';
+            droneSelector.className = 'ol-dji-geozones--drone-selector';
 
             let select = document.createElement('select');
             select.onchange = handleChange;
@@ -227,7 +227,7 @@ export default class DjiGeozone {
 
             const createLegend = color => {
                 let span = document.createElement('span');
-                span.className = 'ol-dji-geozone--mark'
+                span.className = 'ol-dji-geozones--mark'
                 span.style.border = `1px ${color} solid`;
                 span.style.backgroundColor = colorWithAlpha(color, 0.4);
 
@@ -267,7 +267,7 @@ export default class DjiGeozone {
                 let id = 'level' + value;
 
                 let divContainer = document.createElement('div');
-                divContainer.className = `ol-dji-geozone--item-ctl ol-dji-geozone--item-ctl-${value}`;
+                divContainer.className = `ol-dji-geozones--item-ctl ol-dji-geozones--item-ctl-${value}`;
                 divContainer.title = desc;
                 divContainer.setAttribute('data-level', value);
                 divContainer.append(createCheckbox(id, value, disabled));
@@ -277,7 +277,7 @@ export default class DjiGeozone {
             }
 
             let levelSelector = document.createElement('div');
-            levelSelector.className = 'ol-dji-geozone--level-selector';
+            levelSelector.className = 'ol-dji-geozones--level-selector';
 
             this.levelsToDisplay.forEach(lev => {
                 let level = createLevelItem(lev, this.levelParams[lev]);
@@ -289,14 +289,14 @@ export default class DjiGeozone {
         }
 
         let divControl = document.createElement('div');
-        divControl.className = 'ol-dji-geozone ol-control ol-dji-geozone--ctrl-disabled';
+        divControl.className = 'ol-dji-geozones ol-control ol-dji-geozones--ctrl-disabled';
         divControl.innerHTML = `
         <div>
             <h3>DJI Geo Zone</h3>
-            <span class="ol-dji-geozone--loading">
+            <span class="ol-dji-geozones--loading">
                 ${this.loadingElement}
             </span>
-            <span class="ol-dji-geozone--advice">(Zoom in)</span>
+            <span class="ol-dji-geozones--advice">(Zoom in)</span>
         </div>`;
 
         let droneSelector = createDroneSelector();
@@ -324,16 +324,16 @@ export default class DjiGeozone {
     createPopUpOverlay() {
 
         const popupContainer = document.createElement('div');
-        popupContainer.id = 'ol-dji-geozone--popup';
-        popupContainer.className = 'ol-popup ol-dji-geozone--ol-popup';
+        popupContainer.id = 'ol-dji-geozones--popup';
+        popupContainer.className = 'ol-popup ol-dji-geozones--ol-popup';
 
         this.popupContent = document.createElement('div');
-        this.popupContent.id = 'ol-dji-geozone--popup-content';
-        this.popupContent.className = 'ol-dji-geozone--ol-popup-content'
+        this.popupContent.id = 'ol-dji-geozones--popup-content';
+        this.popupContent.className = 'ol-dji-geozones--ol-popup-content'
 
         let popupCloser = document.createElement('a');
-        popupCloser.id = 'ol-dji-geozone--popup-closer';
-        popupCloser.className = 'ol-dji-geozone--ol-popup-closer';
+        popupCloser.id = 'ol-dji-geozones--popup-closer';
+        popupCloser.className = 'ol-dji-geozones--ol-popup-closer';
         popupCloser.href = '#';
         popupCloser.onclick = () => {
             this.overlay.setPosition(undefined);
@@ -375,9 +375,9 @@ export default class DjiGeozone {
             }
 
             if (enabled)
-                this.divControl.classList.remove('ol-dji-geozone--ctrl-disabled');
+                this.divControl.classList.remove('ol-dji-geozones--ctrl-disabled');
             else
-                this.divControl.classList.add('ol-dji-geozone--ctrl-disabled');
+                this.divControl.classList.add('ol-dji-geozones--ctrl-disabled');
 
             changeState(this.divControl.querySelectorAll('input'));
             changeState(this.divControl.querySelectorAll('select'));
@@ -490,12 +490,12 @@ export default class DjiGeozone {
         const parseDataToHtml = ({ name, level, type, height, description, begin_at, end_at, address, url }) => {
 
             return `
-            <div class="ol-dji-geozone--item">
-                <div class="ol-dji-geozone--marker">
+            <div class="ol-dji-geozones--item">
+                <div class="ol-dji-geozones--marker">
                     <img src="${levelParams[level].markerCircle}">
                 </div>
-                <div class="ol-dji-geozone--main">
-                <h3 class="ol-dji-geozone--title">${name}</h3>
+                <div class="ol-dji-geozones--main">
+                <h3 class="ol-dji-geozones--title">${name}</h3>
                     <p class="level">Level: ${levelParams[level].name}</p>
                     <p class="type">Type: ${typeList[type].name}</p>
                     ${(begin_at) ? `<p class="start_time">End Time: ${begin_at}</p>` : ''}
@@ -603,7 +603,7 @@ export default class DjiGeozone {
             }
 
             let opt_options = {
-                layerFilter: layer => layer.get('name') === 'ol-dji-geozone'
+                layerFilter: layer => layer.get('name') === 'ol-dji-geozones'
             };
 
             let data;
@@ -775,9 +775,9 @@ export default class DjiGeozone {
         const showLoading = (bool) => {
 
             if (bool)
-                this.divControl.classList.add('ol-dji-geozone--isLoading');
+                this.divControl.classList.add('ol-dji-geozones--isLoading');
             else
-                this.divControl.classList.remove('ol-dji-geozone--isLoading');
+                this.divControl.classList.remove('ol-dji-geozones--isLoading');
 
         }
 

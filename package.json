@@ -1,8 +1,8 @@
 {
-  "name": "ol-dji-geozone",
+  "name": "ol-dji-geozones",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/ol-dji-geozone.js",
+  "main": "dist/ol-dji-geozones.js",
   "scripts": {
     "watch": "chokidar 'src/**' --initial --command 'WATCH=1 rollup --config rollup.config.js'",
     "build": "rollup --config rollup.config.js"
@@ -22,7 +22,7 @@
   "author": "Gastón Zalba",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/GastonZalba/ol-dji-geozone/issues"
+    "url": "https://github.com/GastonZalba/ol-dji-geozones/issues"
   },
   "dependencies": {},
   "peerDependencies": {

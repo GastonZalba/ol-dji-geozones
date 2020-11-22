@@ -1,4 +1,4 @@
-# OpenLayers DjiGeozone
+# OpenLayers DjiGeozones
 Create a Layer with DJI Geo Zones for an OpenLayer map. Also, add a Control to the map.
 
 The data is obtained directly from an undocumented DJI [API](https://www-api.dji.com/api/geo/areas). The official DJI Fly Safe Geo Zone Map that use the same data can be found [here](https://www.dji.com/flysafe/geo-map).
@@ -9,8 +9,8 @@ Tested with OpenLayers version 5 and 6.
 Now days, DJI doesn't offer any API documentation, so future support and access to the data is uncertain. Further, the API endpoint has CORS restrictions, so all browsers requests must be reverse proxied.
 
 ## Examples
-- [Basic usage](http://raw.githack.com/GastonZalba/ol-dji-geozone/master/examples/dji-geozone.html)
-  - Create an OpenLayers map instance, and pass that map to the DJIGeozone constructor.
+- [Basic usage](http://raw.githack.com/GastonZalba/ol-dji-geozones/master/examples/dji-geozones.html)
+  - Create an OpenLayers map instance, and pass that map to the DJIGeozones constructor.
 
 ## Usage
 ```js
@@ -29,18 +29,18 @@ let opt_options = {
 // If you want a custom implementation, check out the repository (cors-anywhere)[https://github.com/Rob--W/cors-anywhere]
 let url_proxy = 'https://cors-anywhere.herokuapp.com'; // You can use the public demo CORS Anywhere for testing
 
-const djiGeozone = new DjiGeozone( map, url_proxy, opt_options);
+const djiGeozones = new DjiGeozones( map, url_proxy, opt_options);
 
 // Instance methods
 // This methods clean the loaded features and fires a new API request.
-djiGeozone.setDrone(/* {String} */ 'spark' );
-djiGeozone.setLevel( /* {Array} */ [1,2,3,4,6,7] );
-djiGeozone.setCountry( /* {String} */ 'US' );
+djiGeozones.setDrone(/* {String} */ 'spark' );
+djiGeozones.setLevel( /* {Array} */ [1,2,3,4,6,7] );
+djiGeozones.setCountry( /* {String} */ 'US' );
 
-djiGeozone.setControlVisible( /* {Boolean} */ true ); // Show/hide the control
+djiGeozones.setControlVisible( /* {Boolean} */ true ); // Show/hide the control
 
-let layer = djiGeozone.getLayer(); // returns the ol/layer/Vector~VectorLayer instance
-let source = djiGeozone.getSource(); // returns the ol/source/Vector~VectorSource instance
+let layer = djiGeozones.getLayer(); // returns the ol/layer/Vector~VectorLayer instance
+let source = djiGeozones.getSource(); // returns the ol/source/Vector~VectorSource instance
 ```
 ## [DJI API](https://www-api.dji.com/api/geo/areas) - What we know
 ### Problems
@@ -52,7 +52,7 @@ To bypass this problem, this module functions completely different of the offici
 
 ### Required parameters
 - `level`
-    - `2` - Restricted Zones: In these Zones, which appear red the DJI GO app, users will be prompted with a warning and flight is prevented. If you believe you have the authorization to operate in a Restricted Zone, please contact flysafe@dji.com or Online Unlocking. **Default if not value is provided**
+    - `2` - Restricted Zones: In these Zones, which appear red the DJI GO app, users will be prompted with a warning and flight is prevented. If you believe you have the authorization to operate in a Restricted Zone, please contact flysafe@dji.com or Online Unlocking. **Default value if not provided**
     - `6` - Altitude Zones: Altitude zones will appear in gray on the map. Users receive warnings in DJI GO, or DJI GO 4 and flight altitude is limited.
     - `1` - Authorization Zones: In these Zones, which appear blue in the DJI GO map, users will be prompted with a warning and flight is limited by default. Authorization Zones may be unlocked by authorized users using a DJI verified account.
     - `0` - Warning Zones: In these Zones, which may not necessarily appear on the DJI GO map, users will be prompted with a warning message. Example Warning Zone: Class E airspace.
@@ -111,26 +111,26 @@ See [CHANGELOG](./CHANGELOG.md) for details of changes in each release.
 ### Browser
 #### JS
 
-Load `ol-dji-geozone.js` after OpenLayers. Dji Geozone is available as `DjiGeozone`.
+Load `ol-dji-geozones.js` after OpenLayers. Dji Geozone is available as `DjiGeozones`.
 ```HTML
-<script src="https://unpkg.com/ol-dji-geozone@1.0.0"></script>
+<script src="https://unpkg.com/ol-dji-geozones@1.0.0"></script>
 ```
 
 #### CSS
 ```HTML
-<link rel="stylesheet" href="https://unpkg.com/ol-dji-geozone@1.0.0/src/ol-dji-geozone.css" />
+<link rel="stylesheet" href="https://unpkg.com/ol-dji-geozones@1.0.0/src/ol-dji-geozones.css" />
 ```
 
 ### Parcel, Webpack etc.
-NPM package: [ol-dji-geozone](https://www.npmjs.com/package/ol-dji-geozone).
+NPM package: [ol-dji-geozones](https://www.npmjs.com/package/ol-dji-geozones).
 #### JS
 
 Install the package via `npm`
 
-    npm install ol-dji-geozone --save
+    npm install ol-dji-geozones --save
 
 #### CSS
-The CSS file `ol-dji-geozone.css` can be found in `./node_modules/ol-dji-geozone/src`
+The CSS file `ol-dji-geozones.css` can be found in `./node_modules/ol-dji-geozones/src`
 
 ## License
 MIT (c) Gastón Zalba.
