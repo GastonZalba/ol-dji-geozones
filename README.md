@@ -1,5 +1,5 @@
 # OpenLayers DjiGeozones
-Create a Layer with DJI Geo Zones for an OpenLayer map. Also, add a Control to the map.
+Create a Layer with DJI Geo Zones for an OpenLayer map. Also, add a Control to the map to select the levels and the drone to filter the zones.
 
 The data is obtained directly from an undocumented DJI [API](https://www-api.dji.com/api/geo/areas). The official DJI Fly Safe Geo Zone Map that use the same data can be found [here](https://www.dji.com/flysafe/geo-map).
 
@@ -20,27 +20,30 @@ let opt_options = {
     zonesMode: 'total', // {string}
     country: 'US', // {string} See country parameter in the DJI API section
     levelsToDisplay: [2, 6, 1, 0, 3, 4, 7], // {array} Order is kept in the Control
-    levelsActivated: [2, 6, 1, 0, 3, 4, 7], // {array}
+    levelsActive: [2, 6, 1, 0, 3, 4, 7], // {array}
     control: true, // {boolean} Create or not the control
     targetControl: null // {HTMLElement | string} Specify a target if you want the control to be rendered outside of the map's viewport.
 }
 
-// REVERSE PROXY
+// SETTING A REVERSE PROXY TO AVOID CORS
 // If you want a custom implementation, check out the repository (cors-anywhere)[https://github.com/Rob--W/cors-anywhere]
 let url_proxy = 'https://cors-anywhere.herokuapp.com'; // You can use the public demo CORS Anywhere for testing
 
-const djiGeozones = new DjiGeozones( map, url_proxy, opt_options);
+const djiGeozones = new DjiGeozones(map, url_proxy, opt_options);
 
 // Instance methods
 // This methods clean the loaded features and fires a new API request.
 djiGeozones.setDrone(/* {String} */ 'spark' );
-djiGeozones.setLevel( /* {Array} */ [1,2,3,4,6,7] );
-djiGeozones.setCountry( /* {String} */ 'US' );
+djiGeozones.setCountry( /* {String} */ 'US' ); // At the moment, this doesn't appear to affect the api response
+
+djiGeozones.showLevels( /* {Array} */ [1,2,3,4,6,7] );
+djiGeozones.addLevel( /* {Int} */ 5 );
+djiGeozones.removeLevel( /* {Int} */ 7 );
 
 djiGeozones.setControlVisible( /* {Boolean} */ true ); // Show/hide the control
 
-let layer = djiGeozones.getLayer(); // returns the ol/layer/Vector~VectorLayer instance
-let source = djiGeozones.getSource(); // returns the ol/source/Vector~VectorSource instance
+let layer = djiGeozones.getLayers(); // returns an array off ol/layer/Vector~VectorLayer instances
+let layer = djiGeozones.getLayerByLevel(/* {Int} */ 7); // returns an ol/layer/Vector~VectorLayer instance with the specefic level
 ```
 ## [DJI API](https://www-api.dji.com/api/geo/areas) - What we know
 ### Problems
@@ -118,13 +121,13 @@ Load `ol-dji-geozones.js` after OpenLayers. Dji Geozone is available as `DjiGeoz
 <link rel="stylesheet" href="https://unpkg.com/ol-dji-geozones@1.0.0/src/ol-dji-geozones.css" />
 ```
 
-### Parcel, Webpack etc.
+### Parcel, Webpack, etc.
 NPM package: [ol-dji-geozones](https://www.npmjs.com/package/ol-dji-geozones).
 #### JS
 
 Install the package via `npm`
 
-    npm install ol-dji-geozones --save
+    npm install ol-dji-geozones
 
 #### CSS
 The CSS file `ol-dji-geozones.css` can be found in `./node_modules/ol-dji-geozones/src`

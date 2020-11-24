@@ -370,7 +370,7 @@
   var API_LEVELS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; // request all the levels, we filter later to avoid some api problems
 
   var LOADING_ELEMENT = '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>';
-  var MIN_ZOOM = 9; // > 9 breaks the API
+  var MIN_ZOOM = 9; // < 9 breaks the API
 
   /**
    * OpenLayers DJI Geozone Layer.
@@ -383,7 +383,7 @@
    * @param {String} opt_options.zonesMode DJI API parameter
    * @param {String} opt_options.country DJI API parameter
    * @param {Array} opt_options.levelsToDisplay DJI API parameter
-   * @param {Array} opt_options.levelsActivated DJI API parameter
+   * @param {Array} opt_options.levelsActive DJI API parameter
    * @param {Array} opt_options.levelParams Controller labels, names, icons and color for each level
    * @param {Boolean} opt_options.control Add Open Layers Controller to the map
    * @param {HTMLElement | string} opt_options.targetControl // Specify a target if you want the control to be rendered outside of the map's viewport.
@@ -397,7 +397,7 @@
       this.zones_mode = opt_options.zonesMode || 'total';
       this.country = opt_options.country || 'US';
       this.levelsToDisplay = opt_options.levelsToDisplay || [2, 6, 1, 0, 3, 4, 7];
-      this.levelsActivated = opt_options.levelsActivated || [2, 6, 1, 0, 3, 4, 7]; // Get the colors, info, icons and more from each level
+      this.levelsActive = opt_options.levelsActive || [2, 6, 1, 0, 3, 4, 7]; // Get the colors, info, icons and more from each level
 
       this.levelParams = !opt_options.levelParams ? levelParams : _objectSpread2(_objectSpread2({}, levelParams), opt_options.levelParams);
       this.url_proxy = url_proxy; // We can use the features properties to show in the popup, or make an extra request to the Info API.
@@ -458,7 +458,7 @@
             zIndex: this.levelParams[level].zIndex * 2,
             name: 'ol-dji-geozones',
             level: level,
-            visible: this.levelsActivated.includes(level) ? true : false,
+            visible: this.levelsActive.includes(level) ? true : false,
             source: new VectorSource__default['default']({
               attributions: '<a href="https://www.dji.com/flysafe/geo-map" rel="nofollow noopener noreferrer" target="_blank">DJI GeoZoneMap</a>'
             }),
@@ -540,13 +540,13 @@
             var bool;
 
             if (target.checked === true) {
-              this.levelsActivated = [...this.levelsActivated, value];
+              this.levelsActive = [...this.levelsActive, value];
               bool = true;
             } else {
-              var index = this.levelsActivated.indexOf(value);
+              var index = this.levelsActive.indexOf(value);
 
               if (index !== -1) {
-                this.levelsActivated.splice(index, 1);
+                this.levelsActive.splice(index, 1);
               }
 
               bool = false;
@@ -579,7 +579,7 @@
             checkbox.id = name;
             checkbox.value = value;
             checkbox.onclick = handleClick;
-            if (this.levelsActivated.indexOf(value) !== -1) checkbox.checked = 'checked';
+            if (this.levelsActive.indexOf(value) !== -1) checkbox.checked = 'checked';
             if (disabled) checkbox.disabled = 'disabled';
             return checkbox;
           };
@@ -612,7 +612,7 @@
 
         var divControl = document.createElement('div');
         divControl.className = 'ol-dji-geozones ol-control ol-dji-geozones--ctrl-disabled';
-        divControl.innerHTML = "\n        <div>\n            <h3>DJI Geo Zone</h3>\n            <span class=\"ol-dji-geozones--loading\">\n                ".concat(LOADING_ELEMENT, "\n            </span>\n            <span class=\"ol-dji-geozones--advice\">(Zoom in)</span>\n        </div>");
+        divControl.innerHTML = "\n        <div>\n            <h3>DJI Geo Zones</h3>\n            <span class=\"ol-dji-geozones--loading\">\n                ".concat(LOADING_ELEMENT, "\n            </span>\n            <span class=\"ol-dji-geozones--advice\">(Zoom in)</span>\n        </div>");
         var droneSelector = createDroneSelector();
         divControl.append(droneSelector);
         var levelSelector = createLevelSelector();
@@ -652,7 +652,7 @@
             this.layers.forEach(layer => {
               if (!bool) {
                 layer.setVisible(bool);
-              } else if (bool && this.levelsActivated.includes(layer.get('level'))) {
+              } else if (bool && this.levelsActive.includes(layer.get('level'))) {
                 layer.setVisible(bool);
               }
             });

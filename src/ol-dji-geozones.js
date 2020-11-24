@@ -21,7 +21,8 @@ const API_LEVELS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] // request all the levels, we 
 
 const LOADING_ELEMENT = '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>';
 
-const MIN_ZOOM = 9; // > 9 breaks the API
+const MIN_ZOOM = 9; // < 9 breaks the API
+
 /**
  * OpenLayers DJI Geozone Layer.
  * See [the examples](./examples) for usage.
@@ -33,7 +34,7 @@ const MIN_ZOOM = 9; // > 9 breaks the API
  * @param {String} opt_options.zonesMode DJI API parameter
  * @param {String} opt_options.country DJI API parameter
  * @param {Array} opt_options.levelsToDisplay DJI API parameter
- * @param {Array} opt_options.levelsActivated DJI API parameter
+ * @param {Array} opt_options.levelsActive DJI API parameter
  * @param {Array} opt_options.levelParams Controller labels, names, icons and color for each level
  * @param {Boolean} opt_options.control Add Open Layers Controller to the map
  * @param {HTMLElement | string} opt_options.targetControl // Specify a target if you want the control to be rendered outside of the map's viewport.
@@ -47,17 +48,17 @@ export default class DjiGeozones {
         this.zones_mode = opt_options.zonesMode || 'total';
         this.country = opt_options.country || 'US';
         this.levelsToDisplay = opt_options.levelsToDisplay || [2, 6, 1, 0, 3, 4, 7];
-        this.levelsActivated = opt_options.levelsActivated || [2, 6, 1, 0, 3, 4, 7];
+        this.levelsActive = opt_options.levelsActive || [2, 6, 1, 0, 3, 4, 7];
 
         // Get the colors, info, icons and more from each level
         this.levelParams = (!opt_options.levelParams) ? levelParams : { ...levelParams, ...opt_options.levelParams };
 
         this.url_proxy = url_proxy;
 
-        // We can use the features properties to show in the popup, or make an extra request to the Info API.
-        // The original DJI map makes extras requests to this API to get these values, but I don't understand why:
-        // It's more slow and requieres extra requests to an already downloaded data.
-        // Either way, this extra API calls are supported.
+        // By default, we use the properties features to show in the popup. 
+        // The official DJI map, makes an extra request to another API to get the data. I don't understand why.
+        // It's more slow and requieres extra requests to an already downloaded data...
+        // Either way, this extra API calls are supported if you want.
         this.useApiForPopUp = false;
 
         // MAP 
@@ -69,19 +70,18 @@ export default class DjiGeozones {
         this.projection = this.view.getProjection();
         this.isVisible = (this.view.getZoom() < MIN_ZOOM);
 
-        this.layers = [];
+        this.vectorLayers = [];
         this.divControl = null;
         this.areaDownloaded = null;
         this.initiated = false;
 
         this.init(addControl, targetControl);
 
-
     }
 
     init(addControl, targetControl) {
 
-        const createVectorLayers = () => {
+        const createVectorLayers = _ => {
 
             const styleFunction = feature => {
 
@@ -126,19 +126,17 @@ export default class DjiGeozones {
                     zIndex: this.levelParams[level].zIndex * 2,
                     name: 'ol-dji-geozones',
                     level: level,
-                    visible: this.levelsActivated.includes(level) ? true : false,
+                    visible: this.levelsActive.includes(level) ? true : false,
                     source: new VectorSource({
                         attributions: '<a href="https://www.dji.com/flysafe/geo-map" rel="nofollow noopener noreferrer" target="_blank">DJI GeoZoneMap</a>'
                     }),
                     style: styleFunction
                 });
 
-
                 this.map.addLayer(layer);
-                this.layers.push(layer);
+                this.vectorLayers.push(layer);
 
             })
-
 
         }
 
@@ -156,7 +154,7 @@ export default class DjiGeozones {
             popupCloser.id = 'ol-dji-geozones--popup-closer';
             popupCloser.className = 'ol-dji-geozones--ol-popup-closer';
             popupCloser.href = '#';
-            popupCloser.onclick = () => {
+            popupCloser.onclick = _ => {
                 this.overlay.setPosition(undefined);
                 popupCloser.blur();
                 return false;
@@ -180,7 +178,7 @@ export default class DjiGeozones {
          * 
          * @param {HTMLElement | string} targetControl 
          */
-        const addMapControl = (targetControl) => {
+        const addMapControl = targetControl => {
 
             const createDroneSelector = _ => {
 
@@ -220,12 +218,12 @@ export default class DjiGeozones {
                     let bool;
 
                     if (target.checked === true) {
-                        this.levelsActivated = [...this.levelsActivated, value];
+                        this.levelsActive = [...this.levelsActive, value];
                         bool = true;
                     } else {
-                        let index = this.levelsActivated.indexOf(value);
+                        let index = this.levelsActive.indexOf(value);
                         if (index !== -1) {
-                            this.levelsActivated.splice(index, 1);
+                            this.levelsActive.splice(index, 1);
                         }
                         bool = false;
                     }
@@ -261,7 +259,7 @@ export default class DjiGeozones {
 
                     checkbox.onclick = handleClick;
 
-                    if (this.levelsActivated.indexOf(value) !== -1)
+                    if (this.levelsActive.indexOf(value) !== -1)
                         checkbox.checked = 'checked';
 
                     if (disabled)
@@ -300,13 +298,13 @@ export default class DjiGeozones {
             let divControl = document.createElement('div');
             divControl.className = 'ol-dji-geozones ol-control ol-dji-geozones--ctrl-disabled';
             divControl.innerHTML = `
-        <div>
-            <h3>DJI Geo Zone</h3>
-            <span class="ol-dji-geozones--loading">
-                ${LOADING_ELEMENT}
-            </span>
-            <span class="ol-dji-geozones--advice">(Zoom in)</span>
-        </div>`;
+            <div>
+                <h3>DJI Geo Zones</h3>
+                <span class="ol-dji-geozones--loading">
+                    ${LOADING_ELEMENT}
+                </span>
+                <span class="ol-dji-geozones--advice">(Zoom in)</span>
+            </div>`;
 
             let droneSelector = createDroneSelector();
             divControl.append(droneSelector);
@@ -330,29 +328,31 @@ export default class DjiGeozones {
 
         }
 
-        const addMapEvents = () => {
+        const addMapEvents = _ => {
 
             /**
              * Enable or disable the inputs and the select in the control
              * @param {Boolean} enabled 
              */
-            const setControlEnabled = (enabled) => {
+            const setControlEnabled = enabled => {
 
                 const changeState = array => {
                     array.forEach(el => {
 
-                        if (enabled)
+                        if (enabled) {
                             el.removeAttribute('disabled');
-                        else
+                        } else {
                             el.disabled = 'disabled';
+                        }
 
                     });
                 }
 
-                if (enabled)
+                if (enabled) {
                     this.divControl.classList.remove('ol-dji-geozones--ctrl-disabled');
-                else
+                } else {
                     this.divControl.classList.add('ol-dji-geozones--ctrl-disabled');
+                }
 
                 changeState(this.divControl.querySelectorAll('input'));
                 changeState(this.divControl.querySelectorAll('select'));
@@ -361,12 +361,12 @@ export default class DjiGeozones {
 
             const handleZoomEnd = _ => {
 
-                const setVisible = (bool) => {
-                    this.layers.forEach(layer => {
+                const setVisible = bool => {
+                    this.vectorLayers.forEach(layer => {
 
                         if (!bool) {
                             layer.setVisible(bool)
-                        } else if (bool && this.levelsActivated.includes(layer.get('level'))) {
+                        } else if (bool && this.levelsActive.includes(layer.get('level'))) {
                             layer.setVisible(bool);
                         }
 
@@ -445,13 +445,13 @@ export default class DjiGeozones {
         let infoKeys = ['name', 'level', 'type', 'height', 'shape', 'start_at', 'end_at', 'url', 'address', 'description'];
         let idInfoRequest = 0;
 
-        const getInfoFromApiLatLng = async (coordinate) => {
+        const getInfoFromApiLatLng = async coordinate => {
 
             // Prevent multiples requests
             idInfoRequest += 1;
             let request = idInfoRequest;
 
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve) => {
 
                 setTimeout(async _ => {
 
@@ -484,10 +484,9 @@ export default class DjiGeozones {
             })
 
 
-
         }
 
-        const getInfoFromFeatures = (features) => {
+        const getInfoFromFeatures = features => {
 
             let featuresProps = [];
 
@@ -603,7 +602,7 @@ export default class DjiGeozones {
          * The level parameter returned by the API is wrong, so wee need to fixed using the color
          * @param {*} feature 
          */
-        const fixLevelValue = (feature) => {
+        const fixLevelValue = feature => {
             let color = feature.get('color');
             let level = Object.keys(this.levelParams).find(key => this.levelParams[key].color === color);
             feature.set('level', level);
@@ -670,7 +669,7 @@ export default class DjiGeozones {
 
                 // Store the id to avoid duplicates
                 feature.setId(area.area_id);
-                features.push(fixLevelValue(feature));           
+                features.push(fixLevelValue(feature));
 
                 if (area.sub_areas) {
 
@@ -729,7 +728,7 @@ export default class DjiGeozones {
             return features;
         }
 
-        const showLoading = (bool) => {
+        const showLoading = bool => {
 
             if (bool)
                 this.divControl.classList.add('ol-dji-geozones--isLoading');
@@ -783,7 +782,6 @@ export default class DjiGeozones {
 
                 showLoading(false);
             }
-
 
         }, 300);
 
@@ -886,16 +884,15 @@ export default class DjiGeozones {
      * @param {Boolean} visible 
      */
     setControlVisible(visible) {
-
-        if (visible)
+        if (visible) {
             this.divControl.classList.addClass('ol-dji-geozones--ctrl-hidden');
-        else
+        } else {
             this.divControl.classList.removeClass('ol-dji-geozones--ctrl-hidden');
-
+        }
     }
 
     clearFeatures() {
-        this.layers.forEach(layer => {
+        this.vectorLayers.forEach(layer => {
             layer.getSource().clear();
         })
 
@@ -903,16 +900,16 @@ export default class DjiGeozones {
 
     getFeatureById(id) {
         let feature;
-        for (let layer of this.layers) {
-           feature = layer.getSource().getFeatureById(id);
-           if (feature) break;
+        for (let layer of this.vectorLayers) {
+            feature = layer.getSource().getFeatureById(id);
+            if (feature) break;
         }
         return feature;
     }
 
     getLayerByLevel(level) {
         let find;
-        for (let layer of this.layers) {
+        for (let layer of this.vectorLayers) {
             if (layer.get('level') != undefined && layer.get('level') == level) {
                 find = layer;
                 break;
