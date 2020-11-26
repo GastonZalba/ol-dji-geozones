@@ -36,8 +36,8 @@ const djiGeozones = new DjiGeozones(map, url_proxy, opt_options);
 djiGeozones.setDrone(/* {String} */ 'spark' );
 djiGeozones.setCountry( /* {String} */ 'US' ); // At the moment, this doesn't appear to affect the api response
 
-djiGeozones.showLevels( /* {Array} */ [1,2,3,4,6,7] );
-djiGeozones.addLevel( /* {Int} */ 5 );
+djiGeozones.setLevels( /* {Array} */ [1,2,3,4,6,7] );
+djiGeozones.addLevels( /* {Int} */ 5 );
 djiGeozones.removeLevel( /* {Int} */ 7 );
 
 djiGeozones.setControlVisible( /* {Boolean} */ true ); // Show/hide the control

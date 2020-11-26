@@ -609,7 +609,10 @@ export default class DjiGeozones {
             return feature;
         }
 
-
+        /**
+         * Parse the json response of the API an create Open Layers features.
+         * @param {JSON} djiJson 
+         */
         const apiResponseToFeatures = djiJson => {
 
             let areas = djiJson.areas;
@@ -728,7 +731,21 @@ export default class DjiGeozones {
             return features;
         }
 
+        const addFeaturesToEachLevel = features => {
+            features.forEach(feature => {
+                let level = feature.get('level');
+                let layer = this.getLayerByLevel(level);
+                layer.getSource().addFeature(feature);
+            })
+        }
+
+        /**
+         * Show/hide the loading in the control
+         * @param {Boolean} bool 
+         */
         const showLoading = bool => {
+
+            if (!this.divControl) return;
 
             if (bool)
                 this.divControl.classList.add('ol-dji-geozones--isLoading');
@@ -769,7 +786,8 @@ export default class DjiGeozones {
                 if (clear) this.clearFeatures();
 
                 let features = apiResponseToFeatures(data);
-                this.addFeatures(features);
+
+                addFeaturesToEachLevel(features);
 
                 showLoading(false);
 
@@ -788,6 +806,11 @@ export default class DjiGeozones {
 
     }
 
+    /**
+     * Controller for the API rquests.
+     * @param {String} typeApiRequest 
+     * @param {Array} latLng 
+     */
     async getApiGeoData(typeApiRequest, latLng) {
 
         const apiRequest = async (type, { lng, lat }, searchRadius) => {
@@ -895,7 +918,6 @@ export default class DjiGeozones {
         this.vectorLayers.forEach(layer => {
             layer.getSource().clear();
         })
-
     }
 
     getFeatureById(id) {
@@ -907,6 +929,10 @@ export default class DjiGeozones {
         return feature;
     }
 
+    /**
+     * 
+     * @param {Integer} level 
+     */
     getLayerByLevel(level) {
         let find;
         for (let layer of this.vectorLayers) {
@@ -918,12 +944,47 @@ export default class DjiGeozones {
         return find;
     }
 
-    addFeatures(features) {
-        features.forEach(feature => {
-            let level = feature.get('level');
-            let layer = this.getLayerByLevel(level);
-            layer.getSource().addFeature(feature);
-        })
+    /**
+     * 
+     * @param {Array | Integer} levels 
+     * @param {Boolean} refresh 
+     */
+    setLevels(levels, refresh = true) {
+        levels = !Array.isArray(levels) ? [levels] : levels;
+        this.levelsActive = levels;
+
+        if (refresh)
+            this.getInfoFromView( /* clear = */ true)
+    }
+
+    /**
+     * 
+     * @param {Array | Integer} levels 
+     * @param {Boolean} refresh 
+     */
+    addLevels(levels, refresh = true) {
+        levels = !Array.isArray(levels) ? [levels] : levels;
+        this.levelsActive = [...this.levelsActive, ...levels];
+
+        if (refresh)
+            this.getInfoFromView( /* clear = */ true)
+    }
+
+    /**
+     * 
+     * @param {Array | Integer} levels 
+     * @param {Boolean} refresh 
+     */
+    removeLevels(levels, refresh = true) {
+        levels = !Array.isArray(levels) ? [levels] : levels;
+        this.levelsActive = this.levelsActive.filter(x => !levels.includes(x));
+
+        if (refresh)
+            this.getInfoFromView( /* clear = */ true)
+    }
+
+    getLayers() {
+        return this.vectorLayers;
     }
 
 }
