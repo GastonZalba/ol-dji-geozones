@@ -360,12 +360,18 @@
     var MIN_ZOOM = 9; // < 9 breaks the API
 
     /**
-     * OpenLayers DJI Geozone Layer.
+     * OpenLayers DJI Geozone Layer, display DJI Geo Zones in diferent layerss on the map.
+     * Also, add a Control to select the levels and the drone to filter the zones.
+     *
+     * Properties can either be set by adding extra properties
+     * to their options when they are created or via their set method.
+     *
      * See [the examples](./examples) for usage.
+     *
      * @constructor
      * @param {Object} map Class Map
      * @param {String} url_proxy Proxy
-     * @param {Object} opt_options Control options
+     * @param {Object} opt_options opt_options DjiGeozones options, see  [DjiGeozones Options](#options) for more details.
      */
 
     class DjiGeozones {
@@ -376,10 +382,13 @@
         this.zones_mode = options.zonesMode || 'total';
         this.country = options.country || 'US';
         this.levelsToDisplay = options.levelsToDisplay || [2, 6, 1, 0, 3, 4, 7];
-        this.levelsActive = options.levelsActive || [2, 6, 1, 0, 3, 4, 7]; // Get the colors, info, icons and more from each level
+        this.levelsActive = options.levelsActive || [2, 6, 1, 0, 3, 4, 7];
+        this.geozoneLevelParams = !options.levelParams ? geozoneLevels : Object.assign(Object.assign({}, geozoneLevels), options.levelParams); // If not provided, we use all the available drones
+        // This can be passed to use translations.
 
-        this.geozoneLevelParams = !options.levelParams ? geozoneLevels : Object.assign(Object.assign({}, geozoneLevels), options.levelParams);
-        this.dronesList = options.dronesList || dronesList;
+        this.dronesList = options.dronesList || dronesList; // If not provided, use the default types values.
+        // This can be passed to use translations.
+
         this.geozoneTypes = options.geozoneTypes || geozoneTypes;
         this.extent = options.extent || null;
         this.url_proxy = url_proxy;
@@ -399,7 +408,6 @@
         this.vectorLayers = [];
         this.divControl = null;
         this.areaDownloaded = null;
-        this.initiated = false;
         this.init(showControl, targetControl);
       }
 
@@ -682,8 +690,6 @@
           this.map.on('singleclick', clickHandler);
         };
 
-        if (this.initiated) return;
-        this.initiated = true;
         createVectorLayers();
         createPopUpOverlay();
         addMapEvents();
@@ -776,7 +782,7 @@
 
             if (type === 'useApiForPopUp') {
               if (this.map.hasFeatureAtPixel(evt.pixel, opt_options)) {
-                this.popupContent.innerHTML = this.loadingElement;
+                this.popupContent.innerHTML = this.loadingElement.toString();
                 this.overlay.setPosition(evt.coordinate);
                 data = yield getInfoFromApiLatLng(evt.coordinate);
               } // Use the previously downloaded features information
@@ -1072,8 +1078,7 @@
         }
 
         return feature;
-      } // @todo: arreglar
-
+      }
 
       setLevels(levels) {
         var refresh = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
