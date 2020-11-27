@@ -23,9 +23,10 @@ import Projection from 'ol/proj/Projection';
 
 // Import configuration values
 // This elements can be used to create transcriptions
-import geozoneLevels from './_geozone-levels.json';
-import geozoneTypes from './_geozone-types.json';
-import dronesList from './_drones-list.json';
+import levelsParams from './_levels-params.json';
+import dronesList from './_drones.json';
+import languages from './_languages.json';
+
 
 /**
  * @protected
@@ -48,6 +49,9 @@ const MIN_ZOOM = 9; // < 9 breaks the API
  * @param opt_options DjiGeozones options, see [DjiGeozones Options](#options) for more details.
  */
 export default class DjiGeozones {
+    
+    protected language: string;
+
     protected drone: string;
     protected zones_mode: string;
     protected country: string;
@@ -57,8 +61,9 @@ export default class DjiGeozones {
     protected url_proxy: string;
     protected useApiForPopUp: boolean;
 
-    protected geozoneLevelParams: GeozoneLevelsList;
-    protected geozoneTypes: GeozoneTypesList;
+    protected levelsParamsList: LevelsParamsList;
+    protected levelsTextsList: LevelsTextsList;
+    protected typesTextsList: TypesTextsList;
     protected dronesList: DroneList;
 
     protected map: PluggableMap;
@@ -74,12 +79,14 @@ export default class DjiGeozones {
     protected divControl: HTMLElement;
     protected areaDownloaded: MultiPolygon;
 
-    protected loadingElement: HTMLElement | string;
+    protected loadingElement: string;
 
     protected popupContent: HTMLElement;
 
     constructor(map: PluggableMap, url_proxy: string, opt_options?: Options) {
         const options = { ...opt_options };
+        
+        this.language = options.language || 'en';
 
         // API PARAMETERS
         this.drone = options.drone || 'spark';
@@ -88,9 +95,11 @@ export default class DjiGeozones {
         this.levelsToDisplay = options.levelsToDisplay || [2, 6, 1, 0, 3, 4, 7];
         this.levelsActive = options.levelsActive || [2, 6, 1, 0, 3, 4, 7];
 
-        this.geozoneLevelParams = !options.levelParams
-            ? geozoneLevels
-            : { ...geozoneLevels, ...options.levelParams };
+        this.levelsTextsList = options.levelsTexts ||  languages[this.language].levels;
+    
+        this.levelsParamsList = !options.levelParams
+            ? levelsParams
+            : { ...levelsParams, ...options.levelParams };
 
         // If not provided, we use all the available drones
         // This can be passed to use translations.
@@ -98,7 +107,7 @@ export default class DjiGeozones {
 
         // If not provided, use the default types values.
         // This can be passed to use translations.
-        this.geozoneTypes = options.geozoneTypes || geozoneTypes;
+        this.typesTextsList = options.typesTexts || languages[this.language].types;
 
         this.extent = options.extent || null;
 
@@ -154,7 +163,7 @@ export default class DjiGeozones {
 
                     style = new Style({
                         fill: new Fill({
-                            color: colorWithAlpha(color, 0.3)
+                            color: DjiGeozones.colorWithAlpha(color, 0.3)
                         }),
                         stroke: new Stroke({
                             color: color,
@@ -198,7 +207,6 @@ export default class DjiGeozones {
 
         /**
          * Create the PopUp element and add it to an Overlay
-         *
          * @private
          */
         const createPopUpOverlay = () => {
@@ -240,6 +248,7 @@ export default class DjiGeozones {
          * @private
          */
         const addMapControl = (targetPanel: HTMLElement | string) => {
+            
             const createDroneSelector = (): HTMLDivElement => {
                 const handleChange = ({ target }) => {
                     this.drone =
@@ -284,7 +293,7 @@ export default class DjiGeozones {
                     const span = document.createElement('span');
                     span.className = 'ol-dji-geozones--mark';
                     span.style.border = `1px ${color} solid`;
-                    span.style.backgroundColor = colorWithAlpha(color, 0.4);
+                    span.style.backgroundColor = DjiGeozones.colorWithAlpha(color, 0.4);
                     return span;
                 };
 
@@ -388,6 +397,9 @@ export default class DjiGeozones {
              * @private
              */
             const setControlEnabled = (enabled: boolean): void => {
+
+                if (!this.divControl) return;
+
                 const changeState = (
                     array: NodeListOf<HTMLInputElement | HTMLSelectElement>
                 ) => {
@@ -582,37 +594,37 @@ export default class DjiGeozones {
             }) => {
                 const levelParams = this.getLevelParamsById(level);
 
-                return `
+                        return `
                 <div class="ol-dji-geozones--item">
                     <div class="ol-dji-geozones--marker">
                         <img src="${levelParams.markerCircle}">
                     </div>
                     <div class="ol-dji-geozones--main">
                     <h3 class="ol-dji-geozones--title">${name}</h3>
-                        <p class="level">Level: ${levelParams.name}</p>
-                        <p class="type">Type: ${this.getGeozoneTypeById(type).name}</p>
+                        <p class="ol-dji-geozones--level">Level: ${levelParams.name} <span style="--level-color: ${levelParams.color};" data-geotooltip="${levelParams.desc}" class="ol-dji-geozones--info">Info</span></p>
+                        <p class="ol-dji-geozones--type">Type: ${this.getGeozoneTypeById(type).name}</p>
                         ${begin_at
-                        ? `<p class="start_time">End Time: ${begin_at}</p>`
+                        ? `<p class="ol-dji-geozones--start_time">End Time: ${begin_at}</p>`
                         : ''
                     }
                         ${end_at
-                        ? `<p class="end_time">End Time: ${end_at}</p><p class="time_tips">Time: 24-hour clock</p>`
+                        ? `<p class="ol-dji-geozones--end_time">End Time: ${end_at}</p><p class="ol-dji-geozones--time_tips">Time: 24-hour clock</p>`
                         : ''
                     }         
                         ${height
-                        ? `<p class="height">Max. Altitude (m): ${height}</p>`
+                        ? `<p class="ol-dji-geozones--height">Max. Altitude (m): ${height}</p>`
                         : ''
                     } 
                         ${address
-                        ? `<p class="address">Address: ${address}</p>`
+                        ? `<p class="ol-dji-geozones--address">Address: ${address}</p>`
                         : ''
                     }
                         ${description
-                        ? `<p class="desc">Tips: ${description}</p>`
+                        ? `<p class="ol-dji-geozones--desc">Tips: ${description}</p>`
                         : ''
                     }
                         ${url
-                        ? `<p class="url">Link: <a href="${url}">Learn More</a></p>`
+                        ? `<p class="ol-dji-geozones--url">Link: <a href="${url}">Learn More</a></p>`
                         : ''
                     }
                     </div>
@@ -691,8 +703,8 @@ export default class DjiGeozones {
          */
         const fixLevelValue = (feature: Feature) => {
             const color = feature.get('color');
-            const level = Object.keys(this.geozoneLevelParams).find(
-                (key) => this.geozoneLevelParams[key].color === color
+            const level = Object.keys(this.levelsParamsList).find(
+                (key) => this.levelsParamsList[key].color === color
             );
             feature.set('level', level);
             return feature;
@@ -1049,19 +1061,18 @@ export default class DjiGeozones {
     }
 
     /**
-     * GEt the level parameters from all the levels
+     * Get the parameters from all the levels
      */
-    getLevelsParams(): GeozoneTypesList {
-        return this.geozoneLevelParams;
+    getLevelsParams(): LevelsParamsList {
+        return this.levelsParamsList;
     }
 
     /**
-     * Get the level parameters, like color, icon, and description
-     * 
+     * Get the level parameters, like color, icon, and description 
      * @param id
      */
-    getLevelParamsById(id: number = null): GeozoneLevel {
-        return this.geozoneLevelParams.find((lev: GeozoneLevel) => lev.id == id);
+    getLevelParamsById(id: number = null): LevelParams {
+        return this.levelsParamsList.find((lev: LevelParams) => lev.id == id);
     }
 
     /**
@@ -1088,7 +1099,7 @@ export default class DjiGeozones {
     }
 
     /**
-     * Add Level to the view
+     * Add the level/s to the view
      * @param levels
      * @param refresh If true, refresh the view and show the actived levels
      */
@@ -1105,7 +1116,7 @@ export default class DjiGeozones {
     }
 
     /**
-     * Remove level from the view
+     * Remove the level/s from the view
      * 
      * @param levels 
      * @param refresh If true, refresh the view and show the actived levels
@@ -1125,38 +1136,37 @@ export default class DjiGeozones {
     /**
      *
      */
-    getGeozoneTypes(): GeozoneTypesList {
-        return geozoneTypes;
+    getGeozoneTypes(): TypesTextsList {
+        return this.typesTextsList;
     }
 
     /**
      *
      * @param id
      */
-    getGeozoneTypeById(id: number = null): GeozoneType {
-        return geozoneTypes.find((el: GeozoneType) => el.id == id);
+    getGeozoneTypeById(id: number = null): TypeTexts {
+        return this.typesTextsList.find((el: TypeTexts) => el.id == id);
     }
 
     /**
-     *
-     * @param id
-     */
-    getDroneById(id: string): Drone {
-        return this.dronesList.find((el: Drone) => el.id == id);
-    }
-
-    /**
-     *
+     * Get a list with all the supported Drones
      */
     getDrones(): DroneList {
         return this.dronesList;
     }
-}
 
-// https://stackoverflow.com/questions/28004153/setting-vector-feature-fill-opacity-when-you-have-a-hexadecimal-color
-function colorWithAlpha(color: string, alpha = 1): string {
-    const [r, g, b] = Array.from(asArray(color));
-    return asString([r, g, b, alpha]);
+    /**
+     *  **_[static]_** - Generate an RGBA color from an hexadecimal
+     * 
+     * Adapted from https://stackoverflow.com/questions/28004153
+     * @param color Hexadeciaml color
+     * @param alpha Opacity
+     */
+    static colorWithAlpha(color: string, alpha = 1): string {
+        const [r, g, b] = Array.from(asArray(color));
+        return asString([r, g, b, alpha]);
+    }
+
 }
 
 
@@ -1238,21 +1248,6 @@ interface DjiApi {
 }
 
 /**
- * **_[interface]_** - Geozone Type allows by the API
- */
-interface GeozoneType {
-    id: number;
-    name: string;
-}
-
-/**
- * **_[interface]_** - Parameter with the avalible Geozones types specified when creating a DjiGeozones.
- * By default, this use the sames values of the official API.
- * Also, this this can be useful to allow translations or display customs texts.
- */
-type GeozoneTypesList = Array<GeozoneType>;
-
-/**
  * **_[interface]_** - Drone
  */
 interface Drone {
@@ -1270,23 +1265,44 @@ type DroneList = Array<Drone>;
 /**
  * **_[interface]_** - DjiGeozones levels parameters specified when creating a DjiGeozones
  */
-interface GeozoneLevel {
+interface LevelParams {
     id: number;
-    name: string;
-    desc: string;
     color: string;
     zIndex: number;
     markerIcon: string;
     markerCircle: string;
 }
+/**
+ * **_[interface]_** - DjiGeozones levels text for translations or customs texts
+ */
+interface LevelTexts {
+    id: number;
+    desc: string;
+    name: string;
+}
+
+type LevelsTextsList = Array<LevelTexts>;
+
+/**
+ * **_[interface]_** - Geozone Type allows by the API
+ */
+interface TypeTexts {
+    id: number;
+    name: string;
+}
+
+/**
+ * **_[interface]_** - Parameter with the avalible Geozones types specified when creating a DjiGeozones.
+ * By default, this use the sames values of the official API.
+ * Also, this this can be useful to allow translations or display customs texts.
+ */
+type TypesTextsList = Array<TypeTexts>;
 
 /**
  * **_[interface]_** - Parameter specified when creating a DjiGeozones.
- *  Provide the colors, info, icons and more from each level.
- *  By default, this use the sames values of the official API.
- *  Also, this this can be useful to allow translations or display customs texts.
+ *  Provide the colors, icons and more from each level.
  */
-type GeozoneLevelsList = Array<GeozoneLevel>;
+type LevelsParamsList = Array<LevelParams>;
 
 /**
  * **_[interface]_** - DjiGeozones Options specified when creating a DjiGeozones
@@ -1328,17 +1344,13 @@ interface Options {
      */
     levelsActive?: Array<number>;
     /**
-       Controller labels, names, icons and color for each level
-       */
-    levelParams?: Array<GeozoneLevel>;
+    * Controller labels, names, icons and color for each level
+    */
+    levelParams?: Array<LevelParams>;
     /**
      * Supported drone list
      */
     dronesList?: Array<Drone>;
-    /**
-     * Supported drone list
-     */
-    geozoneTypes?: Array<GeozoneType>;
     /**
      * The bounding extent for layer rendering.
      * The layers will not be rendered outside of this extent.
@@ -1355,16 +1367,27 @@ interface Options {
     /**
      * Loading element to show in the Controllenr and in the PopUps
      */
-    loadingElement?: HTMLElement | string;
+    loadingElement?: string;
+    /**
+     * Language
+     */
+    language?: 'en'
+    /**
+     * Supported 
+     */
+    typesTexts?: Array<TypeTexts>;
+    /**
+     * 
+     */
+    levelsTexts?: Array<LevelTexts>;
 }
 
 export {
     Options,
     DroneList,
     Drone,
-    GeozoneTypesList,
-    GeozoneType,
-    GeozoneLevel,
-    DjiApi,
-    GeozoneLevelsList
+    TypesTextsList,
+    TypeTexts,
+    LevelTexts,
+    LevelsParamsList
 };

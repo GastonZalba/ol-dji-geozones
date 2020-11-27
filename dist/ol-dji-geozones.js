@@ -360,18 +360,16 @@
     var MIN_ZOOM = 9; // < 9 breaks the API
 
     /**
-     * OpenLayers DJI Geozone Layer, display DJI Geo Zones in diferent layerss on the map.
-     * Also, add a Control to select the levels and the drone to filter the zones.
+     * OpenLayers DJI Geozone, creates multiples VectorLayers to
+     * display interactives DJI Geo Zones on the map, requesting the
+     * data on the fly to an DJI API.
      *
-     * Properties can either be set by adding extra properties
-     * to their options when they are created or via their set method.
-     *
-     * See [the examples](./examples) for usage.
+     * Also, add a Control to select levels of interest and drone to filter the results.
      *
      * @constructor
-     * @param {Object} map Class Map
-     * @param {String} url_proxy Proxy
-     * @param {Object} opt_options opt_options DjiGeozones options, see  [DjiGeozones Options](#options) for more details.
+     * @param map Instance of the created map
+     * @param url_proxy Proxy's url to avoid CORS protection in the API.
+     * @param opt_options DjiGeozones options, see [DjiGeozones Options](#options) for more details.
      */
 
     class DjiGeozones {
@@ -392,15 +390,15 @@
         this.geozoneTypes = options.geozoneTypes || geozoneTypes;
         this.extent = options.extent || null;
         this.url_proxy = url_proxy;
-        this.loadingElement = options.loadingElement || '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>'; // By default, we use the properties features to show in the popup. 
+        this.loadingElement = options.loadingElement || '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>'; // By default, we use the properties features to show in the popup.
         // The official DJI map, makes an extra request to another API to get the data. I don't understand why.
         // It's more slow and requieres extra requests to an already downloaded data...
         // Either way, this extra API calls are supported if you want.
 
-        this.useApiForPopUp = false; // MAP 
+        this.useApiForPopUp = false; // MAP
 
-        var showControl = 'showControl' in options ? options.showControl : true;
-        var targetControl = options.targetControl || null;
+        var showPanel = 'showPanel' in options ? options.showPanel : true;
+        var targetPanel = options.targetPanel || null;
         this.map = map;
         this.view = map.getView();
         this.projection = this.view.getProjection();
@@ -408,11 +406,22 @@
         this.vectorLayers = [];
         this.divControl = null;
         this.areaDownloaded = null;
-        this.init(showControl, targetControl);
+        this.init(showPanel, targetPanel);
       }
 
-      init(showControl, targetControl) {
+      init(showPanel, targetControl) {
+        /**
+         * Create and add a Vector Layer for each level
+         * @private
+         */
         var createVectorLayers = () => {
+          /**
+           * Create the style of each layer acoording to the geometry,
+           * level, and color obtained from the API
+           *
+           * @param feature
+           * @private
+           */
           var styleFunction = feature => {
             var geomType = feature.getGeometry().getType();
             var level = feature.get('level');
@@ -423,7 +432,7 @@
               var color = feature.get('color');
               style$1 = new style.Style({
                 fill: new style.Fill({
-                  color: colorWithAlpha(color, 0.3)
+                  color: DjiGeozones.colorWithAlpha(color, 0.3)
                 }),
                 stroke: new style.Stroke({
                   color: color,
@@ -461,6 +470,11 @@
             this.vectorLayers.push(layer);
           });
         };
+        /**
+         * Create the PopUp element and add it to an Overlay
+         * @private
+         */
+
 
         var createPopUpOverlay = () => {
           var popupContainer = document.createElement('div');
@@ -474,7 +488,7 @@
           popupCloser.className = 'ol-dji-geozones--ol-popup-closer';
           popupCloser.href = '#';
 
-          popupCloser.onclick = _ => {
+          popupCloser.onclick = () => {
             this.overlay.setPosition(undefined);
             popupCloser.blur();
             return false;
@@ -492,11 +506,13 @@
           this.map.addOverlay(this.overlay);
         };
         /**
-         *
+         * Add panel controller to the viewport map.
+         * @param targetPanel If provided, the panel wil be rendered outside the viewport
+         * @private
          */
 
 
-        var addMapControl = targetControl => {
+        var addMapControl = targetPanel => {
           var createDroneSelector = () => {
             var handleChange = (_ref) => {
               var {
@@ -541,7 +557,7 @@
               var span = document.createElement('span');
               span.className = 'ol-dji-geozones--mark';
               span.style.border = "1px ".concat(color, " solid");
-              span.style.backgroundColor = colorWithAlpha(color, 0.4);
+              span.style.backgroundColor = DjiGeozones.colorWithAlpha(color, 0.4);
               return span;
             };
 
@@ -604,19 +620,26 @@
             target: null
           };
 
-          if (targetControl) {
-            options.target = targetControl;
+          if (targetPanel) {
+            options.target = targetPanel;
           }
 
           this.control = new control.Control(options);
           this.map.addControl(this.control);
         };
+        /**
+         * @private
+         */
+
 
         var addMapEvents = () => {
           /**
            * Enable or disable the inputs and the select in the control
+           * @private
            */
           var setControlEnabled = enabled => {
+            if (!this.divControl) return;
+
             var changeState = array => {
               array.forEach(el => {
                 if (enabled) {
@@ -678,7 +701,7 @@
           };
 
           var clickHandler = evt => {
-            var type = this.useApiForPopUp ? 'useApiForPopUp' : 'useFeatures';
+            var type = this.useApiForPopUp ? 'useApiForPopUp' : 'useFeaturesForPopUp';
             this.getPointInfoFromClick(evt, type);
           };
 
@@ -693,8 +716,15 @@
         createVectorLayers();
         createPopUpOverlay();
         addMapEvents();
-        if (showControl) addMapControl(targetControl);
+        if (showPanel) addMapControl(targetControl);
       }
+      /**
+       *
+       * @param evt
+       * @param type
+       * @private
+       */
+
 
       getPointInfoFromClick(evt, type) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -726,6 +756,12 @@
               }), 100);
             });
           });
+          /**
+           *
+           * @param features
+           * @private
+           */
+
 
           var getInfoFromFeatures = features => {
             var featuresProps = [];
@@ -751,7 +787,7 @@
                 url
               } = _ref4;
               var levelParams = this.getLevelParamsById(level);
-              return "\n                <div class=\"ol-dji-geozones--item\">\n                    <div class=\"ol-dji-geozones--marker\">\n                        <img src=\"".concat(levelParams.markerCircle, "\">\n                    </div>\n                    <div class=\"ol-dji-geozones--main\">\n                    <h3 class=\"ol-dji-geozones--title\">").concat(name, "</h3>\n                        <p class=\"level\">Level: ").concat(levelParams.name, "</p>\n                        <p class=\"type\">Type: ").concat(this.getGeozoneTypeById(type).name, "</p>\n                        ").concat(begin_at ? "<p class=\"start_time\">End Time: ".concat(begin_at, "</p>") : '', "\n                        ").concat(end_at ? "<p class=\"end_time\">End Time: ".concat(end_at, "</p><p class=\"time_tips\">Time: 24-hour clock</p>") : '', "         \n                        ").concat(height ? "<p class=\"height\">Max. Altitude (m): ".concat(height, "</p>") : '', " \n                        ").concat(address ? "<p class=\"address\">Address: ".concat(address, "</p>") : '', "\n                        ").concat(description ? "<p class=\"desc\">Tips: ".concat(description, "</p>") : '', "\n                        ").concat(url ? "<p class=\"url\">Link: <a href=\"".concat(url, "\">Learn More</a></p>") : '', "\n                    </div>\n                </div> ");
+              return "\n                <div class=\"ol-dji-geozones--item\">\n                    <div class=\"ol-dji-geozones--marker\">\n                        <img src=\"".concat(levelParams.markerCircle, "\">\n                    </div>\n                    <div class=\"ol-dji-geozones--main\">\n                    <h3 class=\"ol-dji-geozones--title\">").concat(name, "</h3>\n                        <p class=\"ol-dji-geozones--level\">Level: ").concat(levelParams.name, " <span style=\"--level-color: ").concat(levelParams.color, ";\" data-geotooltip=\"").concat(levelParams.desc, "\" class=\"ol-dji-geozones--info\">Info</span></p>\n                        <p class=\"ol-dji-geozones--type\">Type: ").concat(this.getGeozoneTypeById(type).name, "</p>\n                        ").concat(begin_at ? "<p class=\"ol-dji-geozones--start_time\">End Time: ".concat(begin_at, "</p>") : '', "\n                        ").concat(end_at ? "<p class=\"ol-dji-geozones--end_time\">End Time: ".concat(end_at, "</p><p class=\"ol-dji-geozones--time_tips\">Time: 24-hour clock</p>") : '', "         \n                        ").concat(height ? "<p class=\"ol-dji-geozones--height\">Max. Altitude (m): ".concat(height, "</p>") : '', " \n                        ").concat(address ? "<p class=\"ol-dji-geozones--address\">Address: ".concat(address, "</p>") : '', "\n                        ").concat(description ? "<p class=\"ol-dji-geozones--desc\">Tips: ".concat(description, "</p>") : '', "\n                        ").concat(url ? "<p class=\"ol-dji-geozones--url\">Link: <a href=\"".concat(url, "\">Learn More</a></p>") : '', "\n                    </div>\n                </div> ");
             };
 
             var html = [];
@@ -798,6 +834,12 @@
           }
         });
       }
+      /**
+       *
+       * @param clear
+       * @private
+       */
+
 
       getInfoFromView() {
         var _this = this;
@@ -806,7 +848,8 @@
         var idAreasRequest = 0;
         /**
          * The level parameter returned by the API is wrong, so wee need to fixed using the color
-         * @param {*} feature
+         * @param feature
+         * @private
          */
 
         var fixLevelValue = feature => {
@@ -817,18 +860,35 @@
         };
         /**
          * Parse the json response of the API an create Open Layers features.
-         * @param {JSON} djiJson
+         * @param djiJson
+         * @private
          */
 
 
         var apiResponseToFeatures = djiJson => {
+          /**
+           *
+           * @param id
+           * @private
+           */
+          var getFeatureById = id => {
+            var feature;
+
+            for (var layer of this.vectorLayers) {
+              feature = layer.getSource().getFeatureById(id);
+              if (feature) break;
+            }
+
+            return feature;
+          };
+
           var areas = djiJson.areas;
           if (!areas || !areas.length) return false;
           var features = [];
 
           var _loop = function _loop(area) {
             // If the feature already exists, continue
-            if (_this.getFeatureById(area.area_id)) {
+            if (getFeatureById(area.area_id)) {
               return "continue";
             }
 
@@ -856,7 +916,7 @@
               var featureExtra = new Feature__default['default'](Object.assign(Object.assign({}, featureProps), {
                 geometry: new geom.Polygon(area.polygon_points).transform('EPSG:4326', _this.projection)
               }));
-              featureExtra.setId(area.area_id + "_poly");
+              featureExtra.setId(area.area_id + '_poly');
               features.push(fixLevelValue(featureExtra));
             }
 
@@ -913,6 +973,12 @@
 
           return features;
         };
+        /**
+         *
+         * @param features
+         * @private
+         */
+
 
         var addFeaturesToEachLevel = features => {
           if (!features) return;
@@ -925,12 +991,24 @@
         /**
          * Show/hide the loading in the control
          * @param {Boolean} bool
+         * @private
          */
 
 
         var showLoading = bool => {
           if (!this.divControl) return;
           if (bool) this.divControl.classList.add('ol-dji-geozones--isLoading');else this.divControl.classList.remove('ol-dji-geozones--isLoading');
+        };
+        /**
+         * Clear all the elements in the Dji Geozones layers
+         * @private
+         */
+
+
+        var clearFeatures = () => {
+          this.vectorLayers.forEach(layer => {
+            layer.getSource().clear();
+          });
         }; // Prevent multiples requests
 
 
@@ -955,7 +1033,7 @@
 
             var data = yield this.getApiGeoData('areas', viewLatLng);
             if (!data) throw new Error();
-            if (clear) this.clearFeatures();
+            if (clear) clearFeatures();
             var features = apiResponseToFeatures(data);
             addFeaturesToEachLevel(features);
             showLoading(false); // console.log(data);
@@ -983,17 +1061,17 @@
 
               var url = new URL(this.url_proxy ? this.url_proxy + api_endpoint : 'https://' + api_endpoint);
               var queryObj = {
-                'drone': this.drone,
-                'zones_mode': this.zones_mode,
-                'country': this.country,
-                'level': API_LEVELS,
-                'lng': lng,
-                'lat': lat,
-                'search_radius': searchRadius
+                drone: this.drone,
+                zones_mode: this.zones_mode,
+                country: this.country,
+                level: API_LEVELS,
+                lng: lng,
+                lat: lat,
+                search_radius: searchRadius
               };
               Object.keys(queryObj).forEach(key => url.searchParams.append(key, queryObj[key]));
               var response = yield fetch(url.toString());
-              if (!response.ok) throw new Error("HTTP-Error: " + response.status);
+              if (!response.ok) throw new Error('HTTP-Error: ' + response.status);
               return yield response.json();
             });
           };
@@ -1020,8 +1098,7 @@
 
             var data = yield apiRequest('areas', centerLatLng, searchRadius);
             return data;
-          }); // adapted from https://stackoverflow.com/questions/44575654/get-radius-of-the-displayed-openlayers-map
-
+          });
 
           var getMapRadius = (_ref6) => {
             var {
@@ -1052,33 +1129,72 @@
       }
       /**
        * Show or hides the control
+       * @param visible
        */
 
 
       setControlVisible(visible) {
+        if (!this.divControl) {
+          return;
+        }
+
         if (visible) {
           this.divControl.classList.add('ol-dji-geozones--ctrl-hidden');
         } else {
           this.divControl.classList.remove('ol-dji-geozones--ctrl-hidden');
         }
       }
+      /**
+       * Get all the layers
+       */
 
-      clearFeatures() {
-        this.vectorLayers.forEach(layer => {
-          layer.getSource().clear();
-        });
+
+      getLayers() {
+        return this.vectorLayers;
       }
+      /**
+       * Get the layer acordding the level
+       * @param level
+       */
 
-      getFeatureById(id) {
-        var feature;
+
+      getLayerByLevel(level) {
+        var find;
 
         for (var layer of this.vectorLayers) {
-          feature = layer.getSource().getFeatureById(id);
-          if (feature) break;
+          if (layer.get('level') != undefined && layer.get('level') == level) {
+            find = layer;
+            break;
+          }
         }
 
-        return feature;
+        return find;
       }
+      /**
+       * Get the parameters from all the levels
+       */
+
+
+      getLevelsParams() {
+        return this.geozoneLevelParams;
+      }
+      /**
+       * Get the level parameters, like color, icon, and description
+       * @param id
+       */
+
+
+      getLevelParamsById() {
+        var id = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+        return this.geozoneLevelParams.find(lev => lev.id == id);
+      }
+      /**
+       * Replace the active levels with this values
+       *
+       * @param levels
+       * @param refresh If true, refresh the view and show the levels
+       */
+
 
       setLevels(levels) {
         var refresh = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
@@ -1097,6 +1213,12 @@
           });
         }
       }
+      /**
+       * Add the level/s to the view
+       * @param levels
+       * @param refresh If true, refresh the view and show the actived levels
+       */
+
 
       addLevels(levels) {
         var refresh = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
@@ -1110,6 +1232,13 @@
           });
         }
       }
+      /**
+       * Remove the level/s from the view
+       *
+       * @param levels
+       * @param refresh If true, refresh the view and show the actived levels
+       */
+
 
       removeLevels(levels) {
         var refresh = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
@@ -1123,56 +1252,47 @@
           });
         }
       }
+      /**
+       *
+       */
 
-      getLayers() {
-        return this.vectorLayers;
-      }
-
-      getLayerByLevel(level) {
-        var find;
-
-        for (var layer of this.vectorLayers) {
-          if (layer.get('level') != undefined && layer.get('level') == level) {
-            find = layer;
-            break;
-          }
-        }
-
-        return find;
-      }
-
-      getLevelsParams() {
-        return this.geozoneLevelParams;
-      }
-
-      getLevelParamsById() {
-        var id = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-        return this.geozoneLevelParams.find(lev => lev.id == id);
-      }
 
       getGeozoneTypes() {
         return geozoneTypes;
       }
+      /**
+       *
+       * @param id
+       */
+
 
       getGeozoneTypeById() {
         var id = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
         return geozoneTypes.find(el => el.id == id);
       }
+      /**
+       * Get a list with all the supported Drones
+       */
 
-      getDroneById(id) {
-        return this.dronesList.find(el => el.id == id);
-      }
 
       getDrones() {
         return this.dronesList;
       }
+      /**
+       *  **_[static]_** - Generate an RGBA color from an hexadecimal
+       *
+       * Adapted from https://stackoverflow.com/questions/28004153
+       * @param color Hexadeciaml color
+       * @param alpha Opacity
+       */
 
-    } // https://stackoverflow.com/questions/28004153/setting-vector-feature-fill-opacity-when-you-have-a-hexadecimal-color
 
-    function colorWithAlpha(color$1) {
-      var alpha = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
-      var [r, g, b] = Array.from(color.asArray(color$1));
-      return color.asString([r, g, b, alpha]);
+      static colorWithAlpha(color$1) {
+        var alpha = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
+        var [r, g, b] = Array.from(color.asArray(color$1));
+        return color.asString([r, g, b, alpha]);
+      }
+
     }
 
     return DjiGeozones;

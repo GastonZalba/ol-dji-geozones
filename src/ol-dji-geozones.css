@@ -158,8 +158,76 @@
   border: 0;
   border-top: 1px solid #e5e7e6;
 }
-
+.ol-dji-geozones--info{
+  font-style: italic;
+  color: #005cae;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
 /* End PopUp */
+
+/* Tooltips */
+
+/**
+ * Tooltip Styles
+ */
+
+/* Add this attribute to the element that needs a tooltip */
+[data-geotooltip] {
+  position: relative;
+  z-index: 2;
+  cursor: pointer;
+}
+
+/* Hide the tooltip content by default */
+[data-geotooltip]:before,
+[data-geotooltip]:after {
+  visibility: hidden;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: progid: DXImageTransform.Microsoft.Alpha(Opacity=0);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Position tooltip above the element */
+[data-geotooltip]:before {
+  position: fixed;
+  margin-bottom: 5px;
+  margin-left: -90px;
+  padding: 10px;
+  width: 180px;
+  border-radius: 3px;
+  background-color: var(--level-color);
+  color: #fff;
+  content: attr(data-geotooltip);
+  text-align: center;
+  font-size: 11px;
+  line-height: 1.4;
+  transform: translateY(-100%);
+}
+
+/* Triangle hack to make tooltip look like a speech bubble */
+[data-geotooltip]:after {
+  position: fixed;
+  margin-left: -15px;
+  width: 0;
+  border-top: 5px solid var(--level-color);
+  border-right: 5px solid transparent;
+  border-left: 5px solid transparent;
+  content: " ";
+  font-size: 0;
+  line-height: 0;
+}
+
+/* Show tooltip content on hover */
+[data-geotooltip]:hover:before,
+[data-geotooltip]:hover:after {
+  visibility: visible;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+  filter: progid: DXImageTransform.Microsoft.Alpha(Opacity=100);
+  opacity: 1;
+}
+/* En Tooltips */
 
 /* loading.io css spinner ( https://loading.io/css/ ) */
 .lds-ellipsis {

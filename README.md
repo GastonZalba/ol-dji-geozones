@@ -120,12 +120,14 @@ The CSS file `ol-dji-geozones.css` can be found in `./node_modules/ol-dji-geozon
     - [Parameters](#parameters-5)
   - [addLevels](#addlevels)
     - [Parameters](#parameters-6)
+  - [removeLevels](#removelevels)
+    - [Parameters](#parameters-7)
   - [getGeozoneTypes](#getgeozonetypes)
   - [getGeozoneTypeById](#getgeozonetypebyid)
-    - [Parameters](#parameters-7)
-  - [getDroneById](#getdronebyid)
     - [Parameters](#parameters-8)
   - [getDrones](#getdrones)
+  - [colorWithAlpha](#colorwithalpha)
+    - [Parameters](#parameters-9)
 - [DjiApi](#djiapi)
   - [level](#level)
   - [drone](#drone)
@@ -206,9 +208,13 @@ Returns **VectorLayer**
 
 #### getLevelsParams
 
+Get the parameters from all the levels
+
 Returns **[GeozoneTypesList](#geozonetypeslist)**
 
 #### getLevelParamsById
+
+Get the level parameters, like color, icon, and description
 
 ##### Parameters
 
@@ -217,6 +223,8 @@ Returns **[GeozoneTypesList](#geozonetypeslist)**
 Returns **[GeozoneLevel](#geozonelevel)**
 
 #### setLevels
+
+Replace the active levels with this values
 
 ##### Parameters
 
@@ -227,10 +235,23 @@ Returns **void**
 
 #### addLevels
 
+Add the level/s to the view
+
 ##### Parameters
 
 - `levels` **([Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)> | [number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number))**
-- `refresh` If true, refresh the view and show the levels (optional, default `true`)
+- `refresh` If true, refresh the view and show the actived levels (optional, default `true`)
+
+Returns **void**
+
+#### removeLevels
+
+Remove the level/s from the view
+
+##### Parameters
+
+- `levels` **([Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)> | [number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number))**
+- `refresh` If true, refresh the view and show the actived levels (optional, default `true`)
 
 Returns **void**
 
@@ -246,17 +267,24 @@ Returns **[GeozoneTypesList](#geozonetypeslist)**
 
 Returns **[GeozoneType](#geozonetype)**
 
-#### getDroneById
+#### getDrones
+
+Get a list with all the supported Drones
+
+Returns **[DroneList](#dronelist)**
+
+#### colorWithAlpha
+
+**_[static]_** - Generate an RGBA color from an hexadecimal
+
+Adapted from <https://stackoverflow.com/questions/28004153>
 
 ##### Parameters
 
-- `id` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)**
+- `color` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Hexadeciaml color
+- `alpha` Opacity (optional, default `1`)
 
-Returns **[Drone](#drone)**
-
-#### getDrones
-
-Returns **[DroneList](#dronelist)**
+Returns **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)**
 
 ### DjiApi
 
