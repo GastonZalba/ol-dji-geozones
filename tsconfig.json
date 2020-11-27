@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+      "declaration": true,
+      "declarationDir": "./dist",
+      "allowJs": true,
+      "baseUrl": "./",
+      "outDir": "./tmp",
+      "target": "es6",
+      "module": "es6",
+      "lib": ["esnext", "dom"]
+    },
+    "include": ["./src/*"]
+  }

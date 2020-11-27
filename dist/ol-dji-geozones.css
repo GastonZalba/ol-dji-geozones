@@ -1,0 +1,230 @@
+.ol-dji-geozones.ol-control {
+    bottom: .5em;
+    left: .5em;
+}
+
+.ol-dji-geozones h3 {
+    color: #181818;
+    margin: 0.2em 0;
+    display: inline-block;    
+}
+
+.ol-dji-geozones--drone-selector select {
+    margin: 0.5em 0 1em;
+}
+
+.ol-dji-geozones--ctrl-disabled .ol-dji-geozones--advice {
+    display: inline-block;
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
+.ol-dji-geozones--ctrl-disabled.ol-dji-geozones--ctrl-disabled .ol-dji-geozones--loading,
+.ol-dji-geozones--ctrl-disabled .ol-dji-geozones--level-selector,
+.ol-dji-geozones--ctrl-disabled .ol-dji-geozones--drone-selector{
+    display: none;
+}
+
+.ol-dji-geozones--advice,
+.ol-dji-geozones--ctrl-hidden {
+    display: none;
+}
+
+.ol-dji-geozones--isLoading .ol-dji-geozones--loading {
+    display: inline-block;
+}
+
+.ol-dji-geozones--loading {
+    display: none;
+}
+
+.ol-dji-geozones--mark {
+    display: inline-block;
+    border-radius: 50%;
+    width: 12px;
+    height: 12px;
+    vertical-align: middle;
+    padding: .2em;
+    margin: 0 0.3em;
+}
+
+/* PopUp */
+.ol-dji-geozones--ol-popup {
+  position: absolute;
+  bottom: 12px;
+  left: -170px;
+}
+
+.ol-dji-geozones--ol-popup:after,
+.ol-dji-geozones--ol-popup:before {
+  top: 100%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+}
+.ol-dji-geozones--ol-popup:after {
+  border-top-color: white;
+  border-width: 10px;
+  left: 50%;
+  margin-left: -10px;
+}
+.ol-dji-geozones--ol-popup:before {
+  border-top-color: #cccccc;
+  border-width: 11px;
+  left: 50%;
+  margin-left: -11px;
+}
+.ol-dji-geozones--ol-popup-closer {
+  text-decoration: none;
+  position: absolute;
+  top: 2px;
+  right: 12px;
+  z-index: 1;
+  color: #8b8b8b;
+}
+.ol-dji-geozones--ol-popup-closer:after {
+  content: "✖";
+}
+
+.ol-dji-geozones--ol-popup-content {
+  width: 340px;
+  box-sizing: border-box;
+  position: relative;
+  background: #fff;
+  border-radius: 3px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  padding: 10px 10px 15px;
+  pointer-events: auto;
+  color: #707473;
+  font-size: 12px;
+  font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  max-height: 300px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.ol-dji-geozones--ol-popup-content p {
+  margin: 0;
+}
+
+.ol-dji-geozones--ol-popup-content a {
+  color: #44a8f2;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.ol-dji-geozones--item {
+    display: inline-block;
+}
+
+.ol-dji-geozones--marker {
+    float: left;
+    width: 32px;
+    text-align: center;
+}
+
+.ol-dji-geozones--marker img {
+    height: auto;
+    max-width: 100%;
+}
+
+.ol-dji-geozones--main {
+    margin-left: 40px;
+}
+
+.ol-dji-geozones--main .ol-dji-geozones--title {
+    color: #707473;
+    font-size: 14px;
+    margin: 0 0 5px;
+}
+
+.ol-dji-geozones--item:after {
+    content: " ";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+    box-sizing: border-box;
+}
+
+.ol-dji-geozones--ol-popup-content hr {
+  margin: 20px 0;
+  box-sizing: content-box;
+  height: 0;
+  border: 0;
+  border-top: 1px solid #e5e7e6;
+}
+
+/* End PopUp */
+
+/* loading.io css spinner ( https://loading.io/css/ ) */
+.lds-ellipsis {
+    display: inline-block;
+    position: relative;
+    width: 30px;
+    height: 15px;
+  }
+  .lds-ellipsis div {
+    position: absolute;
+    top: 7px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #474747;
+    animation-timing-function: cubic-bezier(0, 1, 1, 0);
+  }
+  .lds-ellipsis div:nth-child(1) {
+    left: 4px;
+    animation: lds-ellipsis1 0.6s infinite;
+  }
+  .lds-ellipsis div:nth-child(2) {
+    left: 4px;
+    animation: lds-ellipsis2 0.6s infinite;
+  }
+  .lds-ellipsis div:nth-child(3) {
+    left: 16px;
+    animation: lds-ellipsis2 0.6s infinite;
+  }
+  .lds-ellipsis div:nth-child(4) {
+    left: 32px;
+    animation: lds-ellipsis3 0.6s infinite;
+  }
+  @keyframes lds-ellipsis1 {
+    0% {
+      transform: scale(0);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  @keyframes lds-ellipsis3 {
+    0% {
+      transform: scale(1);
+    }
+    100% {
+      transform: scale(0);
+    }
+  }
+  @keyframes lds-ellipsis2 {
+    0% {
+      transform: translate(0, 0);
+    }
+    100% {
+      transform: translate(12px, 0);
+    }
+  } 
+  /* End loading */
+
+
+  .ol-dji-geozones--ol-popup-content::-webkit-scrollbar {
+    -webkit-appearance: none;
+    width: 7px;
+}
+  .ol-dji-geozones--ol-popup-content::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: rgba(0,0,0,.5);
+    -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
+}

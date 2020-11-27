@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "dist/ol-dji-geozones.js",
+  "module": "dist/ol-dji-geozones.js",
+  "types": "dist/ol-dji-geozones.d.ts",
   "scripts": {
-    "watch": "chokidar 'src/**' --initial --command 'WATCH=1 rollup --config rollup.config.js'",
-    "build": "rollup --config rollup.config.js"
+    "lint": "eslint src/*.ts examples && prettier --check src examples",
+    "format": "eslint --fix src/*.ts examples && prettier --write src examples",
+    "build": "tsc --pretty && rollup --config rollup.config.js && ncp src/ol-dji-geozones.css dist/ol-dji-geozones.css && ncp src/assets dist/assets"
   },
   "keywords": [
     "dji",
@@ -33,9 +36,45 @@
     "@babel/preset-env": "^7.12.1",
     "@rollup/plugin-babel": "^5.2.1",
     "@rollup/plugin-json": "^4.1.0",
-    "chokidar-cli": "^1.2.2",
+    "@types/ol": "^6.4.2",
+    "@typescript-eslint/eslint-plugin": "^4.8.2",
+    "@typescript-eslint/parser": "^4.8.2",
+    "eslint-config-openlayers": "^14.0.0",
+    "eslint-config-prettier": "^6.15.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "ncp": "^2.0.0",
     "ol": "^6.1.1",
-    "prettier": "^2.0.4",
-    "rollup": "^2.33.3"
+    "prettier": "^2.2.0",
+    "rollup": "^2.33.3",
+    "typescript": "^4.1.2"
+  },
+  "eslintConfig": {
+    "parser": "@typescript-eslint/parser",
+    "plugins": [
+      "@typescript-eslint"
+    ],
+    "extends": [
+      "eslint:recommended",
+      "plugin:@typescript-eslint/recommended"
+    ],
+    "rules": {
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          "argsIgnorePattern": "^_"
+        }
+      ]
+    },
+    "globals": {
+      "ol": "readonly",
+      "document": "writable"
+    }
+  },
+  "prettier": {
+    "tabWidth": 2,
+    "singleQuote": true,
+    "trailingComma": "none",
+    "quoteProps": "consistent",
+    "bracketSpacing": true
   }
 }

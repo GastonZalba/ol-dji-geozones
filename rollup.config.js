@@ -2,7 +2,7 @@ import babel from '@rollup/plugin-babel';
 import json from "@rollup/plugin-json";
 
 module.exports = {
-    input: 'src/ol-dji-geozones.js',
+    input: 'tmp/ol-dji-geozones.js',
     output: [
         {
             file: 'dist/ol-dji-geozones.js',
