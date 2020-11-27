@@ -1,4 +1,5 @@
 import babel from '@rollup/plugin-babel';
+import json from "@rollup/plugin-json";
 
 module.exports = {
     input: 'tmp/ol-dji-geozones.js',
@@ -25,6 +26,7 @@ module.exports = {
         }
     ],
     plugins: [
+        json(),
         babel({
             "babelHelpers": "bundled",
             "exclude": "node_modules/**" // only transpile our source code

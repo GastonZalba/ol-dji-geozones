@@ -14,9 +14,9 @@ import { MapBrowserEvent, PluggableMap, View } from 'ol';
 import Projection from 'ol/proj/Projection';
 import { Coordinate } from 'ol/coordinate';
 
-import geozoneLevels from './_geozone-levels';
-import geozoneTypes from './_geozone-types';
-import dronesList from './_drones-list';
+import geozoneLevels from './_geozone-levels.json';
+import geozoneTypes from './_geozone-types.json';
+import dronesList from './_drones-list.json';
 
 
 /**
@@ -845,7 +845,7 @@ export default class DjiGeozones {
     /**
      * Controller for the API rquests.
      */
-    async getApiGeoData(typeApiRequest: 'areas' | 'info', latLng: { lat: number, lng: number }):Promise<Object> {
+    async getApiGeoData(typeApiRequest: 'areas' | 'info', latLng: { lat: number, lng: number }): Promise<any> {
 
         const apiRequest = async (typeApiRequest: 'areas' | 'info', { lng, lat }, searchRadius: number) => {
 
@@ -1032,11 +1032,11 @@ export default class DjiGeozones {
     }
 
     getDroneById(id: string): Drone {
-        return dronesList.find((el: Drone) => el.id == id);
+        return this.dronesList.find((el: Drone) => el.id == id);
     }
 
     getDrones(): Array<Drone> {
-        return dronesList;
+        return this.dronesList;
     }
 }
 

@@ -118,7 +118,7 @@ Load `ol-dji-geozones.js` after OpenLayers. Dji Geozone is available as `DjiGeoz
 
 #### CSS
 ```HTML
-<link rel="stylesheet" href="https://unpkg.com/ol-dji-geozones@1.0.0/src/ol-dji-geozones.css" />
+<link rel="stylesheet" href="https://unpkg.com/ol-dji-geozones@1.0.0/dist/ol-dji-geozones.css" />
 ```
 
 ### Parcel, Webpack, etc.
@@ -130,7 +130,7 @@ Install the package via `npm`
     npm install ol-dji-geozones
 
 #### CSS
-The CSS file `ol-dji-geozones.css` can be found in `./node_modules/ol-dji-geozones/src`
+The CSS file `ol-dji-geozones.css` can be found in `./node_modules/ol-dji-geozones/dist`
 
 ## License
 MIT (c) Gastón Zalba.
