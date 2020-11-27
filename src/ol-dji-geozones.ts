@@ -11,8 +11,8 @@ import { asArray, asString } from 'ol/color';
 import { fromExtent } from 'ol/geom/Polygon';
 import { getTopRight, getTopLeft, getBottomRight, getCenter, getBottomLeft, Extent } from 'ol/extent';
 import { MapBrowserEvent, PluggableMap, View } from 'ol';
-import Projection from 'ol/proj/Projection';
 import { Coordinate } from 'ol/coordinate';
+import Projection from 'ol/proj/Projection';
 
 import geozoneLevels from './_geozone-levels.json';
 import geozoneTypes from './_geozone-types.json';
@@ -33,7 +33,7 @@ const MIN_ZOOM = 9; // < 9 breaks the API
  * @constructor
  * @param {Object} map Class Map
  * @param {String} url_proxy Proxy 
- * @param {Object} opt_options Control options
+ * @param {Object} opt_options opt_options DjiGeozones options, see  [DjiGeozones Options](#options) for more details.
  */
 export default class DjiGeozones {
 
@@ -48,7 +48,7 @@ export default class DjiGeozones {
 
     protected geozoneLevelParams: Array<GeozoneLevel>;
     protected geozoneTypes: Array<GeozoneType>;
-    protected dronesList: Array<Drone>;
+    protected dronesList: DroneList;
 
     protected map: PluggableMap;
     protected view: View;
@@ -962,16 +962,23 @@ export default class DjiGeozones {
         return feature;
     }
 
-    // @todo: arreglar
     setLevels(levels: Array<number> | number, refresh = true): void {
         const arrLevels = !Array.isArray(levels) ? [levels] : levels;
         this.levelsActive = arrLevels;
 
         if (refresh) {
-            arrLevels.forEach(lev => {
+
+            this.levelsToDisplay.forEach(lev => {
                 const layer = this.getLayerByLevel(lev);
-                layer.setVisible(true);
+
+                if (arrLevels.includes(lev)) {
+                    layer.setVisible(true);
+                } else {
+                    layer.setVisible(false);
+                }
+
             })
+
         }
     }
 
@@ -1046,16 +1053,28 @@ function colorWithAlpha(color: string, alpha = 1): string {
     return asString([r, g, b, alpha]);
 }
 
+/**
+ * **_[interface]_** - Geozone Type allows by the API
+ */
 interface GeozoneType {
     id: number;
     name: string;
 }
 
+/**
+ * **_[interface]_** - Drone
+ */
 interface Drone {
     id: string;
     name: string;
 }
 
+interface DroneList extends Array<Drone>{};
+
+
+/**
+ * **_[interface]_** - DjiGeozones Options specified when creating a DjiGeozones
+ */
 interface GeozoneLevel {
     id: number;
     name: string;
@@ -1066,25 +1085,57 @@ interface GeozoneLevel {
     markerCircle: string;
 }
 
+/**
+ * **_[interface]_** - DjiGeozones Options specified when creating a DjiGeozones
+ *
+ * Default values:
+ * ```javascript
+ * {
+ *   drone: 'spark', // See parameter in the DJI API section
+ *   zonesMode: 'total', // See parameter in the DJI API section
+ *   country: 'US', // See parameter in the DJI API section
+ *   levelsToDisplay: [2, 6, 1, 0, 3, 4, 7], 
+ *   levelsActive: [2, 6, 1, 0, 3, 4, 7],
+ *   showControl: true, // Create or not the control
+ *   targetControl: null, // Specify a target if you want the control to be rendered outside of the map's viewport
+ *   extent: null,
+ *   loadingElement: '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>'
+ * }
+ * ```
+ */
 interface Options {
 
+    /*
+     * Drone id
+     */
     drone?: string;
-
+    /**
+     * 
+     */
     zonesMode?: string;
-
+    /**
+     * 
+     */
     country?: string;
-
+    /**
+     * 
+     */
     levelsToDisplay?: Array<number>;
-
+    /**
+     * 
+     */
     levelsActive?: Array<number>;
-
     /**
      Controller labels, names, icons and color for each level
      */
     levelParams?: Array<GeozoneLevel>;
-
+    /**
+     * Supported drone list
+     */
     dronesList?: Array<Drone>;
-
+    /**
+     * Supported drone list
+     */
     geozoneTypes?: Array<GeozoneType>;
     /**
      * The bounding extent for layer rendering.The layer will not be rendered outside of this extent.
@@ -1097,7 +1148,16 @@ interface Options {
     /**
      * Specify a target if you want the control to be rendered outside of the map's viewport.
      */
-    targetControl?: HTMLElement | string
-
-    loadingElement?: string
+    targetControl?: HTMLElement | string;
+    /**
+     * Loading element to show in the Controllenr and in the PopUps
+     */
+    loadingElement?: HTMLElement | string;
 }
+
+export {
+    Options,
+    Drone,
+    GeozoneType,
+    GeozoneLevel
+};

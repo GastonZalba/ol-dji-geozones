@@ -1081,9 +1081,14 @@
         this.levelsActive = arrLevels;
 
         if (refresh) {
-          arrLevels.forEach(lev => {
+          this.levelsToDisplay.forEach(lev => {
             var layer = this.getLayerByLevel(lev);
-            layer.setVisible(true);
+
+            if (arrLevels.includes(lev)) {
+              layer.setVisible(true);
+            } else {
+              layer.setVisible(false);
+            }
           });
         }
       }

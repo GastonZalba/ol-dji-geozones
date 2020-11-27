@@ -5,7 +5,11 @@
   "main": "dist/ol-dji-geozones.js",
   "module": "dist/ol-dji-geozones.js",
   "types": "dist/ol-dji-geozones.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
+    "doc": "documentation readme src/ol-dji-geozones.ts  --quiet=true --access=public --access=undefined --section=API --parse-extension ts && node scripts/external-links.js README.md && prettier --write README.md",
     "lint": "eslint src/*.ts examples && prettier --check src examples",
     "format": "eslint --fix src/*.ts examples && prettier --write src examples",
     "build": "tsc --pretty && rollup --config rollup.config.js && ncp src/ol-dji-geozones.css dist/ol-dji-geozones.css && ncp src/assets dist/assets"
@@ -39,6 +43,7 @@
     "@types/ol": "^6.4.2",
     "@typescript-eslint/eslint-plugin": "^4.8.2",
     "@typescript-eslint/parser": "^4.8.2",
+    "documentation": "^13.1.0",
     "eslint-config-openlayers": "^14.0.0",
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-prettier": "^3.1.4",
