@@ -1,83 +1,110 @@
-{
-    "0": {
+export default [
+    {
+        "id": 0,
         "name": "Airport"
     },
-    "1": {
+    {
+        "id": 1,
         "name": "Special Zone"
     },
-    "2": {
+    {
+        "id": 2,
         "name": "Military Zone"
     },
-    "4": {
+    {
+        "id": 4,
         "name": "Recommended Zones"
     },
-    "10": {
+    {
+        "id": 10,
         "name": "Airport"
     },
-    "13": {
+    {
+        "id": 13,
         "name": "Recreational airport"
     },
-    "14": {
+    {
+        "id": 14,
         "name": "Recreational airport"
     },
-    "15": {
+    {
+        "id": 15,
         "name": "Class B Airspace"
     },
-    "16": {
+    {
+        "id": 16,
         "name": "Class C Airspace"
     },
-    "17": {
+    {
+        "id": 17,
         "name": "Class D Airspace"
     },
-    "18": {
+    {
+        "id": 18,
         "name": "Class E Airspace"
     },
-    "19": {
+    {
+        "id": 19,
         "name": "Heliport"
     },
-    "23": {
+    {
+        "id": 23,
         "name": "Power plant"
     },
-    "24": {
+    {
+        "id": 24,
         "name": "Prison"
     },
-    "26": {
+    {
+        "id": 26,
         "name": "Stadium"
     },
-    "27": {
+    {
+        "id": 27,
         "name": "Prohibited Airspace"
     },
-    "28": {
+    {
+        "id": 28,
         "name": "Restricted Airspace"
     },
-    "29": {
+    {
+        "id": 29,
         "name": "Temporary Flight Restriction"
     },
-    "30": {
+    {
+        "id": 30,
         "name": "Nuclear Power Plant"
     },
-    "31": {
+    {
+        "id": 31,
         "name": "Unpaved Airports"
     },
-    "32": {
+    {
+        "id": 32,
         "name": "Special Zones"
     },
-    "33": {
+    {
+        "id": 33,
         "name": "Military Zones"
     },
-    "34": {
+    {
+        "id": 34,
         "name": "Heliport"
     },
-    "35": {
+    {
+        "id": 35,
         "name": "Seaplane Base"
     },
-    "36": {
+    {
+        "id": 36,
         "name": "Temporary Flight Restriction"
     },
-    "39": {
+    {
+        "id": 39,
         "name": "Approved Zones for Light UAVs"
     },
-    "41": {
+    {
+        "id": 41,
         "name": "Regulatory Restricted Zones for Light UAVs"
     }
-}
+]

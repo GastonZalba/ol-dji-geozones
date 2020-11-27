@@ -1,102 +1,102 @@
-[
+export default [
     {
-        "value": "mavic-mini",
+        "id": "mavic-mini",
         "name": "Mavic Mini"
     },
     {
-        "value": "mavic-2-enterprise",
+        "id": "mavic-2-enterprise",
         "name": "Mavic 2 Enterprise"
     },
     {
-        "value": "mavic-2",
+        "id": "mavic-2",
         "name": "Mavic 2"
     },
     {
-        "value": "mavic-air",
+        "id": "mavic-air",
         "name": "Mavic Air"
     },
     {
-        "value": "mavic-air-2",
+        "id": "mavic-air-2",
         "name": "Mavic Air 2"
     },
     {
-        "value": "mavic-pro",
+        "id": "mavic-pro",
         "name": "Mavic Pro"
     },
     {
-        "value": "spark",
+        "id": "spark",
         "name": "Spark"
     },
     {
-        "value": "phantom-4-pro",
+        "id": "phantom-4-pro",
         "name": "Phantom 4 Pro"
     },
     {
-        "value": "phantom-4-advanced",
+        "id": "phantom-4-advanced",
         "name": "Phantom 4 Advanced"
     },
     {
-        "value": "phantom-4",
+        "id": "phantom-4",
         "name": "Phantom 4"
     },
     {
-        "value": "phantom-4-rtk",
+        "id": "phantom-4-rtk",
         "name": "Phantom 4 RTK"
     },
     {
-        "value": "phantom-4-multispectral",
+        "id": "phantom-4-multispectral",
         "name": "Phantom 4 Multispectral"
     },
     {
-        "value": "phantom-3-pro",
+        "id": "phantom-3-pro",
         "name": "Phantom 3 Pro"
     },
     {
-        "value": "phantom-3-advanced",
+        "id": "phantom-3-advanced",
         "name": "Phantom 3 Advanced"
     },
     {
-        "value": "phantom-3-standard",
+        "id": "phantom-3-standard",
         "name": "Phantom 3 Standard"
     },
     {
-        "value": "phantom-3-4K",
+        "id": "phantom-3-4K",
         "name": "Phantom 3 4K"
     },
     {
-        "value": "phantom-3-se",
+        "id": "phantom-3-se",
         "name": "Phantom 3 SE"
     },
     {
-        "value": "inspire-2",
+        "id": "inspire-2",
         "name": "Inspire 2"
     },
     {
-        "value": "inspire-1-series",
+        "id": "inspire-1-series",
         "name": "Inspire 1 Series"
     },
     {
-        "value": "m200-series",
+        "id": "m200-series",
         "name": "M200 Series"
     },
     {
-        "value": "m300-series",
+        "id": "m300-series",
         "name": "M300 Series"
     },
     {
-        "value": "m600-series",
+        "id": "m600-series",
         "name": "M600 Series"
     },
     {
-        "value": "m100",
+        "id": "m100",
         "name": "M100"
     },
     {
-        "value": "mg1p",
+        "id": "mg1p",
         "name": "MG 1S/1A/1P/1P RTK/T10/T16/T20/T30"
     },
     {
-        "value": "dji-mini-2",
+        "id": "dji-mini-2",
         "name": "DJI Mini 2"
     }
 ]
