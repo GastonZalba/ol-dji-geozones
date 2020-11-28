@@ -597,21 +597,6 @@ export default class DjiGeozones {
                 <path d="M352.5 288v-64.5h63v64.5h-63zM384 640.5q105 0 180.75-75.75t75.75-180.75-75.75-180.75-180.75-75.75-180.75 75.75-75.75 180.75 75.75 180.75 180.75 75.75zM384 64.5q132 0 225.75 93.75t93.75 225.75-93.75 225.75-225.75 93.75-225.75-93.75-93.75-225.75 93.75-225.75 225.75-93.75zM352.5 544.5v-192h63v192h-63z"></path>
                 </svg>`;
 
-                const getPos = (el) => {
-                    el.style.position = '';
-                    el.style.top = '';                    
-                    for (var lx = 0, ly = 0;
-                        el != null;
-                        lx += el.offsetLeft, ly += el.offsetTop, el = el.offsetParent);
-                    return { x: lx, y: ly };
-                }
-
-                const getScrollPos = () => {
-                    const scrollMaster = window.pageYOffset || document.documentElement.scrollTop;
-                    const scrollPopUp = document.querySelector('.ol-dji-geozones--ol-popup-content').scrollTop;
-                    return scrollPopUp + scrollMaster;
-                }
-
                 const infoTooltip = document.createElement('span');
                 infoTooltip.className = 'ol-dji-geozones--info';
                 infoTooltip.innerHTML = levelParams.desc;
@@ -622,9 +607,8 @@ export default class DjiGeozones {
                 iconTooltip.innerHTML = svg;
 
                 iconTooltip.onmouseover = () => {
-                    let position = getPos(iconTooltip);
                     infoTooltip.style.position = 'fixed';
-                    infoTooltip.style.top = position.y - getScrollPos() + 'px';
+                    infoTooltip.style.top = iconTooltip.getBoundingClientRect().top + 'px';
                     infoTooltip.classList.add('ol-dji-geozones--active-tooltip');
                 }
 
