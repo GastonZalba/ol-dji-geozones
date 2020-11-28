@@ -17,7 +17,7 @@
     drone: 'mavic-2',
     country: 'AR',
     levelsToDisplay: [2, 6, 1, 0, 3, 4, 7],
-    levelsActive: [1, 2, 4, 6, 7],
+    levelsActive: [0, 1, 2, 3, 4, 6, 7],
     showPanel: true,
     targetPanel: null,
     language: 'en'

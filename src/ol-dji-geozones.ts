@@ -15,8 +15,7 @@ import {
     getBottomRight,
     getCenter,
     getBottomLeft,
-    Extent,
-    extendCoordinate
+    Extent
 } from 'ol/extent';
 import { MapBrowserEvent, PluggableMap, View } from 'ol';
 import { Coordinate } from 'ol/coordinate';
@@ -55,6 +54,9 @@ const MIN_ZOOM = 9; // < 9 breaks the API
 export default class DjiGeozones {
 
     protected language: string;
+    protected labelsLang: any;
+    protected levelsLang: Array<LevelLang>;
+    protected typesLang: Array<TypeLang>;
 
     protected drone: string;
     protected zones_mode: string;
@@ -65,10 +67,9 @@ export default class DjiGeozones {
     protected url_proxy: string;
     protected useApiForPopUp: boolean;
 
-    protected levelsParamsList: LevelsParamsList;
-    protected levelsTextsList: LevelsTextsList;
-    protected typesTextsList: TypesTextsList;
-    protected dronesList: DroneList;
+    protected levelsParamsList: Array<LevelParams>;
+
+    protected dronesList: Array<Drone>;
 
     protected map: PluggableMap;
     protected view: View;
@@ -92,7 +93,11 @@ export default class DjiGeozones {
     constructor(map: PluggableMap, url_proxy: string, opt_options?: Options) {
         const options = { ...opt_options };
 
+        // LANGUAGE SUPPORT
         this.language = options.language || 'en';
+        this.labelsLang = languages[this.language].labels;
+        this.levelsLang = languages[this.language].levels;
+        this.typesLang = languages[this.language].types;
 
         // API PARAMETERS
         this.drone = options.drone || 'spark';
@@ -100,8 +105,6 @@ export default class DjiGeozones {
         this.country = options.country || 'US';
         this.levelsToDisplay = options.levelsToDisplay || [2, 6, 1, 0, 3, 4, 7];
         this.levelsActive = options.levelsActive || [2, 6, 1, 0, 3, 4, 7];
-
-        this.levelsTextsList = options.levelsTexts || languages[this.language].levels;
 
         this.levelsParamsList = !options.levelParams
             ? levelsParams
@@ -111,9 +114,7 @@ export default class DjiGeozones {
         // This can be passed to use translations.
         this.dronesList = options.dronesList || dronesList;
 
-        // If not provided, use the default types values.
-        // This can be passed to use translations.
-        this.typesTextsList = options.typesTexts || languages[this.language].types;
+    
 
         this.extent = options.extent || null;
 
@@ -370,11 +371,11 @@ export default class DjiGeozones {
                 'ol-dji-geozones ol-control ol-dji-geozones--ctrl-disabled';
             divControl.innerHTML = `
             <div>
-                <h3>DJI Geo Zones</h3>
+                <h3>${this.labelsLang.djiGeoZones}</h3>
                 <span class="ol-dji-geozones--loading">
                     ${this.loadingElement}
                 </span>
-                <span class="ol-dji-geozones--advice">(Zoom in)</span>
+                <span class="ol-dji-geozones--advice">${this.labelsLang.helperZoom}</span>
             </div>`;
 
             const droneSelector = createDroneSelector();
@@ -617,7 +618,7 @@ export default class DjiGeozones {
 
                 const infoTooltip = document.createElement('span');
                 infoTooltip.className = 'ol-dji-geozones--info';
-                infoTooltip.innerHTML = levelParams.desc;
+                infoTooltip.innerHTML = `<span class="ol-dji-geozones--info-text">${levelParams.desc}</span><span class="ol-dji-geozones--info-back"></span>`;
                 infoTooltip.setAttribute('style', `--level-color: ${levelParams.color}`);
 
                 const iconTooltip = document.createElement('span');
@@ -648,6 +649,7 @@ export default class DjiGeozones {
             }) => {
 
                 const levelParams = this.getLevelById(level);
+                const lbl = this.labelsLang;
 
                 const html = `
                     <div class="ol-dji-geozones--marker">
@@ -655,30 +657,30 @@ export default class DjiGeozones {
                     </div>
                     <div class="ol-dji-geozones--main">
                         <h3 class="ol-dji-geozones--title">${name}</h3>
-                        <p class="ol-dji-geozones--level">Level: ${levelParams.name} </p>
-                        <p class="ol-dji-geozones--type">Type: ${this.getGeozoneTypeById(type).name}</p>
+                        <p class="ol-dji-geozones--level">${lbl.level}: ${levelParams.name} </p>
+                        <p class="ol-dji-geozones--type">${lbl.type}: ${this.getGeozoneTypeById(type).name}</p>
                         ${begin_at
-                        ? `<p class="ol-dji-geozones--start_time">End Time: ${begin_at}</p>`
+                        ? `<p class="ol-dji-geozones--start_time">${lbl.startTime}: ${begin_at}</p>`
                         : ''
                     }
                         ${end_at
-                        ? `<p class="ol-dji-geozones--end_time">End Time: ${end_at}</p><p class="ol-dji-geozones--time_tips">Time: 24-hour clock</p>`
+                        ? `<p class="ol-dji-geozones--end_time">${lbl.endTime}: ${end_at}</p><p class="ol-dji-geozones--time_tips">${lbl.timeTips}</p>`
                         : ''
                     }         
                         ${height
-                        ? `<p class="ol-dji-geozones--height">Max. Altitude (m): ${height}</p>`
+                        ? `<p class="ol-dji-geozones--height">${lbl.maxAltitude} (m): ${height}</p>`
                         : ''
                     } 
                         ${address
-                        ? `<p class="ol-dji-geozones--address">Address: ${address}</p>`
+                        ? `<p class="ol-dji-geozones--address">${lbl.address}: ${address}</p>`
                         : ''
                     }
                         ${description
-                        ? `<p class="ol-dji-geozones--desc">Tips: ${description}</p>`
+                        ? `<p class="ol-dji-geozones--desc">${lbl.tips}: ${description}</p>`
                         : ''
                     }
                         ${url
-                        ? `<p class="ol-dji-geozones--url">Link: <a href="${url}">Learn More</a></p>`
+                        ? `<p class="ol-dji-geozones--url">${lbl.link}: <a href="${url}">${lbl.learnMore}</a></p>`
                         : ''
                     }
                 </div>`;
@@ -1127,7 +1129,7 @@ export default class DjiGeozones {
     /**
      * Get the parameters from all the levels
      */
-    getLevelsParams(): LevelsParamsList {
+    getLevelsParams(): Array<LevelParams> {
         return this.levelsParamsList;
     }
 
@@ -1141,7 +1143,7 @@ export default class DjiGeozones {
 
     getLevelById(id: number = null) {
         let params = this.levelsParamsList.find((lev: LevelParams) => lev.id == id);
-        let texts = this.levelsTextsList.find((lev: LevelTexts) => lev.id == id);
+        let texts = this.levelsLang.find((lev: LevelLang) => lev.id == id);
 
         return { ...params, ...texts };
     }
@@ -1206,22 +1208,22 @@ export default class DjiGeozones {
     /**
      *
      */
-    getGeozoneTypes(): TypesTextsList {
-        return this.typesTextsList;
+    getGeozoneTypes(): Array<TypeLang> {
+        return this.typesLang;
     }
 
     /**
      *
      * @param id
      */
-    getGeozoneTypeById(id: number = null): TypeTexts {
-        return this.typesTextsList.find((el: TypeTexts) => el.id == id);
+    getGeozoneTypeById(id: number = null): TypeLang {
+        return this.typesLang.find((el: TypeLang) => el.id == id);
     }
 
     /**
      * Get a list with all the supported Drones
      */
-    getDrones(): DroneList {
+    getDrones(): Array<Drone> {
         return this.dronesList;
     }
 
@@ -1326,14 +1328,8 @@ interface Drone {
 }
 
 /**
- * **_[interface]_** - Parameter specified when creating a DjiGeozones.
- * By default, this use the sames values of the official API.
- * Also, this this can be useful to allow translations or display customs texts.
- */
-type DroneList = Array<Drone>;
-
-/**
  * **_[interface]_** - DjiGeozones levels parameters specified when creating a DjiGeozones
+ * Provide the colors, icons and more from each level.
  */
 interface LevelParams {
     id: number;
@@ -1342,37 +1338,23 @@ interface LevelParams {
     markerIcon: string;
     markerCircle: string;
 }
+
 /**
  * **_[interface]_** - DjiGeozones levels text for translations or customs texts
  */
-interface LevelTexts {
+interface LevelLang {
     id: number;
     desc: string;
     name: string;
 }
 
-type LevelsTextsList = Array<LevelTexts>;
-
 /**
  * **_[interface]_** - Geozone Type allows by the API
  */
-interface TypeTexts {
+interface TypeLang {
     id: number;
     name: string;
 }
-
-/**
- * **_[interface]_** - Parameter with the avalible Geozones types specified when creating a DjiGeozones.
- * By default, this use the sames values of the official API.
- * Also, this this can be useful to allow translations or display customs texts.
- */
-type TypesTextsList = Array<TypeTexts>;
-
-/**
- * **_[interface]_** - Parameter specified when creating a DjiGeozones.
- *  Provide the colors, icons and more from each level.
- */
-type LevelsParamsList = Array<LevelParams>;
 
 /**
  * **_[interface]_** - DjiGeozones Options specified when creating a DjiGeozones
@@ -1392,7 +1374,7 @@ type LevelsParamsList = Array<LevelParams>;
  * }
  * ```
  */
-interface Options {
+interface Options {    
     /*
      * Drone id to be used in the API request
      */
@@ -1446,22 +1428,9 @@ interface Options {
      * Language
      */
     language?: 'en' | 'es'
-    /**
-     * Supported 
-     */
-    typesTexts?: Array<TypeTexts>;
-    /**
-     * 
-     */
-    levelsTexts?: Array<LevelTexts>;
 }
 
 export {
     Options,
-    DroneList,
-    Drone,
-    TypesTextsList,
-    TypeTexts,
-    LevelTexts,
-    LevelsParamsList
+    Drone
 };

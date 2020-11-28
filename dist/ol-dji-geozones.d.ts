@@ -19,6 +19,9 @@ import Projection from 'ol/proj/Projection';
  */
 export default class DjiGeozones {
     protected language: string;
+    protected labelsLang: any;
+    protected levelsLang: Array<LevelLang>;
+    protected typesLang: Array<TypeLang>;
     protected drone: string;
     protected zones_mode: string;
     protected country: string;
@@ -27,10 +30,8 @@ export default class DjiGeozones {
     protected extent: Extent;
     protected url_proxy: string;
     protected useApiForPopUp: boolean;
-    protected levelsParamsList: LevelsParamsList;
-    protected levelsTextsList: LevelsTextsList;
-    protected typesTextsList: TypesTextsList;
-    protected dronesList: DroneList;
+    protected levelsParamsList: Array<LevelParams>;
+    protected dronesList: Array<Drone>;
     protected map: PluggableMap;
     protected view: View;
     protected overlay: Overlay;
@@ -84,7 +85,7 @@ export default class DjiGeozones {
     /**
      * Get the parameters from all the levels
      */
-    getLevelsParams(): LevelsParamsList;
+    getLevelsParams(): Array<LevelParams>;
     /**
      * Get the level parameters, like color, icon, and description
      * @param id
@@ -122,16 +123,16 @@ export default class DjiGeozones {
     /**
      *
      */
-    getGeozoneTypes(): TypesTextsList;
+    getGeozoneTypes(): Array<TypeLang>;
     /**
      *
      * @param id
      */
-    getGeozoneTypeById(id?: number): TypeTexts;
+    getGeozoneTypeById(id?: number): TypeLang;
     /**
      * Get a list with all the supported Drones
      */
-    getDrones(): DroneList;
+    getDrones(): Array<Drone>;
     /**
      *  **_[static]_** - Generate an RGBA color from an hexadecimal
      *
@@ -149,13 +150,8 @@ interface Drone {
     name: string;
 }
 /**
- * **_[interface]_** - Parameter specified when creating a DjiGeozones.
- * By default, this use the sames values of the official API.
- * Also, this this can be useful to allow translations or display customs texts.
- */
-declare type DroneList = Array<Drone>;
-/**
  * **_[interface]_** - DjiGeozones levels parameters specified when creating a DjiGeozones
+ * Provide the colors, icons and more from each level.
  */
 interface LevelParams {
     id: number;
@@ -167,30 +163,18 @@ interface LevelParams {
 /**
  * **_[interface]_** - DjiGeozones levels text for translations or customs texts
  */
-interface LevelTexts {
+interface LevelLang {
     id: number;
     desc: string;
     name: string;
 }
-declare type LevelsTextsList = Array<LevelTexts>;
 /**
  * **_[interface]_** - Geozone Type allows by the API
  */
-interface TypeTexts {
+interface TypeLang {
     id: number;
     name: string;
 }
-/**
- * **_[interface]_** - Parameter with the avalible Geozones types specified when creating a DjiGeozones.
- * By default, this use the sames values of the official API.
- * Also, this this can be useful to allow translations or display customs texts.
- */
-declare type TypesTextsList = Array<TypeTexts>;
-/**
- * **_[interface]_** - Parameter specified when creating a DjiGeozones.
- *  Provide the colors, icons and more from each level.
- */
-declare type LevelsParamsList = Array<LevelParams>;
 /**
  * **_[interface]_** - DjiGeozones Options specified when creating a DjiGeozones
  *
@@ -260,13 +244,5 @@ interface Options {
      * Language
      */
     language?: 'en' | 'es';
-    /**
-     * Supported
-     */
-    typesTexts?: Array<TypeTexts>;
-    /**
-     *
-     */
-    levelsTexts?: Array<LevelTexts>;
 }
-export { Options, DroneList, Drone, TypesTextsList, TypeTexts, LevelTexts, LevelsParamsList };
+export { Options, Drone };

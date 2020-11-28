@@ -137,12 +137,9 @@ The CSS file `ol-dji-geozones.css` can be found in `./node_modules/ol-dji-geozon
   - [lat](#lat)
   - [search_radius](#search_radius)
 - [Drone](#drone-1)
-- [DroneList](#dronelist)
 - [LevelParams](#levelparams)
-- [LevelTexts](#leveltexts)
-- [TypeTexts](#typetexts)
-- [TypesTextsList](#typestextslist)
-- [LevelsParamsList](#levelsparamslist)
+- [LevelLang](#levellang)
+- [TypeLang](#typelang)
 - [Options](#options)
   - [zonesMode](#zonesmode)
   - [country](#country-1)
@@ -156,8 +153,6 @@ The CSS file `ol-dji-geozones.css` can be found in `./node_modules/ol-dji-geozon
   - [loadingElement](#loadingelement)
   - [clickEvent](#clickevent)
   - [language](#language)
-  - [typesTexts](#typestexts)
-  - [levelsTexts](#levelstexts)
 
 ### DjiGeozones
 
@@ -214,7 +209,7 @@ Returns **VectorLayer**
 
 Get the parameters from all the levels
 
-Returns **[LevelsParamsList](#levelsparamslist)**
+Returns **[Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[LevelParams](#levelparams)>**
 
 #### getLevelParamsById
 
@@ -261,7 +256,7 @@ Returns **void**
 
 #### getGeozoneTypes
 
-Returns **[TypesTextsList](#typestextslist)**
+Returns **[Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[TypeLang](#typelang)>**
 
 #### getGeozoneTypeById
 
@@ -269,13 +264,13 @@ Returns **[TypesTextsList](#typestextslist)**
 
 - `id` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** (optional, default `null`)
 
-Returns **[TypeTexts](#typetexts)**
+Returns **[TypeLang](#typelang)**
 
 #### getDrones
 
 Get a list with all the supported Drones
 
-Returns **[DroneList](#dronelist)**
+Returns **[Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[Drone](#drone)>**
 
 #### colorWithAlpha
 
@@ -377,40 +372,18 @@ Type: [number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Globa
 
 **_[interface]_** - Drone
 
-### DroneList
-
-**_[interface]_** - Parameter specified when creating a DjiGeozones.
-By default, this use the sames values of the official API.
-Also, this this can be useful to allow translations or display customs texts.
-
-Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[Drone](#drone)>
-
 ### LevelParams
 
 **_[interface]_** - DjiGeozones levels parameters specified when creating a DjiGeozones
+Provide the colors, icons and more from each level.
 
-### LevelTexts
+### LevelLang
 
 **_[interface]_** - DjiGeozones levels text for translations or customs texts
 
-### TypeTexts
+### TypeLang
 
 **_[interface]_** - Geozone Type allows by the API
-
-### TypesTextsList
-
-**_[interface]_** - Parameter with the avalible Geozones types specified when creating a DjiGeozones.
-By default, this use the sames values of the official API.
-Also, this this can be useful to allow translations or display customs texts.
-
-Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[TypeTexts](#typetexts)>
-
-### LevelsParamsList
-
-**_[interface]_** - Parameter specified when creating a DjiGeozones.
-Provide the colors, icons and more from each level.
-
-Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[LevelParams](#levelparams)>
 
 ### Options
 
@@ -505,19 +478,9 @@ Language
 
 Type: (`"en"` \| `"es"`)
 
-#### typesTexts
-
-Supported
-
-Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[TypeTexts](#typetexts)>
-
-#### levelsTexts
-
-Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[LevelTexts](#leveltexts)>
-
 ## TODO
 
-Add multiples languages presets.
+Add tests.
 
 ## License
 
