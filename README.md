@@ -12,8 +12,8 @@ Now days, DJI doesn't offer any API documentation, so future support and access 
 
 ## Examples
 
--   [Basic usage](http://raw.githack.com/GastonZalba/ol-dji-geozones/master/examples/dji-geozones.html)
-    -   Create an OpenLayers map instance, and pass that map to the DJIGeozones constructor.
+- [Basic usage](http://raw.githack.com/GastonZalba/ol-dji-geozones/master/examples/dji-geozones.html)
+  - Create an OpenLayers map instance, and pass that map to the DJIGeozones constructor.
 
 ## Usage
 
@@ -104,59 +104,60 @@ The CSS file `ol-dji-geozones.css` can be found in `./node_modules/ol-dji-geozon
 
 #### Table of Contents
 
--   [DjiGeozones](#djigeozones)
-    -   [Parameters](#parameters)
-    -   [getApiGeoData](#getapigeodata)
-        -   [Parameters](#parameters-1)
-    -   [setControlVisible](#setcontrolvisible)
-        -   [Parameters](#parameters-2)
-    -   [getLayers](#getlayers)
-    -   [getLayerByLevel](#getlayerbylevel)
-        -   [Parameters](#parameters-3)
-    -   [getLevelsParams](#getlevelsparams)
-    -   [getLevelParamsById](#getlevelparamsbyid)
-        -   [Parameters](#parameters-4)
-    -   [setLevels](#setlevels)
-        -   [Parameters](#parameters-5)
-    -   [addLevels](#addlevels)
-        -   [Parameters](#parameters-6)
-    -   [removeLevels](#removelevels)
-        -   [Parameters](#parameters-7)
-    -   [getGeozoneTypes](#getgeozonetypes)
-    -   [getGeozoneTypeById](#getgeozonetypebyid)
-        -   [Parameters](#parameters-8)
-    -   [getDrones](#getdrones)
-    -   [colorWithAlpha](#colorwithalpha)
-        -   [Parameters](#parameters-9)
--   [DjiApi](#djiapi)
-    -   [level](#level)
-    -   [drone](#drone)
-    -   [country](#country)
-    -   [zones_mode](#zones_mode)
-    -   [lng](#lng)
-    -   [lat](#lat)
-    -   [search_radius](#search_radius)
--   [Drone](#drone-1)
--   [DroneList](#dronelist)
--   [LevelParams](#levelparams)
--   [LevelTexts](#leveltexts)
--   [TypeTexts](#typetexts)
--   [TypesTextsList](#typestextslist)
--   [LevelsParamsList](#levelsparamslist)
--   [Options](#options)
-    -   [zonesMode](#zonesmode)
-    -   [country](#country-1)
-    -   [levelsToDisplay](#levelstodisplay)
-    -   [levelsActive](#levelsactive)
-    -   [levelParams](#levelparams-1)
-    -   [dronesList](#droneslist)
-    -   [extent](#extent)
-    -   [showPanel](#showpanel)
-    -   [targetPanel](#targetpanel)
-    -   [loadingElement](#loadingelement)
-    -   [language](#language)
-    -   [typesTexts](#typestexts)
-    -   [levelsTexts](#levelstexts)
+- [DjiGeozones](#djigeozones)
+  - [Parameters](#parameters)
+  - [getApiGeoData](#getapigeodata)
+    - [Parameters](#parameters-1)
+  - [setControlVisible](#setcontrolvisible)
+    - [Parameters](#parameters-2)
+  - [getLayers](#getlayers)
+  - [getLayerByLevel](#getlayerbylevel)
+    - [Parameters](#parameters-3)
+  - [getLevelsParams](#getlevelsparams)
+  - [getLevelParamsById](#getlevelparamsbyid)
+    - [Parameters](#parameters-4)
+  - [setLevels](#setlevels)
+    - [Parameters](#parameters-5)
+  - [addLevels](#addlevels)
+    - [Parameters](#parameters-6)
+  - [removeLevels](#removelevels)
+    - [Parameters](#parameters-7)
+  - [getGeozoneTypes](#getgeozonetypes)
+  - [getGeozoneTypeById](#getgeozonetypebyid)
+    - [Parameters](#parameters-8)
+  - [getDrones](#getdrones)
+  - [colorWithAlpha](#colorwithalpha)
+    - [Parameters](#parameters-9)
+- [DjiApi](#djiapi)
+  - [level](#level)
+  - [drone](#drone)
+  - [country](#country)
+  - [zones_mode](#zones_mode)
+  - [lng](#lng)
+  - [lat](#lat)
+  - [search_radius](#search_radius)
+- [Drone](#drone-1)
+- [DroneList](#dronelist)
+- [LevelParams](#levelparams)
+- [LevelTexts](#leveltexts)
+- [TypeTexts](#typetexts)
+- [TypesTextsList](#typestextslist)
+- [LevelsParamsList](#levelsparamslist)
+- [Options](#options)
+  - [zonesMode](#zonesmode)
+  - [country](#country-1)
+  - [levelsToDisplay](#levelstodisplay)
+  - [levelsActive](#levelsactive)
+  - [levelParams](#levelparams-1)
+  - [dronesList](#droneslist)
+  - [extent](#extent)
+  - [showPanel](#showpanel)
+  - [targetPanel](#targetpanel)
+  - [loadingElement](#loadingelement)
+  - [clickEvent](#clickevent)
+  - [language](#language)
+  - [typesTexts](#typestexts)
+  - [levelsTexts](#levelstexts)
 
 ### DjiGeozones
 
@@ -168,9 +169,9 @@ Also, add a Control to select levels of interest and drone to filter the results
 
 #### Parameters
 
--   `map` **PluggableMap** Instance of the created map
--   `url_proxy` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Proxy's url to avoid CORS protection in the API.
--   `opt_options` **[Options](#options)?** DjiGeozones options, see [DjiGeozones Options](#options) for more details.
+- `map` **[PluggableMap](https://openlayers.org/en/latest/apidoc/module-ol_PluggableMap-PluggableMap.html)** Instance of the created map
+- `url_proxy` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Proxy's url to avoid CORS protection in the API.
+- `opt_options` **[Options](#options)?** DjiGeozones options, see [DjiGeozones Options](#options) for more details.
 
 #### getApiGeoData
 
@@ -178,10 +179,10 @@ Controller for the API rquests.
 
 ##### Parameters
 
--   `typeApiRequest` **(`"areas"` \| `"info"`)** 
--   `latLng` **{lat: [number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number), lng: [number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)}** 
+- `typeApiRequest` **(`"areas"` \| `"info"`)**
+- `latLng` **{lat: [number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number), lng: [number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)}**
 
-Returns **[Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise)&lt;any>** 
+Returns **[Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise)&lt;any>**
 
 #### setControlVisible
 
@@ -189,15 +190,15 @@ Show or hides the control
 
 ##### Parameters
 
--   `visible` **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 
+- `visible` **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)**
 
-Returns **void** 
+Returns **void**
 
 #### getLayers
 
 Get all the layers
 
-Returns **[Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;VectorLayer>** 
+Returns **[Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;VectorLayer>**
 
 #### getLayerByLevel
 
@@ -205,15 +206,15 @@ Get the layer acordding the level
 
 ##### Parameters
 
--   `level` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
+- `level` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)**
 
-Returns **VectorLayer** 
+Returns **VectorLayer**
 
 #### getLevelsParams
 
 Get the parameters from all the levels
 
-Returns **[LevelsParamsList](#levelsparamslist)** 
+Returns **[LevelsParamsList](#levelsparamslist)**
 
 #### getLevelParamsById
 
@@ -221,9 +222,9 @@ Get the level parameters, like color, icon, and description
 
 ##### Parameters
 
--   `id` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)**  (optional, default `null`)
+- `id` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** (optional, default `null`)
 
-Returns **[LevelParams](#levelparams)** 
+Returns **[LevelParams](#levelparams)**
 
 #### setLevels
 
@@ -231,10 +232,10 @@ Replace the active levels with this values
 
 ##### Parameters
 
--   `levels` **([Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)> | [number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number))** 
--   `refresh`  If true, refresh the view and show the levels (optional, default `true`)
+- `levels` **([Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)> | [number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number))**
+- `refresh` If true, refresh the view and show the levels (optional, default `true`)
 
-Returns **void** 
+Returns **void**
 
 #### addLevels
 
@@ -242,10 +243,10 @@ Add the level/s to the view
 
 ##### Parameters
 
--   `levels` **([Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)> | [number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number))** 
--   `refresh`  If true, refresh the view and show the actived levels (optional, default `true`)
+- `levels` **([Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)> | [number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number))**
+- `refresh` If true, refresh the view and show the actived levels (optional, default `true`)
 
-Returns **void** 
+Returns **void**
 
 #### removeLevels
 
@@ -253,28 +254,28 @@ Remove the level/s from the view
 
 ##### Parameters
 
--   `levels` **([Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)> | [number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number))** 
--   `refresh`  If true, refresh the view and show the actived levels (optional, default `true`)
+- `levels` **([Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)> | [number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number))**
+- `refresh` If true, refresh the view and show the actived levels (optional, default `true`)
 
-Returns **void** 
+Returns **void**
 
 #### getGeozoneTypes
 
-Returns **[TypesTextsList](#typestextslist)** 
+Returns **[TypesTextsList](#typestextslist)**
 
 #### getGeozoneTypeById
 
 ##### Parameters
 
--   `id` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)**  (optional, default `null`)
+- `id` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** (optional, default `null`)
 
-Returns **[TypeTexts](#typetexts)** 
+Returns **[TypeTexts](#typetexts)**
 
 #### getDrones
 
 Get a list with all the supported Drones
 
-Returns **[DroneList](#dronelist)** 
+Returns **[DroneList](#dronelist)**
 
 #### colorWithAlpha
 
@@ -284,10 +285,10 @@ Adapted from <https://stackoverflow.com/questions/28004153>
 
 ##### Parameters
 
--   `color` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Hexadeciaml color
--   `alpha`  Opacity (optional, default `1`)
+- `color` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Hexadeciaml color
+- `alpha` Opacity (optional, default `1`)
 
-Returns **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+Returns **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)**
 
 ### DjiApi
 
@@ -295,46 +296,46 @@ Returns **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/G
 
 #### level
 
--   `2` - Restricted Zones
--   `6` - Altitude Zones
--   `1` - Authorization Zones
--   `0` - Warning Zones
--   `3` - Enhanced Warning Zones
--   `9` - Densely Populated Area **NOT SUPPORTED - This level exists in the oficial Geo Zone Map, but this data is not provided by the api. On the other hand, now days this level is apparently valid only for Japan and China**
--   `4` - Regulatory Restricted Zones
--   `7` - Recommended Zones
--   `8` - Approved Zones for Light UAVs(China) **Only valid for China**
--   `5` - Recommended Zones (2) **Apparently this level is only valid for Japan**
+- `2` - Restricted Zones
+- `6` - Altitude Zones
+- `1` - Authorization Zones
+- `0` - Warning Zones
+- `3` - Enhanced Warning Zones
+- `9` - Densely Populated Area **NOT SUPPORTED - This level exists in the oficial Geo Zone Map, but this data is not provided by the api. On the other hand, now days this level is apparently valid only for Japan and China**
+- `4` - Regulatory Restricted Zones
+- `7` - Recommended Zones
+- `8` - Approved Zones for Light UAVs(China) **Only valid for China**
+- `5` - Recommended Zones (2) **Apparently this level is only valid for Japan**
 
 Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)>
 
 #### drone
 
--   `mavic-mini` (Mavic Mini)
--   `mavic-2-enterprise` (Mavic 2 Enterprise)
--   `mavic-2` (Mavic 2)
--   `mavic-air` (Mavic Air)
--   `mavic-air-2` (Mavic Air 2)
--   `mavic-pro` (Mavic Pro)
--   `spark` (Spark)
--   `phantom-4-pro` (Phantom 4 Pro)
--   `phantom-4-advanced` (Phantom 4 Advanced)
--   `phantom-4` (Phantom 4)
--   `phantom-4-rtk` (Phantom 4 RTK)
--   `phantom-4-multispectral` (Phantom 4 Multispectral)
--   `phantom-3-pro` (Phantom 3 Pro
--   `phantom-3-advanced` (Phantom 3 Advanced)
--   `phantom-3-standard` (Phantom 3 Standard)
--   `phantom-3-4K` (Phantom 3 4K)
--   `phantom-3-se` (Phantom 3 SE)
--   `inspire-2` (Inspire 2)
--   `inspire-1-series` (Inspire 1 Series)
--   `m200-series` (M200 Series)
--   `m300-series` (M300 Series)
--   `m600-series` (M600 Series)
--   `m100` (M100)
--   `mg1p` (MG 1S/1A/1P/1P RTK/T10/T16/T20/T30)
--   `dji-mini-2` (DJI Mini 2)
+- `mavic-mini` (Mavic Mini)
+- `mavic-2-enterprise` (Mavic 2 Enterprise)
+- `mavic-2` (Mavic 2)
+- `mavic-air` (Mavic Air)
+- `mavic-air-2` (Mavic Air 2)
+- `mavic-pro` (Mavic Pro)
+- `spark` (Spark)
+- `phantom-4-pro` (Phantom 4 Pro)
+- `phantom-4-advanced` (Phantom 4 Advanced)
+- `phantom-4` (Phantom 4)
+- `phantom-4-rtk` (Phantom 4 RTK)
+- `phantom-4-multispectral` (Phantom 4 Multispectral)
+- `phantom-3-pro` (Phantom 3 Pro
+- `phantom-3-advanced` (Phantom 3 Advanced)
+- `phantom-3-standard` (Phantom 3 Standard)
+- `phantom-3-4K` (Phantom 3 4K)
+- `phantom-3-se` (Phantom 3 SE)
+- `inspire-2` (Inspire 2)
+- `inspire-1-series` (Inspire 1 Series)
+- `m200-series` (M200 Series)
+- `m300-series` (M300 Series)
+- `m600-series` (M600 Series)
+- `m100` (M100)
+- `mg1p` (MG 1S/1A/1P/1P RTK/T10/T16/T20/T30)
+- `dji-mini-2` (DJI Mini 2)
 
 Type: [string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)
 
@@ -342,9 +343,9 @@ Type: [string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Globa
 
 Apparently doesn't affects the response of the api
 
--   `US`
--   `AR`
--   _etc_ ([See the supported list](https://www.dji.com/flysafe/geo-map))
+- `US`
+- `AR`
+- _etc_ ([See the supported list](https://www.dji.com/flysafe/geo-map))
 
 Type: [string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)
 
@@ -407,7 +408,7 @@ Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global
 ### LevelsParamsList
 
 **_[interface]_** - Parameter specified when creating a DjiGeozones.
- Provide the colors, icons and more from each level.
+Provide the colors, icons and more from each level.
 
 Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[LevelParams](#levelparams)>
 
@@ -488,15 +489,21 @@ Type: ([HTMLElement](https://developer.mozilla.org/docs/Web/HTML/Element) \| [st
 
 #### loadingElement
 
-Loading element to show in the Controllenr and in the PopUps
+Loading element to be shown in the Controller on loading API data
 
 Type: [string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)
+
+#### clickEvent
+
+Click event to show PopUp information
+
+Type: (`"singleclick"` \| `"dblclick"`)
 
 #### language
 
 Language
 
-Type: `"en"`
+Type: (`"en"` \| `"es"`)
 
 #### typesTexts
 

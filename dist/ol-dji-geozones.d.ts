@@ -249,7 +249,7 @@ interface Options {
      */
     targetPanel?: HTMLElement | string;
     /**
-     * Loading element to show in the Controllenr and in the PopUps
+     * Loading element to be shown in the Controller on loading API data
      */
     loadingElement?: string;
     /**
@@ -259,7 +259,7 @@ interface Options {
     /**
      * Language
      */
-    language?: 'en';
+    language?: 'en' | 'es';
     /**
      * Supported
      */

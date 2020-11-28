@@ -21,7 +21,8 @@ module.exports = {
                 'ol/proj': 'ol.proj',
                 'ol/sphere': 'ol.sphere',
                 'ol/color': 'ol.color',
-                'ol/extent' : 'ol.extent'
+                'ol/extent' : 'ol.extent',
+                'ol/Observable': 'ol.Observable'
             }
         }
     ],

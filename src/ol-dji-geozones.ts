@@ -15,17 +15,21 @@ import {
     getBottomRight,
     getCenter,
     getBottomLeft,
-    Extent
+    Extent,
+    extendCoordinate
 } from 'ol/extent';
 import { MapBrowserEvent, PluggableMap, View } from 'ol';
 import { Coordinate } from 'ol/coordinate';
 import Projection from 'ol/proj/Projection';
+import { EventsKey } from 'ol/events';
+import { unByKey } from 'ol/Observable';
 
 // Import configuration values
 // This elements can be used to create transcriptions
 import levelsParams from './_levels-params.json';
 import dronesList from './_drones.json';
 import languages from './_languages.json';
+
 
 
 /**
@@ -591,6 +595,20 @@ export default class DjiGeozones {
         ) => {
 
             const createTooltip = (levelParams) => {
+                
+                let evtKey: EventsKey;
+
+                const showPopUp = () => {
+                    infoTooltip.style.position = 'fixed';
+                    infoTooltip.style.top = iconTooltip.getBoundingClientRect().top + 'px';
+                    infoTooltip.classList.add('ol-dji-geozones--active-tooltip');
+                    evtKey = this.map.once('movestart', () => closePopUp())
+                }
+
+                const closePopUp = () => {
+                    infoTooltip.classList.remove('ol-dji-geozones--active-tooltip');
+                    unByKey(evtKey);
+                }
 
                 const svg = `
                 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="768" height="768" viewBox="0 0 768 768">
@@ -606,15 +624,9 @@ export default class DjiGeozones {
                 iconTooltip.className = 'ol-dji-geozones--icon';
                 iconTooltip.innerHTML = svg;
 
-                iconTooltip.onmouseover = () => {
-                    infoTooltip.style.position = 'fixed';
-                    infoTooltip.style.top = iconTooltip.getBoundingClientRect().top + 'px';
-                    infoTooltip.classList.add('ol-dji-geozones--active-tooltip');
-                }
-
-                iconTooltip.onmouseout = () => {
-                    infoTooltip.classList.remove('ol-dji-geozones--active-tooltip');
-                }
+                iconTooltip.onmouseover = () => showPopUp();
+                iconTooltip.onclick = () => showPopUp();
+                iconTooltip.onmouseout = () => closePopUp();
 
                 const container = document.createElement('div');
                 container.className = 'ol-dji-geozones--tooltip';
@@ -1423,7 +1435,7 @@ interface Options {
      */
     targetPanel?: HTMLElement | string;
     /**
-     * Loading element to show in the Controllenr and in the PopUps
+     * Loading element to be shown in the Controller on loading API data
      */
     loadingElement?: string;
     /**
@@ -1433,7 +1445,7 @@ interface Options {
     /**
      * Language
      */
-    language?: 'en'
+    language?: 'en' | 'es'
     /**
      * Supported 
      */

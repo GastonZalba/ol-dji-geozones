@@ -1,8 +1,8 @@
 (function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('ol/layer/Vector'), require('ol/source/Vector'), require('ol/Feature'), require('ol/Overlay'), require('ol/proj'), require('ol/sphere'), require('ol/geom'), require('ol/style'), require('ol/control'), require('ol/color'), require('ol/geom/Polygon'), require('ol/extent')) :
-    typeof define === 'function' && define.amd ? define(['ol/layer/Vector', 'ol/source/Vector', 'ol/Feature', 'ol/Overlay', 'ol/proj', 'ol/sphere', 'ol/geom', 'ol/style', 'ol/control', 'ol/color', 'ol/geom/Polygon', 'ol/extent'], factory) :
-    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.DjiGeozones = factory(global.ol.layer.Vector, global.ol.source.Vector, global.ol.Feature, global.ol.Overlay, global.ol.proj, global.ol.sphere, global.ol.geom, global.ol.style, global.ol.control, global.ol.color, global.ol.geom.Polygon, global.ol.extent));
-}(this, (function (VectorLayer, VectorSource, Feature, Overlay, proj, sphere, geom, style, control, color, Polygon, extent) { 'use strict';
+    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('ol/layer/Vector'), require('ol/source/Vector'), require('ol/Feature'), require('ol/Overlay'), require('ol/proj'), require('ol/sphere'), require('ol/geom'), require('ol/style'), require('ol/control'), require('ol/color'), require('ol/geom/Polygon'), require('ol/extent'), require('ol/Observable')) :
+    typeof define === 'function' && define.amd ? define(['ol/layer/Vector', 'ol/source/Vector', 'ol/Feature', 'ol/Overlay', 'ol/proj', 'ol/sphere', 'ol/geom', 'ol/style', 'ol/control', 'ol/color', 'ol/geom/Polygon', 'ol/extent', 'ol/Observable'], factory) :
+    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.DjiGeozones = factory(global.ol.layer.Vector, global.ol.source.Vector, global.ol.Feature, global.ol.Overlay, global.ol.proj, global.ol.sphere, global.ol.geom, global.ol.style, global.ol.control, global.ol.color, global.ol.geom.Polygon, global.ol.extent, global.ol.Observable));
+}(this, (function (VectorLayer, VectorSource, Feature, Overlay, proj, sphere, geom, style, control, color, Polygon, extent, Observable) { 'use strict';
 
     function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 
@@ -983,6 +983,20 @@
 
           var showGeozoneDataInPopUp = (geozonesData, coordinates) => {
             var createTooltip = levelParams => {
+              var evtKey;
+
+              var showPopUp = () => {
+                infoTooltip.style.position = 'fixed';
+                infoTooltip.style.top = iconTooltip.getBoundingClientRect().top + 'px';
+                infoTooltip.classList.add('ol-dji-geozones--active-tooltip');
+                evtKey = this.map.once('movestart', () => closePopUp());
+              };
+
+              var closePopUp = () => {
+                infoTooltip.classList.remove('ol-dji-geozones--active-tooltip');
+                Observable.unByKey(evtKey);
+              };
+
               var svg = "\n                <svg version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" width=\"768\" height=\"768\" viewBox=\"0 0 768 768\">\n                <path d=\"M352.5 288v-64.5h63v64.5h-63zM384 640.5q105 0 180.75-75.75t75.75-180.75-75.75-180.75-180.75-75.75-180.75 75.75-75.75 180.75 75.75 180.75 180.75 75.75zM384 64.5q132 0 225.75 93.75t93.75 225.75-93.75 225.75-225.75 93.75-225.75-93.75-93.75-225.75 93.75-225.75 225.75-93.75zM352.5 544.5v-192h63v192h-63z\"></path>\n                </svg>";
               var infoTooltip = document.createElement('span');
               infoTooltip.className = 'ol-dji-geozones--info';
@@ -992,15 +1006,11 @@
               iconTooltip.className = 'ol-dji-geozones--icon';
               iconTooltip.innerHTML = svg;
 
-              iconTooltip.onmouseover = () => {
-                infoTooltip.style.position = 'fixed';
-                infoTooltip.style.top = iconTooltip.getBoundingClientRect().top + 'px';
-                infoTooltip.classList.add('ol-dji-geozones--active-tooltip');
-              };
+              iconTooltip.onmouseover = () => showPopUp();
 
-              iconTooltip.onmouseout = () => {
-                infoTooltip.classList.remove('ol-dji-geozones--active-tooltip');
-              };
+              iconTooltip.onclick = () => showPopUp();
+
+              iconTooltip.onmouseout = () => closePopUp();
 
               var container = document.createElement('div');
               container.className = 'ol-dji-geozones--tooltip';
