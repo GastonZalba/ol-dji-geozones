@@ -49,7 +49,7 @@ const MIN_ZOOM = 9; // < 9 breaks the API
  * @param opt_options DjiGeozones options, see [DjiGeozones Options](#options) for more details.
  */
 export default class DjiGeozones {
-    
+
     protected language: string;
 
     protected drone: string;
@@ -75,6 +75,8 @@ export default class DjiGeozones {
     protected projection: Projection;
     protected isVisible: boolean;
 
+    protected clickEvent: 'singleclick' | 'dblclick'
+
     protected vectorLayers: Array<VectorLayer>;
     protected divControl: HTMLElement;
     protected areaDownloaded: MultiPolygon;
@@ -85,7 +87,7 @@ export default class DjiGeozones {
 
     constructor(map: PluggableMap, url_proxy: string, opt_options?: Options) {
         const options = { ...opt_options };
-        
+
         this.language = options.language || 'en';
 
         // API PARAMETERS
@@ -95,8 +97,8 @@ export default class DjiGeozones {
         this.levelsToDisplay = options.levelsToDisplay || [2, 6, 1, 0, 3, 4, 7];
         this.levelsActive = options.levelsActive || [2, 6, 1, 0, 3, 4, 7];
 
-        this.levelsTextsList = options.levelsTexts ||  languages[this.language].levels;
-    
+        this.levelsTextsList = options.levelsTexts || languages[this.language].levels;
+
         this.levelsParamsList = !options.levelParams
             ? levelsParams
             : { ...levelsParams, ...options.levelParams };
@@ -111,11 +113,14 @@ export default class DjiGeozones {
 
         this.extent = options.extent || null;
 
-        this.url_proxy = url_proxy;
+        // Add slash on the end if not present
+        this.url_proxy = url_proxy.replace(/\/?$/, '/');
 
         this.loadingElement =
             options.loadingElement ||
             '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>';
+
+        this.clickEvent = options.clickEvent || 'singleclick';
 
         // By default, we use the properties features to show in the popup.
         // The official DJI map, makes an extra request to another API to get the data. I don't understand why.
@@ -248,7 +253,7 @@ export default class DjiGeozones {
          * @private
          */
         const addMapControl = (targetPanel: HTMLElement | string) => {
-            
+
             const createDroneSelector = (): HTMLDivElement => {
                 const handleChange = ({ target }) => {
                     this.drone =
@@ -280,7 +285,7 @@ export default class DjiGeozones {
 
             const createLevelSelector = (): HTMLDivElement => {
                 const handleClick = ({ target }) => {
-                    const level = target.value;
+                    const level = Number(target.value);
 
                     if (target.checked) {
                         this.addLevels(level);
@@ -336,6 +341,8 @@ export default class DjiGeozones {
                     const divContainer = document.createElement('div');
                     divContainer.className = `ol-dji-geozones--item-ctl ol-dji-geozones--item-ctl-${value}`;
                     divContainer.title = desc;
+                    // divContainer.setAttribute('style', `--level-color: ${color}`);
+                    // divContainer.setAttribute('data-geotooltip', desc);
                     divContainer.setAttribute('data-level', String(value));
                     divContainer.append(createCheckbox(id, value, disabled));
                     divContainer.append(createLabel(name, id, color));
@@ -347,7 +354,7 @@ export default class DjiGeozones {
                 levelSelector.className = 'ol-dji-geozones--level-selector';
 
                 this.levelsToDisplay.forEach((lev) => {
-                    const level = createLevelItem(lev, this.getLevelParamsById(lev));
+                    const level = createLevelItem(lev, this.getLevelById(lev));
                     levelSelector.append(level);
                 });
 
@@ -471,6 +478,7 @@ export default class DjiGeozones {
                 const type = this.useApiForPopUp
                     ? 'useApiForPopUp'
                     : 'useFeaturesForPopUp';
+
                 this.getPointInfoFromClick(evt, type);
             };
 
@@ -483,7 +491,7 @@ export default class DjiGeozones {
                 this.lastZoom = this.currentZoom;
             });
 
-            this.map.on('singleclick', clickHandler);
+            this.map.on(this.clickEvent, clickHandler);
         };
 
         createVectorLayers();
@@ -581,6 +589,58 @@ export default class DjiGeozones {
             geozonesData: Object | Array<any>,
             coordinates: Coordinate
         ) => {
+
+            const createTooltip = (levelParams) => {
+
+                const svg = `
+                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="768" height="768" viewBox="0 0 768 768">
+                <path d="M352.5 288v-64.5h63v64.5h-63zM384 640.5q105 0 180.75-75.75t75.75-180.75-75.75-180.75-180.75-75.75-180.75 75.75-75.75 180.75 75.75 180.75 180.75 75.75zM384 64.5q132 0 225.75 93.75t93.75 225.75-93.75 225.75-225.75 93.75-225.75-93.75-93.75-225.75 93.75-225.75 225.75-93.75zM352.5 544.5v-192h63v192h-63z"></path>
+                </svg>`;
+
+                const getPos = (el) => {
+
+                    el.style.position = '';
+                    el.style.top = '';
+
+                    for (var lx = 0, ly = 0;
+                        el != null;
+                        lx += el.offsetLeft, ly += el.offsetTop, el = el.offsetParent);
+                    return { x: lx, y: ly };
+                }
+
+                const getScrollPos = () => {
+                    //const scrollMaster = document.getElementById('content').scrollTop;
+                    const scrollPopUp = document.querySelector('.ol-dji-geozones--ol-popup-content').scrollTop;
+                    return scrollPopUp /*+ scrollMaster*/;
+                }
+
+                const infoTooltip = document.createElement('span');
+                infoTooltip.className = 'ol-dji-geozones--info';
+                infoTooltip.innerHTML = levelParams.desc;
+                infoTooltip.setAttribute('style', `--level-color: ${levelParams.color}`);
+
+                const iconTooltip = document.createElement('span');
+                iconTooltip.className = 'ol-dji-geozones--icon';
+                iconTooltip.innerHTML = svg;
+
+                iconTooltip.onmouseover = () => {
+                    let position = getPos(iconTooltip);
+                    infoTooltip.style.position = 'fixed';
+                    infoTooltip.style.top = position.y - getScrollPos() + 'px';
+                    infoTooltip.classList.add('ol-dji-geozones--active-tooltip');
+                }
+
+                iconTooltip.onmouseout = () => {
+                    infoTooltip.classList.remove('ol-dji-geozones--active-tooltip');
+                }
+
+                const container = document.createElement('div');
+                container.className = 'ol-dji-geozones--tooltip';
+                container.append(iconTooltip)
+                container.append(infoTooltip)
+                return container;
+            }
+
             const parseDataToHtml = ({
                 name,
                 level,
@@ -592,16 +652,16 @@ export default class DjiGeozones {
                 address,
                 url
             }) => {
-                const levelParams = this.getLevelParamsById(level);
 
-                        return `
-                <div class="ol-dji-geozones--item">
+                const levelParams = this.getLevelById(level);
+
+                const html = `
                     <div class="ol-dji-geozones--marker">
                         <img src="${levelParams.markerCircle}">
                     </div>
                     <div class="ol-dji-geozones--main">
-                    <h3 class="ol-dji-geozones--title">${name}</h3>
-                        <p class="ol-dji-geozones--level">Level: ${levelParams.name} <span style="--level-color: ${levelParams.color};" data-geotooltip="${levelParams.desc}" class="ol-dji-geozones--info">Info</span></p>
+                        <h3 class="ol-dji-geozones--title">${name}</h3>
+                        <p class="ol-dji-geozones--level">Level: ${levelParams.name} </p>
                         <p class="ol-dji-geozones--type">Type: ${this.getGeozoneTypeById(type).name}</p>
                         ${begin_at
                         ? `<p class="ol-dji-geozones--start_time">End Time: ${begin_at}</p>`
@@ -627,27 +687,36 @@ export default class DjiGeozones {
                         ? `<p class="ol-dji-geozones--url">Link: <a href="${url}">Learn More</a></p>`
                         : ''
                     }
-                    </div>
-                </div> `;
+                </div>`;
+
+                let item = document.createElement('div');
+                item.className = 'ol-dji-geozones--item';
+                item.innerHTML = html;
+
+                item.querySelector('.ol-dji-geozones--level').append(createTooltip(levelParams));
+
+                return item;
+
             };
 
-            const html = [];
             const preventDuplicates = [];
 
             const arrGeozonesData = Array.isArray(geozonesData)
                 ? geozonesData
                 : [geozonesData];
 
+            this.popupContent.innerHTML = '';
+
             arrGeozonesData.forEach((geozoneProps) => {
-                const htmlItem = parseDataToHtml(geozoneProps);
+                const element = parseDataToHtml(geozoneProps);
                 // The oficial DJI map show duplicates, but we don't want that
-                if (preventDuplicates.indexOf(htmlItem) === -1) {
-                    preventDuplicates.push(htmlItem);
-                    html.push(htmlItem);
+                if (preventDuplicates.indexOf(element.innerHTML) === -1) {
+                    preventDuplicates.push(element.innerHTML);
+                    this.popupContent.append(element);
+                    this.popupContent.append(document.createElement('HR'));
                 }
             });
 
-            this.popupContent.innerHTML = html.join('<hr>');
 
             this.overlay.setPosition(coordinates);
         };
@@ -929,6 +998,7 @@ export default class DjiGeozones {
             { lng, lat },
             searchRadius: number
         ) => {
+
             const api_endpoint =
                 typeApiRequest === 'areas' ? API_AREAS_ENDPOINT : API_INFO_ENDPOINT;
 
@@ -937,7 +1007,7 @@ export default class DjiGeozones {
             const url = new URL(
                 this.url_proxy
                     ? this.url_proxy + api_endpoint
-                    : 'https://' + api_endpoint
+                    : api_endpoint
             );
 
             const queryObj: DjiApi = {
@@ -1075,6 +1145,12 @@ export default class DjiGeozones {
         return this.levelsParamsList.find((lev: LevelParams) => lev.id == id);
     }
 
+    getLevelById(id: number = null) {
+        let params = this.levelsParamsList.find((lev: LevelParams) => lev.id == id);
+        let texts = this.levelsTextsList.find((lev: LevelTexts) => lev.id == id);
+
+        return { ...params, ...texts };
+    }
     /**
      * Replace the active levels with this values
      * 
@@ -1344,8 +1420,8 @@ interface Options {
      */
     levelsActive?: Array<number>;
     /**
-    * Controller labels, names, icons and color for each level
-    */
+     * Controller labels, names, icons and color for each level
+     */
     levelParams?: Array<LevelParams>;
     /**
      * Supported drone list
@@ -1368,6 +1444,10 @@ interface Options {
      * Loading element to show in the Controllenr and in the PopUps
      */
     loadingElement?: string;
+    /**
+     * Click event to show PopUp information
+     */
+    clickEvent?: 'singleclick' | 'dblclick';
     /**
      * Language
      */

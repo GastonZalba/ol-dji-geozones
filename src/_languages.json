@@ -55,79 +55,79 @@
         "types": [
             {
                 "id": 0,
-                "name": "Airport"
+                "name": "Aeropuerto"
             },
             {
                 "id": 1,
-                "name": "Special Zone"
+                "name": "Zona especial"
             },
             {
                 "id": 2,
-                "name": "Military Zone"
+                "name": "Zona Militar"
             },
             {
                 "id": 4,
-                "name": "Recommended Zones"
+                "name": "Zona recomendada"
             },
             {
                 "id": 10,
-                "name": "Airport"
+                "name": "Aeropuerto"
             },
             {
                 "id": 13,
-                "name": "Recreational airport"
+                "name": "Aeropuerto recreacional"
             },
             {
                 "id": 14,
-                "name": "Recreational airport"
+                "name": "Aeropuerto recreacional"
             },
             {
                 "id": 15,
-                "name": "Class B Airspace"
+                "name": "Espacio aéreo clase B"
             },
             {
                 "id": 16,
-                "name": "Class C Airspace"
+                "name": "Espacio aéreo clase C"
             },
             {
                 "id": 17,
-                "name": "Class D Airspace"
+                "name": "Espacio aéreo clase D"
             },
             {
                 "id": 18,
-                "name": "Class E Airspace"
+                "name": "Espacio aéreo clase E"
             },
             {
                 "id": 19,
-                "name": "Heliport"
+                "name": "Helipuerto"
             },
             {
                 "id": 23,
-                "name": "Power plant"
+                "name": "Planta de energía"
             },
             {
                 "id": 24,
-                "name": "Prison"
+                "name": "Prisión"
             },
             {
                 "id": 26,
-                "name": "Stadium"
+                "name": "Estadio"
             },
             {
                 "id": 27,
-                "name": "Prohibited Airspace"
+                "name": "Espacio aéreo prohibido"
             },
             {
                 "id": 28,
-                "name": "Restricted Airspace"
+                "name": "Espacio aéreo restringido"
             },
             {
                 "id": 29,
-                "name": "Temporary Flight Restriction"
+                "name": "Restricción temporal de vuelo"
             },
             {
                 "id": 30,
-                "name": "Nuclear Power Plant"
+                "name": "Planta de energía nuclear"
             },
             {
                 "id": 31,
@@ -135,15 +135,15 @@
             },
             {
                 "id": 32,
-                "name": "Special Zones"
+                "name": "Zonas especiales"
             },
             {
                 "id": 33,
-                "name": "Military Zones"
+                "name": "Zonas militares"
             },
             {
                 "id": 34,
-                "name": "Heliport"
+                "name": "Helipuerto"
             },
             {
                 "id": 35,
