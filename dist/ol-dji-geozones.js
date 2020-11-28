@@ -579,6 +579,7 @@
         step((generator = generator.apply(thisArg, _arguments || [])).next());
       });
     };
+    var geozoneSvg = '<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280.18 280.18"><defs><style>.cls-1{fill:#ffce00;fill-opacity:0.68;stroke:#ffce00;}.cls-1,.cls-3,.cls-5,.cls-6{stroke-miterlimit:10;stroke-width:0.75px;}.cls-2{fill:#ff7900;fill-opacity:0.46;}.cls-3{fill:#1072d6;fill-opacity:0.57;stroke:#1072d6;}.cls-4{opacity:0.63;}.cls-5{fill:#bcbcbc;stroke:#666;}.cls-6{fill:#fc3424;fill-opacity:0.4;stroke:#fc3424;}</style></defs><path class="cls-1" d="M109.79,109.23c-44.68,44.68-40.36,121.45,9.66,171.47S246.24,335,290.92,290.36s40.36-121.46-9.65-171.48S154.48,64.54,109.79,109.23ZM270.56,270c-34.64,34.64-94.15,31.29-132.92-7.48s-42.12-98.28-7.48-132.92,94.14-31.29,132.92,7.48S305.2,235.36,270.56,270Z" transform="translate(-59.88 -59.29)"/><path class="cls-2" d="M130.16,129.59c-34.64,34.64-31.29,94.15,7.48,132.92s98.28,42.12,132.92,7.48,31.29-94.14-7.48-132.92S164.79,95,130.16,129.59Zm118,118c-24,24-64.91,22.14-91.29-4.23S128.56,176.07,152.6,152s64.91-22.14,91.28,4.24S272.15,223.51,248.12,247.55Z" transform="translate(-59.88 -59.29)"/><ellipse class="cls-3" cx="200.36" cy="199.79" rx="61.55" ry="67.54" transform="translate(-142.47 140.9) rotate(-45)"/><g id="Layer_3" data-name="Layer 3"><g class="cls-4"><polygon class="cls-5" points="166.25 180 236.66 279.6 236.75 279.51 279.51 236.75 279.6 236.66 180 166.25 166.25 180"/><polygon class="cls-5" points="113.92 100.18 43.51 0.58 43.43 0.67 0.67 43.43 0.58 43.51 100.18 113.92 113.92 100.18"/></g><polygon class="cls-6" points="180 113.92 166.25 100.18 140.09 126.34 113.92 100.18 100.18 113.92 126.34 140.09 100.18 166.25 113.92 180 140.09 153.84 166.25 180 180 166.25 153.84 140.09 180 113.92"/></g><g id="Layer_3_copy" data-name="Layer 3 copy"><g class="cls-4"><polygon class="cls-5" points="100.18 166.25 0.58 236.66 0.67 236.75 43.43 279.51 43.51 279.6 113.92 180 100.18 166.25"/><polygon class="cls-5" points="180 113.92 279.6 43.51 279.51 43.43 236.75 0.67 236.66 0.58 166.25 100.18 180 113.92"/></g></g></svg>';
     /**
      * @protected
      */
@@ -603,7 +604,7 @@
      */
 
     class DjiGeozones {
-      constructor(map, url_proxy, opt_options) {
+      constructor(map, opt_options) {
         var options = Object.assign({}, opt_options); // LANGUAGE SUPPORT
 
         this.language = options.language || 'en';
@@ -612,17 +613,17 @@
         this.typesLang = languages[this.language].types; // API PARAMETERS
 
         this.drone = options.drone || 'spark';
-        this.zones_mode = options.zonesMode || 'total';
+        this.zonesMode = options.zonesMode || 'total';
         this.country = options.country || 'US';
         this.levelsToDisplay = options.levelsToDisplay || [2, 6, 1, 0, 3, 4, 7];
         this.levelsActive = options.levelsActive || [2, 6, 1, 0, 3, 4, 7];
-        this.levelsParamsList = !options.levelParams ? levelsParams : Object.assign(Object.assign({}, levelsParams), options.levelParams); // If not provided, we use all the available drones
+        this.levelsParamsList = levelsParams; // If not provided, we use all the available drones
         // This can be passed to use translations.
 
-        this.dronesList = options.dronesList || dronesList;
+        this.dronesToDisplay = options.dronesToDisplay || dronesList;
         this.extent = options.extent || null; // Add slash on the end if not present
 
-        this.url_proxy = url_proxy.replace(/\/?$/, '/');
+        this.urlProxy = options.urlProxy.replace(/\/?$/, '/');
         this.loadingElement = options.loadingElement || '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>';
         this.clickEvent = options.clickEvent || 'singleclick'; // By default, we use the properties features to show in the popup.
         // The official DJI map, makes an extra request to another API to get the data. I don't understand why.
@@ -843,13 +844,28 @@
             return levelSelector;
           };
 
+          var createButtonCollapser = () => {
+            var buttonCollapse = document.createElement('button');
+            buttonCollapse.className = 'ol-dji-geozones--collapse';
+
+            buttonCollapse.onclick = () => divControl.classList.add('ol-dji-geozones--collapsed');
+
+            return buttonCollapse;
+          };
+
           var divControl = document.createElement('div');
           divControl.className = 'ol-dji-geozones ol-control ol-dji-geozones--ctrl-disabled';
-          divControl.innerHTML = "\n            <div>\n                <h3>".concat(this.labelsLang.djiGeoZones, "</h3>\n                <span class=\"ol-dji-geozones--loading\">\n                    ").concat(this.loadingElement, "\n                </span>\n                <span class=\"ol-dji-geozones--advice\">").concat(this.labelsLang.helperZoom, "</span>\n            </div>");
+          divControl.innerHTML = "\n            <header>\n                <h3>".concat(this.labelsLang.djiGeoZones, "</h3>\n                <span class=\"ol-dji-geozones--loading\">\n                    ").concat(this.loadingElement, "\n                </span>\n            </header>\n            <main>\n                <section class=\"ol-dji-geozones--selectors\"></section>\n                <section>\n                    <div class=\"ol-dji-geozones--logo\">").concat(geozoneSvg, "</div>\n                    <span class=\"ol-dji-geozones--advice\">").concat(this.labelsLang.helperZoom, "</span>\n                </section>\n            </main>\n            ");
           var droneSelector = createDroneSelector();
-          divControl.append(droneSelector);
+          divControl.querySelector('.ol-dji-geozones--selectors').append(droneSelector);
           var levelSelector = createLevelSelector();
-          divControl.append(levelSelector);
+          divControl.querySelector('.ol-dji-geozones--selectors').append(levelSelector);
+          var buttonCollapse = createButtonCollapser();
+          divControl.querySelector('header').append(buttonCollapse);
+          var logo = divControl.querySelector('.ol-dji-geozones--logo');
+
+          logo.onclick = () => divControl.classList.remove('ol-dji-geozones--collapsed');
+
           this.divControl = divControl;
           var options = {
             element: divControl,
@@ -941,12 +957,12 @@
             this.getPointInfoFromClick(evt, type);
           };
 
-          this.map.on('moveend', () => {
+          this.moveendEvtKey = this.map.on('moveend', () => {
             this.currentZoom = this.view.getZoom();
             if (this.currentZoom !== this.lastZoom) handleZoomEnd();else handleDragEnd();
             this.lastZoom = this.currentZoom;
           });
-          this.map.on(this.clickEvent, clickHandler);
+          this.clickEvtKey = this.map.on(this.clickEvent, clickHandler);
         };
 
         createVectorLayers();
@@ -1324,6 +1340,9 @@
       }
       /**
        * Controller for the API rquests.
+       * @param typeApiRequest
+       * @param latLng
+       * @private
        */
 
 
@@ -1338,10 +1357,10 @@
               var api_endpoint = typeApiRequest === 'areas' ? API_AREAS_ENDPOINT : API_INFO_ENDPOINT; // If not proxy is passed, make a direct request
               // Maybe in the future the api will has updated CORS restrictions
 
-              var url = new URL(this.url_proxy ? this.url_proxy + api_endpoint : api_endpoint);
+              var url = new URL(this.urlProxy ? this.urlProxy + api_endpoint : api_endpoint);
               var queryObj = {
                 drone: this.drone,
-                zones_mode: this.zones_mode,
+                zones_mode: this.zonesMode,
                 country: this.country,
                 level: API_LEVELS,
                 lng: lng,
@@ -1450,7 +1469,45 @@
         return find;
       }
       /**
+       * @private
+       */
+
+
+      getGeozoneTypes() {
+        return this.typesLang;
+      }
+      /**
+       *
+       * @param id
+       * @private
+       */
+
+
+      getGeozoneTypeById() {
+        var id = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+        return this.typesLang.find(el => el.id == id);
+      }
+      /**
+       * Gets a list with all the supported Drones
+       * @private
+       */
+
+
+      getDrones() {
+        return this.dronesToDisplay;
+      }
+
+      setDrone(drone) {
+        var refresh = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+        this.drone = drone;
+
+        if (refresh) {
+          this.getInfoFromView();
+        }
+      }
+      /**
        * Get the parameters from all the levels
+       * @private
        */
 
 
@@ -1460,6 +1517,7 @@
       /**
        * Get the level parameters, like color, icon, and description
        * @param id
+       * @private
        */
 
 
@@ -1539,30 +1597,17 @@
         }
       }
       /**
-       *
+       * Removes the control, layers and events from the map
        */
 
 
-      getGeozoneTypes() {
-        return this.typesLang;
-      }
-      /**
-       *
-       * @param id
-       */
-
-
-      getGeozoneTypeById() {
-        var id = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-        return this.typesLang.find(el => el.id == id);
-      }
-      /**
-       * Get a list with all the supported Drones
-       */
-
-
-      getDrones() {
-        return this.dronesList;
+      destroy() {
+        this.map.removeControl(this.control);
+        this.getLayers().forEach(layer => {
+          this.map.removeLayer(layer);
+        });
+        Observable.unByKey(this.clickEvtKey);
+        Observable.unByKey(this.moveendEvtKey);
       }
       /**
        *  **_[static]_** - Generate an RGBA color from an hexadecimal
@@ -1570,6 +1615,7 @@
        * Adapted from https://stackoverflow.com/questions/28004153
        * @param color Hexadeciaml color
        * @param alpha Opacity
+       * @private
        */
 
 

@@ -14,6 +14,7 @@
   });
 
   var opt_options = {
+    urlProxy: 'https://cors-anywhere.herokuapp.com/', // You can use the public demo CORS Anywhere for testing
     drone: 'mavic-2',
     country: 'AR',
     levelsToDisplay: [2, 6, 1, 0, 3, 4, 7],
@@ -23,7 +24,6 @@
     language: 'en'
   };
 
-  let url_proxy = 'https://cors-anywhere.herokuapp.com/'; // You can use the public demo CORS Anywhere for testing
 
-  new DjiGeozones(map, url_proxy, opt_options);
+  new DjiGeozones(map, opt_options);
 })();

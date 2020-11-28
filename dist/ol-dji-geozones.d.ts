@@ -23,15 +23,15 @@ export default class DjiGeozones {
     protected levelsLang: Array<LevelLang>;
     protected typesLang: Array<TypeLang>;
     protected drone: string;
-    protected zones_mode: string;
+    protected zonesMode: string;
     protected country: string;
     protected levelsToDisplay: Array<number>;
     protected levelsActive: Array<number>;
     protected extent: Extent;
-    protected url_proxy: string;
+    protected urlProxy: string;
     protected useApiForPopUp: boolean;
     protected levelsParamsList: Array<LevelParams>;
-    protected dronesList: Array<Drone>;
+    protected dronesToDisplay: Array<Drone>;
     protected map: PluggableMap;
     protected view: View;
     protected overlay: Overlay;
@@ -41,12 +41,14 @@ export default class DjiGeozones {
     protected projection: Projection;
     protected isVisible: boolean;
     protected clickEvent: 'singleclick' | 'dblclick';
+    private moveendEvtKey;
+    private clickEvtKey;
     protected vectorLayers: Array<VectorLayer>;
     protected divControl: HTMLElement;
     protected areaDownloaded: MultiPolygon;
     protected loadingElement: string;
     protected popupContent: HTMLElement;
-    constructor(map: PluggableMap, url_proxy: string, opt_options?: Options);
+    constructor(map: PluggableMap, opt_options?: Options);
     init(showPanel: boolean, targetControl: string | HTMLElement): void;
     /**
      *
@@ -63,6 +65,9 @@ export default class DjiGeozones {
     getInfoFromView(clear?: boolean): void;
     /**
      * Controller for the API rquests.
+     * @param typeApiRequest
+     * @param latLng
+     * @private
      */
     getApiGeoData(typeApiRequest: 'areas' | 'info', latLng: {
         lat: number;
@@ -83,12 +88,30 @@ export default class DjiGeozones {
      */
     getLayerByLevel(level: number): VectorLayer;
     /**
+     * @private
+     */
+    getGeozoneTypes(): Array<TypeLang>;
+    /**
+     *
+     * @param id
+     * @private
+     */
+    getGeozoneTypeById(id?: number): TypeLang;
+    /**
+     * Gets a list with all the supported Drones
+     * @private
+     */
+    getDrones(): Array<Drone>;
+    setDrone(drone: string, refresh?: boolean): void;
+    /**
      * Get the parameters from all the levels
+     * @private
      */
     getLevelsParams(): Array<LevelParams>;
     /**
      * Get the level parameters, like color, icon, and description
      * @param id
+     * @private
      */
     getLevelParamsById(id?: number): LevelParams;
     getLevelById(id?: number): {
@@ -121,29 +144,22 @@ export default class DjiGeozones {
      */
     removeLevels(levels: Array<number> | number, refresh?: boolean): void;
     /**
-     *
+     * Removes the control, layers and events from the map
      */
-    getGeozoneTypes(): Array<TypeLang>;
-    /**
-     *
-     * @param id
-     */
-    getGeozoneTypeById(id?: number): TypeLang;
-    /**
-     * Get a list with all the supported Drones
-     */
-    getDrones(): Array<Drone>;
+    destroy(): void;
     /**
      *  **_[static]_** - Generate an RGBA color from an hexadecimal
      *
      * Adapted from https://stackoverflow.com/questions/28004153
      * @param color Hexadeciaml color
      * @param alpha Opacity
+     * @private
      */
     static colorWithAlpha(color: string, alpha?: number): string;
 }
 /**
  * **_[interface]_** - Drone
+ * @private
  */
 interface Drone {
     id: string;
@@ -152,6 +168,7 @@ interface Drone {
 /**
  * **_[interface]_** - DjiGeozones levels parameters specified when creating a DjiGeozones
  * Provide the colors, icons and more from each level.
+ * @private
  */
 interface LevelParams {
     id: number;
@@ -162,6 +179,7 @@ interface LevelParams {
 }
 /**
  * **_[interface]_** - DjiGeozones levels text for translations or customs texts
+ * @private
  */
 interface LevelLang {
     id: number;
@@ -169,14 +187,15 @@ interface LevelLang {
     name: string;
 }
 /**
- * **_[interface]_** - Geozone Type allows by the API
+ * **_[interface]_** - Geozone Types
+ * @private
  */
 interface TypeLang {
     id: number;
     name: string;
 }
 /**
- * **_[interface]_** - DjiGeozones Options specified when creating a DjiGeozones
+ * **_[interface]_** - DjiGeozones Options specified when creating a DjiGeozones instance
  *
  * Default values:
  * ```javascript
@@ -194,6 +213,10 @@ interface TypeLang {
  * ```
  */
 interface Options {
+    /**
+     * Url/endpoint from a Reverse Proxy to avoid CORS restrictions
+     */
+    urlProxy: string;
     drone?: string;
     /**
      * zonesMode to be used in the API request
@@ -208,17 +231,13 @@ interface Options {
      */
     levelsToDisplay?: Array<number>;
     /**
-     * Geozone Levels to be activated in the Control and the API request
+     * Geozone Levels to be actived by default in the Control and API request
      */
     levelsActive?: Array<number>;
     /**
-     * Controller labels, names, icons and color for each level
+     * Use a custom drone list to show in the select
      */
-    levelParams?: Array<LevelParams>;
-    /**
-     * Supported drone list
-     */
-    dronesList?: Array<Drone>;
+    dronesToDisplay?: Array<Drone>;
     /**
      * The bounding extent for layer rendering.
      * The layers will not be rendered outside of this extent.
@@ -237,11 +256,11 @@ interface Options {
      */
     loadingElement?: string;
     /**
-     * Click event to show PopUp information
+     * Type of Click event to activate the PopUp
      */
     clickEvent?: 'singleclick' | 'dblclick';
     /**
-     * Language
+     * Language to be used in the Controller panel and PopUp. This doesn't affects the API requests
      */
     language?: 'en' | 'es';
 }

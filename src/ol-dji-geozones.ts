@@ -29,6 +29,7 @@ import levelsParams from './_levels-params.json';
 import dronesList from './_drones.json';
 import languages from './_languages.json';
 
+const geozoneSvg = '<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280.18 280.18"><defs><style>.cls-1{fill:#ffce00;fill-opacity:0.68;stroke:#ffce00;}.cls-1,.cls-3,.cls-5,.cls-6{stroke-miterlimit:10;stroke-width:0.75px;}.cls-2{fill:#ff7900;fill-opacity:0.46;}.cls-3{fill:#1072d6;fill-opacity:0.57;stroke:#1072d6;}.cls-4{opacity:0.63;}.cls-5{fill:#bcbcbc;stroke:#666;}.cls-6{fill:#fc3424;fill-opacity:0.4;stroke:#fc3424;}</style></defs><path class="cls-1" d="M109.79,109.23c-44.68,44.68-40.36,121.45,9.66,171.47S246.24,335,290.92,290.36s40.36-121.46-9.65-171.48S154.48,64.54,109.79,109.23ZM270.56,270c-34.64,34.64-94.15,31.29-132.92-7.48s-42.12-98.28-7.48-132.92,94.14-31.29,132.92,7.48S305.2,235.36,270.56,270Z" transform="translate(-59.88 -59.29)"/><path class="cls-2" d="M130.16,129.59c-34.64,34.64-31.29,94.15,7.48,132.92s98.28,42.12,132.92,7.48,31.29-94.14-7.48-132.92S164.79,95,130.16,129.59Zm118,118c-24,24-64.91,22.14-91.29-4.23S128.56,176.07,152.6,152s64.91-22.14,91.28,4.24S272.15,223.51,248.12,247.55Z" transform="translate(-59.88 -59.29)"/><ellipse class="cls-3" cx="200.36" cy="199.79" rx="61.55" ry="67.54" transform="translate(-142.47 140.9) rotate(-45)"/><g id="Layer_3" data-name="Layer 3"><g class="cls-4"><polygon class="cls-5" points="166.25 180 236.66 279.6 236.75 279.51 279.51 236.75 279.6 236.66 180 166.25 166.25 180"/><polygon class="cls-5" points="113.92 100.18 43.51 0.58 43.43 0.67 0.67 43.43 0.58 43.51 100.18 113.92 113.92 100.18"/></g><polygon class="cls-6" points="180 113.92 166.25 100.18 140.09 126.34 113.92 100.18 100.18 113.92 126.34 140.09 100.18 166.25 113.92 180 140.09 153.84 166.25 180 180 166.25 153.84 140.09 180 113.92"/></g><g id="Layer_3_copy" data-name="Layer 3 copy"><g class="cls-4"><polygon class="cls-5" points="100.18 166.25 0.58 236.66 0.67 236.75 43.43 279.51 43.51 279.6 113.92 180 100.18 166.25"/><polygon class="cls-5" points="180 113.92 279.6 43.51 279.51 43.43 236.75 0.67 236.66 0.58 166.25 100.18 180 113.92"/></g></g></svg>';
 
 
 /**
@@ -59,17 +60,17 @@ export default class DjiGeozones {
     protected typesLang: Array<TypeLang>;
 
     protected drone: string;
-    protected zones_mode: string;
+    protected zonesMode: string;
     protected country: string;
     protected levelsToDisplay: Array<number>;
     protected levelsActive: Array<number>;
     protected extent: Extent;
-    protected url_proxy: string;
+    protected urlProxy: string;
     protected useApiForPopUp: boolean;
 
     protected levelsParamsList: Array<LevelParams>;
 
-    protected dronesList: Array<Drone>;
+    protected dronesToDisplay: Array<Drone>;
 
     protected map: PluggableMap;
     protected view: View;
@@ -82,6 +83,9 @@ export default class DjiGeozones {
 
     protected clickEvent: 'singleclick' | 'dblclick'
 
+    private moveendEvtKey: EventsKey;
+    private clickEvtKey: EventsKey | Array<EventsKey>;
+
     protected vectorLayers: Array<VectorLayer>;
     protected divControl: HTMLElement;
     protected areaDownloaded: MultiPolygon;
@@ -90,7 +94,7 @@ export default class DjiGeozones {
 
     protected popupContent: HTMLElement;
 
-    constructor(map: PluggableMap, url_proxy: string, opt_options?: Options) {
+    constructor(map: PluggableMap, opt_options?: Options) {
         const options = { ...opt_options };
 
         // LANGUAGE SUPPORT
@@ -101,25 +105,23 @@ export default class DjiGeozones {
 
         // API PARAMETERS
         this.drone = options.drone || 'spark';
-        this.zones_mode = options.zonesMode || 'total';
+        this.zonesMode = options.zonesMode || 'total';
         this.country = options.country || 'US';
+
         this.levelsToDisplay = options.levelsToDisplay || [2, 6, 1, 0, 3, 4, 7];
         this.levelsActive = options.levelsActive || [2, 6, 1, 0, 3, 4, 7];
-
-        this.levelsParamsList = !options.levelParams
-            ? levelsParams
-            : { ...levelsParams, ...options.levelParams };
+        this.levelsParamsList = levelsParams;
 
         // If not provided, we use all the available drones
         // This can be passed to use translations.
-        this.dronesList = options.dronesList || dronesList;
+        this.dronesToDisplay = options.dronesToDisplay || dronesList;
 
-    
+
 
         this.extent = options.extent || null;
 
         // Add slash on the end if not present
-        this.url_proxy = url_proxy.replace(/\/?$/, '/');
+        this.urlProxy = options.urlProxy.replace(/\/?$/, '/');
 
         this.loadingElement =
             options.loadingElement ||
@@ -366,23 +368,46 @@ export default class DjiGeozones {
                 return levelSelector;
             };
 
+            const createButtonCollapser = (): HTMLButtonElement => {
+                const buttonCollapse = document.createElement('button');
+                buttonCollapse.className = 'ol-dji-geozones--collapse';
+                buttonCollapse.onclick = () => divControl.classList.add('ol-dji-geozones--collapsed');
+                return buttonCollapse;
+            }
+
             const divControl = document.createElement('div');
+
             divControl.className =
                 'ol-dji-geozones ol-control ol-dji-geozones--ctrl-disabled';
+
             divControl.innerHTML = `
-            <div>
+            <header>
                 <h3>${this.labelsLang.djiGeoZones}</h3>
                 <span class="ol-dji-geozones--loading">
                     ${this.loadingElement}
                 </span>
-                <span class="ol-dji-geozones--advice">${this.labelsLang.helperZoom}</span>
-            </div>`;
+            </header>
+            <main>
+                <section class="ol-dji-geozones--selectors"></section>
+                <section>
+                    <div class="ol-dji-geozones--logo">${geozoneSvg}</div>
+                    <span class="ol-dji-geozones--advice">${this.labelsLang.helperZoom}</span>
+                </section>
+            </main>
+            `;
 
             const droneSelector = createDroneSelector();
-            divControl.append(droneSelector);
+            divControl.querySelector('.ol-dji-geozones--selectors').append(droneSelector);
 
             const levelSelector = createLevelSelector();
-            divControl.append(levelSelector);
+            divControl.querySelector('.ol-dji-geozones--selectors').append(levelSelector);
+
+            const buttonCollapse = createButtonCollapser();
+            divControl.querySelector('header').append(buttonCollapse);
+
+            const logo: HTMLDivElement = divControl.querySelector('.ol-dji-geozones--logo');
+            logo.onclick = () => divControl.classList.remove('ol-dji-geozones--collapsed');
+
 
             this.divControl = divControl;
 
@@ -487,7 +512,7 @@ export default class DjiGeozones {
                 this.getPointInfoFromClick(evt, type);
             };
 
-            this.map.on('moveend', (): void => {
+            this.moveendEvtKey = this.map.on('moveend', (): void => {
                 this.currentZoom = this.view.getZoom();
 
                 if (this.currentZoom !== this.lastZoom) handleZoomEnd();
@@ -496,7 +521,7 @@ export default class DjiGeozones {
                 this.lastZoom = this.currentZoom;
             });
 
-            this.map.on(this.clickEvent, clickHandler);
+            this.clickEvtKey = this.map.on(this.clickEvent, clickHandler);
         };
 
         createVectorLayers();
@@ -596,7 +621,7 @@ export default class DjiGeozones {
         ) => {
 
             const createTooltip = (levelParams) => {
-                
+
                 let evtKey: EventsKey;
 
                 const showPopUp = () => {
@@ -983,6 +1008,9 @@ export default class DjiGeozones {
 
     /**
      * Controller for the API rquests.
+     * @param typeApiRequest 
+     * @param latLng 
+     * @private
      */
     async getApiGeoData(
         typeApiRequest: 'areas' | 'info',
@@ -1001,14 +1029,14 @@ export default class DjiGeozones {
             // If not proxy is passed, make a direct request
             // Maybe in the future the api will has updated CORS restrictions
             const url = new URL(
-                this.url_proxy
-                    ? this.url_proxy + api_endpoint
+                this.urlProxy
+                    ? this.urlProxy + api_endpoint
                     : api_endpoint
             );
 
             const queryObj: DjiApi = {
                 drone: this.drone,
-                zones_mode: this.zones_mode,
+                zones_mode: this.zonesMode,
                 country: this.country,
                 level: API_LEVELS,
                 lng: lng,
@@ -1125,9 +1153,39 @@ export default class DjiGeozones {
         }
         return find;
     }
+    /**
+     * @private
+     */
+    getGeozoneTypes(): Array<TypeLang> {
+        return this.typesLang;
+    }
 
     /**
+     *
+     * @param id
+     * @private
+     */
+    getGeozoneTypeById(id: number = null): TypeLang {
+        return this.typesLang.find((el: TypeLang) => el.id == id);
+    }
+
+    /**
+     * Gets a list with all the supported Drones
+     * @private
+     */
+    getDrones(): Array<Drone> {
+        return this.dronesToDisplay;
+    }
+
+    setDrone(drone: string, refresh = true): void {
+        this.drone = drone;
+        if (refresh) {
+            this.getInfoFromView();
+        }
+    }
+    /**
      * Get the parameters from all the levels
+     * @private
      */
     getLevelsParams(): Array<LevelParams> {
         return this.levelsParamsList;
@@ -1136,6 +1194,7 @@ export default class DjiGeozones {
     /**
      * Get the level parameters, like color, icon, and description 
      * @param id
+     * @private
      */
     getLevelParamsById(id: number = null): LevelParams {
         return this.levelsParamsList.find((lev: LevelParams) => lev.id == id);
@@ -1160,7 +1219,6 @@ export default class DjiGeozones {
         if (refresh) {
             this.levelsToDisplay.forEach((lev) => {
                 const layer = this.getLayerByLevel(lev);
-
                 if (arrLevels.includes(lev)) {
                     layer.setVisible(true);
                 } else {
@@ -1206,25 +1264,15 @@ export default class DjiGeozones {
     }
 
     /**
-     *
+     * Removes the control, layers and events from the map
      */
-    getGeozoneTypes(): Array<TypeLang> {
-        return this.typesLang;
-    }
-
-    /**
-     *
-     * @param id
-     */
-    getGeozoneTypeById(id: number = null): TypeLang {
-        return this.typesLang.find((el: TypeLang) => el.id == id);
-    }
-
-    /**
-     * Get a list with all the supported Drones
-     */
-    getDrones(): Array<Drone> {
-        return this.dronesList;
+    destroy() {
+        this.map.removeControl(this.control);
+        this.getLayers().forEach(layer => {
+            this.map.removeLayer(layer);
+        })
+        unByKey(this.clickEvtKey);
+        unByKey(this.moveendEvtKey);
     }
 
     /**
@@ -1233,6 +1281,7 @@ export default class DjiGeozones {
      * Adapted from https://stackoverflow.com/questions/28004153
      * @param color Hexadeciaml color
      * @param alpha Opacity
+     * @private
      */
     static colorWithAlpha(color: string, alpha = 1): string {
         const [r, g, b] = Array.from(asArray(color));
@@ -1248,16 +1297,16 @@ export default class DjiGeozones {
  */
 interface DjiApi {
     /**
-     * - `2` - Restricted Zones
-     * - `6` - Altitude Zones
-     * - `1` - Authorization Zones
      * - `0` - Warning Zones
+     * - `1` - Authorization Zones
+     * - `2` - Restricted Zones
      * - `3` - Enhanced Warning Zones
-     * - `9` - Densely Populated Area **NOT SUPPORTED - This level exists in the oficial Geo Zone Map, but this data is not provided by the api. On the other hand, now days this level is apparently valid only for Japan and China**
      * - `4` - Regulatory Restricted Zones
+     * - `5` - Recommended Zones (2) **Apparently this level is only valid for Japan**
+     * - `6` - Altitude Zones
      * - `7` - Recommended Zones
      * - `8` - Approved Zones for Light UAVs(China) **Only valid for China**
-     * - `5` - Recommended Zones (2) **Apparently this level is only valid for Japan**
+     * - `9` - Densely Populated Area **NOT SUPPORTED - This level exists in the oficial Geo Zone Map, but this data is not provided by the api. On the other hand, now days this level is apparently valid only for Japan and China**
      */
     level: Array<number>;
 
@@ -1321,6 +1370,7 @@ interface DjiApi {
 
 /**
  * **_[interface]_** - Drone
+ * @private
  */
 interface Drone {
     id: string;
@@ -1330,6 +1380,7 @@ interface Drone {
 /**
  * **_[interface]_** - DjiGeozones levels parameters specified when creating a DjiGeozones
  * Provide the colors, icons and more from each level.
+ * @private
  */
 interface LevelParams {
     id: number;
@@ -1341,6 +1392,7 @@ interface LevelParams {
 
 /**
  * **_[interface]_** - DjiGeozones levels text for translations or customs texts
+ * @private
  */
 interface LevelLang {
     id: number;
@@ -1349,7 +1401,8 @@ interface LevelLang {
 }
 
 /**
- * **_[interface]_** - Geozone Type allows by the API
+ * **_[interface]_** - Geozone Types
+ * @private
  */
 interface TypeLang {
     id: number;
@@ -1357,7 +1410,7 @@ interface TypeLang {
 }
 
 /**
- * **_[interface]_** - DjiGeozones Options specified when creating a DjiGeozones
+ * **_[interface]_** - DjiGeozones Options specified when creating a DjiGeozones instance
  *
  * Default values:
  * ```javascript
@@ -1374,9 +1427,13 @@ interface TypeLang {
  * }
  * ```
  */
-interface Options {    
+interface Options {
+    /**
+     * Url/endpoint from a Reverse Proxy to avoid CORS restrictions
+     */
+    urlProxy: string,
     /*
-     * Drone id to be used in the API request
+     * Drone id to be used as default in the API request
      */
     drone?: string;
     /**
@@ -1392,17 +1449,13 @@ interface Options {
      */
     levelsToDisplay?: Array<number>;
     /**
-     * Geozone Levels to be activated in the Control and the API request
+     * Geozone Levels to be actived by default in the Control and API request
      */
     levelsActive?: Array<number>;
     /**
-     * Controller labels, names, icons and color for each level
+     * Use a custom drone list to show in the select
      */
-    levelParams?: Array<LevelParams>;
-    /**
-     * Supported drone list
-     */
-    dronesList?: Array<Drone>;
+    dronesToDisplay?: Array<Drone>;
     /**
      * The bounding extent for layer rendering.
      * The layers will not be rendered outside of this extent.
@@ -1421,11 +1474,11 @@ interface Options {
      */
     loadingElement?: string;
     /**
-     * Click event to show PopUp information
+     * Type of Click event to activate the PopUp
      */
     clickEvent?: 'singleclick' | 'dblclick';
     /**
-     * Language
+     * Language to be used in the Controller panel and PopUp. This doesn't affects the API requests
      */
     language?: 'en' | 'es'
 }
