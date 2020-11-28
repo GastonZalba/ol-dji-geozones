@@ -999,11 +999,9 @@
               };
 
               var getScrollPos = () => {
-                //const scrollMaster = document.getElementById('content').scrollTop;
+                var scrollMaster = window.pageYOffset || document.documentElement.scrollTop;
                 var scrollPopUp = document.querySelector('.ol-dji-geozones--ol-popup-content').scrollTop;
-                return scrollPopUp
-                /*+ scrollMaster*/
-                ;
+                return scrollPopUp + scrollMaster;
               };
 
               var infoTooltip = document.createElement('span');

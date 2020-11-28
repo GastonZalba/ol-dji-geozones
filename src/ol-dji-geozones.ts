@@ -598,10 +598,8 @@ export default class DjiGeozones {
                 </svg>`;
 
                 const getPos = (el) => {
-
                     el.style.position = '';
-                    el.style.top = '';
-
+                    el.style.top = '';                    
                     for (var lx = 0, ly = 0;
                         el != null;
                         lx += el.offsetLeft, ly += el.offsetTop, el = el.offsetParent);
@@ -609,9 +607,9 @@ export default class DjiGeozones {
                 }
 
                 const getScrollPos = () => {
-                    //const scrollMaster = document.getElementById('content').scrollTop;
+                    const scrollMaster = window.pageYOffset || document.documentElement.scrollTop;
                     const scrollPopUp = document.querySelector('.ol-dji-geozones--ol-popup-content').scrollTop;
-                    return scrollPopUp /*+ scrollMaster*/;
+                    return scrollPopUp + scrollMaster;
                 }
 
                 const infoTooltip = document.createElement('span');
