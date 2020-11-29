@@ -9,21 +9,26 @@
     "dist"
   ],
   "scripts": {
+    "precleanstart": "node scripts/clean.js",
     "doc": "documentation readme src/ol-dji-geozones.ts  --quiet=true --access=public --access=undefined --section=API --parse-extension ts && node scripts/external-links.js README.md && prettier --write README.md",
     "lint": "eslint src/*.ts examples && prettier --check src examples",
     "format": "eslint --fix src/*.ts examples && prettier --write src examples",
-    "build": "tsc --pretty && rollup --config rollup.config.js && ncp src/ol-dji-geozones.css dist/ol-dji-geozones.css && ncp src/assets dist/assets"
+    "copy-assets": "ncp src/assets/ tmp/assets/",
+    "build": "npm run precleanstart && tsc --pretty && npm run copy-assets && rollup --config rollup.config.js",
+    "postbuild": "ncp src/ol-dji-geozones.css dist/ol-dji-geozones.css"
   },
   "keywords": [
+    "ol",
+    "openlayers",
     "dji",
     "uav",
+    "vant",
     "drone",
     "geozone",
+    "geo zones",
     "flyzafe",
-    "openlayers",
-    "ol",
     "airports",
-    "aerodromo",
+    "aerodrome",
     "airspace"
   ],
   "author": "Gastón Zalba",
@@ -39,6 +44,7 @@
     "@babel/core": "^7.12.3",
     "@babel/preset-env": "^7.12.1",
     "@rollup/plugin-babel": "^5.2.1",
+    "@rollup/plugin-image": "^2.0.5",
     "@rollup/plugin-json": "^4.1.0",
     "@types/node": "^14.14.10",
     "@types/ol": "^6.4.2",
@@ -52,6 +58,7 @@
     "ol": "^6.1.1",
     "prettier": "^2.2.0",
     "rollup": "^2.33.3",
+    "rollup-plugin-svg-import": "^1.5.1",
     "typescript": "^4.1.2"
   },
   "eslintConfig": {

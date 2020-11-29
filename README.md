@@ -26,8 +26,12 @@ let opt_options = {
   country: 'US', // {string} See country parameter in the DJI API section
   levelsToDisplay: [2, 6, 1, 0, 3, 4, 7], // {array} Order is kept in the Control
   levelsActive: [2, 6, 1, 0, 3, 4, 7], // {array}
-  control: true, // {boolean} Create or not the control
-  targetControl: null // {HTMLElement | string} Specify a target if you want the control to be rendered outside of the map's viewport.
+  dronesToDisplay:
+  extent: null,
+  showPanel: true, // {boolean} Create or not the control
+  targetPanel: null, // {HTMLElement | string} Specify a target if you want the control to be rendered outside of the map's viewport.
+  clickEvent: 'singleclick',
+  language: 'en'
 };
 
 // SETTING A REVERSE PROXY TO AVOID CORS
@@ -45,7 +49,7 @@ djiGeozones.setLevels([1, 2, 3, 4, 6, 7]);
 djiGeozones.addLevels(5);
 djiGeozones.removeLevels(7);
 
-djiGeozones.setControlVisible(/* {Boolean} */ true); // Show/hide the control
+djiGeozones.setPanelVisible(/* {Boolean} */ true); // Show/hide the control
 
 let layers = djiGeozones.getLayers(); // returns an array of ol/layer/Vector~VectorLayer instances
 let layer = djiGeozones.getLayerByLevel(7); // returns an ol/layer/Vector~VectorLayer instance with the specefic level
@@ -98,6 +102,12 @@ Install the package via `npm`
 #### CSS
 
 The CSS file `ol-dji-geozones.css` can be found in `./node_modules/ol-dji-geozones/dist`
+
+##### TypeScript type definition
+
+TypeScript types are shipped with the project in the dist directory and should be automatically used in a TypeScript project. Interfaces are provided for DjiGeozones Options.
+
+These interfaces can be imported into your project and used to cast object literals passed to layer or group constructors:
 
 ## API
 

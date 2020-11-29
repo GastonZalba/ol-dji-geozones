@@ -107,8 +107,8 @@
 .ol-dji-geozones--collapsed .ol-dji-geozones--logo {
   display: block;
 }
-.ol-dji-geozones--logo svg {
-  width: 50px;
+.ol-dji-geozones--logo img {
+  width: 40px;
 }
 /* PopUp */
 .ol-dji-geozones--ol-popup {
@@ -272,15 +272,15 @@
 .ol-dji-geozones--tooltip {
   display: inline-block;
 }
-.ol-dji-geozones--tooltip svg {
+.ol-dji-geozones--tooltip .ol-dji-geozones--icon img{
   width: 18px;
   height: 18px;
   vertical-align: middle;
-  fill: #8b8b8b;
+  opacity: 0.4;
   pointer-events: none;
 }
-.ol-dji-geozones--tooltip .ol-dji-geozones--icon:hover svg {
-  fill: #535353;
+.ol-dji-geozones--tooltip .ol-dji-geozones--icon:hover img {
+  opacity: 0.6;
 }
 .ol-dji-geozones--ol-popup-content::-webkit-scrollbar {
   -webkit-appearance: none;

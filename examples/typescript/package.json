@@ -1,0 +1,17 @@
+{
+    "name": "ol-dji-geozones-typescript-example",
+    "description": "Example using ol and ol-dji-geozones with TypeScript",
+    "main": "main.js",
+    "scripts": {
+        "build": "mkdir -p build && cp -r src/* build && tsc --pretty && parcel build --public-url ./build/index.html"
+    },
+    "dependencies": {
+        "ol": "^6.4.3",
+        "ol-dli-geozones": "^1.0.0"
+    },
+    "devDependencies": {
+        "@types/ol": "^6.4.1",
+        "parcel-bundler": "^1.12.4",
+        "typescript": "^4.0.5"
+    }
+}

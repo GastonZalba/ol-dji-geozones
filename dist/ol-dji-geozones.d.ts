@@ -18,10 +18,7 @@ import Projection from 'ol/proj/Projection';
  * @param opt_options DjiGeozones options, see [DjiGeozones Options](#options) for more details.
  */
 export default class DjiGeozones {
-    protected language: string;
-    protected labelsLang: any;
-    protected levelsLang: Array<LevelLang>;
-    protected typesLang: Array<TypeLang>;
+    protected i18n: Lang;
     protected drone: string;
     protected zonesMode: string;
     protected country: string;
@@ -74,10 +71,10 @@ export default class DjiGeozones {
         lng: number;
     }): Promise<any>;
     /**
-     * Show or hides the control
+     * Show or hides the control panel
      * @param visible
      */
-    setControlVisible(visible: boolean): void;
+    setPanelVisible(visible: boolean): void;
     /**
      * Get all the layers
      */
@@ -88,21 +85,31 @@ export default class DjiGeozones {
      */
     getLayerByLevel(level: number): VectorLayer;
     /**
-     * @private
-     */
-    getGeozoneTypes(): Array<TypeLang>;
-    /**
      *
      * @param id
      * @private
      */
-    getGeozoneTypeById(id?: number): TypeLang;
+    getGeozoneTypeById(id?: number): {
+        id: number;
+        name: string;
+    };
     /**
      * Gets a list with all the supported Drones
      * @private
      */
     getDrones(): Array<Drone>;
+    /**
+     * Set the drone parameter for the api request.
+     * @param drone
+     * @param refresh If true, refresh the view making a new api request
+     */
     setDrone(drone: string, refresh?: boolean): void;
+    /**
+     * Set the drone parameter for the api request.
+     * @param country
+     * @param refresh If true, refresh the view making a new api request
+     */
+    setCountry(country: string, refresh?: boolean): void;
     /**
      * Get the parameters from all the levels
      * @private
@@ -114,10 +121,14 @@ export default class DjiGeozones {
      * @private
      */
     getLevelParamsById(id?: number): LevelParams;
+    /**
+     * Get all the parameters from a level and the i18n texts
+     * @param id
+     */
     getLevelById(id?: number): {
         id: number;
-        desc: string;
         name: string;
+        desc: string;
         color: string;
         zIndex: number;
         markerIcon: string;
@@ -177,22 +188,32 @@ interface LevelParams {
     markerIcon: string;
     markerCircle: string;
 }
-/**
- * **_[interface]_** - DjiGeozones levels text for translations or customs texts
- * @private
- */
-interface LevelLang {
-    id: number;
-    desc: string;
-    name: string;
-}
-/**
- * **_[interface]_** - Geozone Types
- * @private
- */
-interface TypeLang {
-    id: number;
-    name: string;
+interface Lang {
+    labels: {
+        djiGeoZones: string;
+        level: string;
+        type: string;
+        startTime: string;
+        endTime: string;
+        timeTips: string;
+        maxAltitude: string;
+        address: string;
+        tips: string;
+        link: string;
+        learnMore: string;
+        helperZoom: string;
+        expand: string;
+        collapse: string;
+    };
+    levels: {
+        id: number;
+        name: string;
+        desc: string;
+    }[];
+    types: {
+        id: number;
+        name: string;
+    }[];
 }
 /**
  * **_[interface]_** - DjiGeozones Options specified when creating a DjiGeozones instance
@@ -216,7 +237,7 @@ interface Options {
     /**
      * Url/endpoint from a Reverse Proxy to avoid CORS restrictions
      */
-    urlProxy: string;
+    urlProxy?: string;
     drone?: string;
     /**
      * zonesMode to be used in the API request
@@ -227,7 +248,7 @@ interface Options {
      */
     country?: string;
     /**
-     * Geozone Levels to be shown in the Control
+     * Geozone Levels to be shown in the control panel
      */
     levelsToDisplay?: Array<number>;
     /**
@@ -244,7 +265,7 @@ interface Options {
      */
     extent?: Extent;
     /**
-     * Display or hide the panel controller on the map
+     * Display or hide the control panel on the map
      */
     showPanel?: boolean;
     /**
@@ -261,7 +282,12 @@ interface Options {
     clickEvent?: 'singleclick' | 'dblclick';
     /**
      * Language to be used in the Controller panel and PopUp. This doesn't affects the API requests
+     * If i18n is set, this will be ignored.
      */
     language?: 'en' | 'es';
+    /**
+     * Add custom translations. If this is provided, language will be ignored.
+     */
+    i18n?: Lang;
 }
-export { Options, Drone };
+export { Options, Drone, Lang };

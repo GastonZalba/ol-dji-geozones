@@ -24,12 +24,14 @@ import { EventsKey } from 'ol/events';
 import { unByKey } from 'ol/Observable';
 
 // Import configuration values
-// This elements can be used to create transcriptions
 import levelsParams from './_levels-params.json';
 import dronesList from './_drones.json';
-import languages from './_languages.json';
 
-const geozoneSvg = '<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280.18 280.18"><defs><style>.cls-1{fill:#ffce00;fill-opacity:0.68;stroke:#ffce00;}.cls-1,.cls-3,.cls-5,.cls-6{stroke-miterlimit:10;stroke-width:0.75px;}.cls-2{fill:#ff7900;fill-opacity:0.46;}.cls-3{fill:#1072d6;fill-opacity:0.57;stroke:#1072d6;}.cls-4{opacity:0.63;}.cls-5{fill:#bcbcbc;stroke:#666;}.cls-6{fill:#fc3424;fill-opacity:0.4;stroke:#fc3424;}</style></defs><path class="cls-1" d="M109.79,109.23c-44.68,44.68-40.36,121.45,9.66,171.47S246.24,335,290.92,290.36s40.36-121.46-9.65-171.48S154.48,64.54,109.79,109.23ZM270.56,270c-34.64,34.64-94.15,31.29-132.92-7.48s-42.12-98.28-7.48-132.92,94.14-31.29,132.92,7.48S305.2,235.36,270.56,270Z" transform="translate(-59.88 -59.29)"/><path class="cls-2" d="M130.16,129.59c-34.64,34.64-31.29,94.15,7.48,132.92s98.28,42.12,132.92,7.48,31.29-94.14-7.48-132.92S164.79,95,130.16,129.59Zm118,118c-24,24-64.91,22.14-91.29-4.23S128.56,176.07,152.6,152s64.91-22.14,91.28,4.24S272.15,223.51,248.12,247.55Z" transform="translate(-59.88 -59.29)"/><ellipse class="cls-3" cx="200.36" cy="199.79" rx="61.55" ry="67.54" transform="translate(-142.47 140.9) rotate(-45)"/><g id="Layer_3" data-name="Layer 3"><g class="cls-4"><polygon class="cls-5" points="166.25 180 236.66 279.6 236.75 279.51 279.51 236.75 279.6 236.66 180 166.25 166.25 180"/><polygon class="cls-5" points="113.92 100.18 43.51 0.58 43.43 0.67 0.67 43.43 0.58 43.51 100.18 113.92 113.92 100.18"/></g><polygon class="cls-6" points="180 113.92 166.25 100.18 140.09 126.34 113.92 100.18 100.18 113.92 126.34 140.09 100.18 166.25 113.92 180 140.09 153.84 166.25 180 180 166.25 153.84 140.09 180 113.92"/></g><g id="Layer_3_copy" data-name="Layer 3 copy"><g class="cls-4"><polygon class="cls-5" points="100.18 166.25 0.58 236.66 0.67 236.75 43.43 279.51 43.51 279.6 113.92 180 100.18 166.25"/><polygon class="cls-5" points="180 113.92 279.6 43.51 279.51 43.43 236.75 0.67 236.66 0.58 166.25 100.18 180 113.92"/></g></g></svg>';
+import * as languages from './assets/i18n/index';
+
+// Images
+import geozoneSvg from './assets/images/geozone.svg';
+import infoSvg from './assets/images/info.svg';
 
 
 /**
@@ -54,10 +56,7 @@ const MIN_ZOOM = 9; // < 9 breaks the API
  */
 export default class DjiGeozones {
 
-    protected language: string;
-    protected labelsLang: any;
-    protected levelsLang: Array<LevelLang>;
-    protected typesLang: Array<TypeLang>;
+    protected i18n: Lang;
 
     protected drone: string;
     protected zonesMode: string;
@@ -98,10 +97,7 @@ export default class DjiGeozones {
         const options = { ...opt_options };
 
         // LANGUAGE SUPPORT
-        this.language = options.language || 'en';
-        this.labelsLang = languages[this.language].labels;
-        this.levelsLang = languages[this.language].levels;
-        this.typesLang = languages[this.language].types;
+        this.i18n = (options.i18n) || languages[options.language || 'en'];
 
         // API PARAMETERS
         this.drone = options.drone || 'spark';
@@ -115,8 +111,6 @@ export default class DjiGeozones {
         // If not provided, we use all the available drones
         // This can be passed to use translations.
         this.dronesToDisplay = options.dronesToDisplay || dronesList;
-
-
 
         this.extent = options.extent || null;
 
@@ -371,6 +365,7 @@ export default class DjiGeozones {
             const createButtonCollapser = (): HTMLButtonElement => {
                 const buttonCollapse = document.createElement('button');
                 buttonCollapse.className = 'ol-dji-geozones--collapse';
+                buttonCollapse.title = this.i18n.labels.collapse;
                 buttonCollapse.onclick = () => divControl.classList.add('ol-dji-geozones--collapsed');
                 return buttonCollapse;
             }
@@ -382,7 +377,7 @@ export default class DjiGeozones {
 
             divControl.innerHTML = `
             <header>
-                <h3>${this.labelsLang.djiGeoZones}</h3>
+                <h3>${this.i18n.labels.djiGeoZones}</h3>
                 <span class="ol-dji-geozones--loading">
                     ${this.loadingElement}
                 </span>
@@ -390,8 +385,8 @@ export default class DjiGeozones {
             <main>
                 <section class="ol-dji-geozones--selectors"></section>
                 <section>
-                    <div class="ol-dji-geozones--logo">${geozoneSvg}</div>
-                    <span class="ol-dji-geozones--advice">${this.labelsLang.helperZoom}</span>
+                    <div class="ol-dji-geozones--logo" title="${this.i18n.labels.expand}"><img src="${geozoneSvg}"/></div>
+                    <span class="ol-dji-geozones--advice">${this.i18n.labels.helperZoom}</span>
                 </section>
             </main>
             `;
@@ -636,11 +631,6 @@ export default class DjiGeozones {
                     unByKey(evtKey);
                 }
 
-                const svg = `
-                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="768" height="768" viewBox="0 0 768 768">
-                <path d="M352.5 288v-64.5h63v64.5h-63zM384 640.5q105 0 180.75-75.75t75.75-180.75-75.75-180.75-180.75-75.75-180.75 75.75-75.75 180.75 75.75 180.75 180.75 75.75zM384 64.5q132 0 225.75 93.75t93.75 225.75-93.75 225.75-225.75 93.75-225.75-93.75-93.75-225.75 93.75-225.75 225.75-93.75zM352.5 544.5v-192h63v192h-63z"></path>
-                </svg>`;
-
                 const infoTooltip = document.createElement('span');
                 infoTooltip.className = 'ol-dji-geozones--info';
                 infoTooltip.innerHTML = `<span class="ol-dji-geozones--info-text">${levelParams.desc}</span><span class="ol-dji-geozones--info-back"></span>`;
@@ -648,7 +638,7 @@ export default class DjiGeozones {
 
                 const iconTooltip = document.createElement('span');
                 iconTooltip.className = 'ol-dji-geozones--icon';
-                iconTooltip.innerHTML = svg;
+                iconTooltip.innerHTML = `<img src="${infoSvg}">`;
 
                 iconTooltip.onmouseover = () => showPopUp();
                 iconTooltip.onclick = () => showPopUp();
@@ -674,7 +664,7 @@ export default class DjiGeozones {
             }) => {
 
                 const levelParams = this.getLevelById(level);
-                const lbl = this.labelsLang;
+                const lbl = this.i18n.labels;
 
                 const html = `
                     <div class="ol-dji-geozones--marker">
@@ -1117,10 +1107,10 @@ export default class DjiGeozones {
     }
 
     /**
-     * Show or hides the control
+     * Show or hides the control panel
      * @param visible
      */
-    setControlVisible(visible: boolean): void {
+    setPanelVisible(visible: boolean): void {
         if (!this.divControl) {
             return;
         }
@@ -1153,20 +1143,14 @@ export default class DjiGeozones {
         }
         return find;
     }
-    /**
-     * @private
-     */
-    getGeozoneTypes(): Array<TypeLang> {
-        return this.typesLang;
-    }
 
     /**
      *
      * @param id
      * @private
      */
-    getGeozoneTypeById(id: number = null): TypeLang {
-        return this.typesLang.find((el: TypeLang) => el.id == id);
+    getGeozoneTypeById(id: number = null) {
+        return this.i18n.types.find((el) => el.id == id);
     }
 
     /**
@@ -1177,8 +1161,25 @@ export default class DjiGeozones {
         return this.dronesToDisplay;
     }
 
+    /**
+     * Set the drone parameter for the api request.
+     * @param drone 
+     * @param refresh If true, refresh the view making a new api request
+     */
     setDrone(drone: string, refresh = true): void {
         this.drone = drone;
+        if (refresh) {
+            this.getInfoFromView();
+        }
+    }
+
+    /**
+     * Set the drone parameter for the api request.
+     * @param country 
+     * @param refresh If true, refresh the view making a new api request
+     */
+    setCountry(country: string, refresh = true): void {
+        this.country = country;
         if (refresh) {
             this.getInfoFromView();
         }
@@ -1200,12 +1201,16 @@ export default class DjiGeozones {
         return this.levelsParamsList.find((lev: LevelParams) => lev.id == id);
     }
 
+    /**
+     * Get all the parameters from a level and the i18n texts
+     * @param id 
+     */
     getLevelById(id: number = null) {
         let params = this.levelsParamsList.find((lev: LevelParams) => lev.id == id);
-        let texts = this.levelsLang.find((lev: LevelLang) => lev.id == id);
-
+        let texts = this.i18n.levels.find((lev) => lev.id == id);
         return { ...params, ...texts };
     }
+
     /**
      * Replace the active levels with this values
      * 
@@ -1390,23 +1395,32 @@ interface LevelParams {
     markerCircle: string;
 }
 
-/**
- * **_[interface]_** - DjiGeozones levels text for translations or customs texts
- * @private
- */
-interface LevelLang {
-    id: number;
-    desc: string;
-    name: string;
-}
-
-/**
- * **_[interface]_** - Geozone Types
- * @private
- */
-interface TypeLang {
-    id: number;
-    name: string;
+interface Lang {
+    labels: {
+        djiGeoZones: string;
+        level: string;
+        type: string;
+        startTime: string;
+        endTime: string;
+        timeTips: string;
+        maxAltitude: string;
+        address: string;
+        tips: string;
+        link: string;
+        learnMore: string;
+        helperZoom: string;
+        expand: string;
+        collapse: string;
+    },
+    levels: {
+        id: number;
+        name: string;
+        desc: string;
+    }[],
+    types: {
+        id: number;
+        name: string;
+    }[]
 }
 
 /**
@@ -1431,7 +1445,7 @@ interface Options {
     /**
      * Url/endpoint from a Reverse Proxy to avoid CORS restrictions
      */
-    urlProxy: string,
+    urlProxy?: string,
     /*
      * Drone id to be used as default in the API request
      */
@@ -1445,7 +1459,7 @@ interface Options {
      */
     country?: string;
     /**
-     * Geozone Levels to be shown in the Control
+     * Geozone Levels to be shown in the control panel
      */
     levelsToDisplay?: Array<number>;
     /**
@@ -1462,7 +1476,7 @@ interface Options {
      */
     extent?: Extent;
     /**
-     * Display or hide the panel controller on the map
+     * Display or hide the control panel on the map
      */
     showPanel?: boolean;
     /**
@@ -1479,11 +1493,17 @@ interface Options {
     clickEvent?: 'singleclick' | 'dblclick';
     /**
      * Language to be used in the Controller panel and PopUp. This doesn't affects the API requests
+     * If i18n is set, this will be ignored.
      */
     language?: 'en' | 'es'
+    /**
+     * Add custom translations. If this is provided, language will be ignored.
+     */
+    i18n?: Lang
 }
 
 export {
     Options,
-    Drone
+    Drone,
+    Lang
 };

@@ -188,365 +188,298 @@
     ];
 
     var en = {
-    	labels: {
-    		djiGeoZones: "Dji Geo Zones",
-    		level: "Level",
-    		type: "Type",
-    		startTime: "Start Time",
-    		endTime: "End Time",
-    		timeTips: "Time: 24-hour clock",
-    		maxAltitude: "Max. Altitude",
-    		address: "Address",
-    		tips: "Tips",
-    		link: "Link",
-    		learnMore: "Learn More",
-    		helperZoom: "Zoom in to see the Geozones"
-    	},
-    	levels: [
-    		{
-    			id: 0,
-    			name: "Warning Zones",
-    			desc: "In these Zones, which may not necessarily appear on the DJI GO map, users will be prompted with a warning message. Example Warning Zone: Class E airspace"
-    		},
-    		{
-    			id: 1,
-    			name: "Authorization Zones",
-    			desc: "In these Zones, which appear blue in the DJI GO map, users will be prompted with a warning and flight is limited by default. Authorization Zones may be unlocked by authorized users using a DJI verified account."
-    		},
-    		{
-    			id: 2,
-    			name: "Restricted Zones",
-    			desc: "In these Zones, which appear red the DJI GO app, users will be prompted with a warning and flight is prevented. If you believe you have the authorization to operate in a Restricted Zone, please contact flysafe@dji.com or Online Unlocking."
-    		},
-    		{
-    			id: 3,
-    			name: "Enhanced Warning Zones",
-    			desc: "In these Zones, you will be prompted by GEO at the time of flight to unlock the zone using the same steps as in an Authorization Zone, but you do not require a verified account or an internet connection at the time of your flight."
-    		},
-    		{
-    			id: 4,
-    			name: "Regulatory Restricted Zones",
-    			desc: "Due to local regulations and policies, flights are prohibited within the scope of some special areas. (Example：Prison)"
-    		},
-    		{
-    			id: 5,
-    			name: "Recommended Zones",
-    			desc: ""
-    		},
-    		{
-    			id: 6,
-    			name: "Altitude Zones",
-    			desc: "Altitude zones will appear in gray on the map. Users receive warnings in DJI GO, or DJI GO 4 and flight altitude is limited."
-    		},
-    		{
-    			id: 7,
-    			name: "Recommended Zones",
-    			desc: "This area is shown in green on the map. It is recommended that you choose these areas for flight arrangements."
-    		},
-    		{
-    			id: 8,
-    			name: "Approved Zones for Light UAVs(China)",
-    			desc: "For Approved Zones, pilots of light UAVs flying at an altitude of 120 m or less are not required to obtain permission to fly. Pilots who are planning to fly medium-sized UAVs in Approved Zones at an altitude higher than 120 m, or in GEO Zones other than Approved Zones, must obtain permission via UTMISS before taking off"
-    		},
-    		{
-    			id: 9,
-    			name: "Densely Populated Area",
-    			desc: "This area is shown in red on the map. Under normal circumstances, the population of this area is more concentrated, so please do not fly over this area. (Example: Commercial Block)"
-    		}
-    	],
-    	types: [
-    		{
-    			id: 0,
-    			name: "Airport"
-    		},
-    		{
-    			id: 1,
-    			name: "Special Zone"
-    		},
-    		{
-    			id: 2,
-    			name: "Military Zone"
-    		},
-    		{
-    			id: 4,
-    			name: "Recommended Zones"
-    		},
-    		{
-    			id: 10,
-    			name: "Airport"
-    		},
-    		{
-    			id: 13,
-    			name: "Recreational airport"
-    		},
-    		{
-    			id: 14,
-    			name: "Recreational airport"
-    		},
-    		{
-    			id: 15,
-    			name: "Class B Airspace"
-    		},
-    		{
-    			id: 16,
-    			name: "Class C Airspace"
-    		},
-    		{
-    			id: 17,
-    			name: "Class D Airspace"
-    		},
-    		{
-    			id: 18,
-    			name: "Class E Airspace"
-    		},
-    		{
-    			id: 19,
-    			name: "Heliport"
-    		},
-    		{
-    			id: 23,
-    			name: "Power plant"
-    		},
-    		{
-    			id: 24,
-    			name: "Prison"
-    		},
-    		{
-    			id: 26,
-    			name: "Stadium"
-    		},
-    		{
-    			id: 27,
-    			name: "Prohibited Airspace"
-    		},
-    		{
-    			id: 28,
-    			name: "Restricted Airspace"
-    		},
-    		{
-    			id: 29,
-    			name: "Temporary Flight Restriction"
-    		},
-    		{
-    			id: 30,
-    			name: "Nuclear Power Plant"
-    		},
-    		{
-    			id: 31,
-    			name: "Unpaved Airports"
-    		},
-    		{
-    			id: 32,
-    			name: "Special Zones"
-    		},
-    		{
-    			id: 33,
-    			name: "Military Zones"
-    		},
-    		{
-    			id: 34,
-    			name: "Heliport"
-    		},
-    		{
-    			id: 35,
-    			name: "Seaplane Base"
-    		},
-    		{
-    			id: 36,
-    			name: "Temporary Flight Restriction"
-    		},
-    		{
-    			id: 39,
-    			name: "Approved Zones for Light UAVs"
-    		},
-    		{
-    			id: 41,
-    			name: "Regulatory Restricted Zones for Light UAVs"
-    		}
-    	]
+      "labels": {
+        "djiGeoZones": "Zonas Geo DJI",
+        "level": "Nivel",
+        "type": "Tipo",
+        "startTime": "Horario de apertura",
+        "endTime": "Horario de cierre",
+        "timeTips": "Sistema horario: 24 horas",
+        "maxAltitude": "Altitud máxima",
+        "address": "Dirección",
+        "tips": "Consejos",
+        "link": "Enlace",
+        "learnMore": "Leer más",
+        "helperZoom": "Acérquese para ver las Zonas Geo",
+        "expand": "Expandir",
+        "collapse": "Colapsar"
+      },
+      "levels": [{
+        "id": 0,
+        "name": "Zonas de advertencia",
+        "desc": "En estas Zonas, que pueden no aparecer necesariamente en el mapa DJI GO, los usuarios recibirán un mensaje de advertencia. Ejemplo de zona de advertencia: espacio aéreo de clase E"
+      }, {
+        "id": 1,
+        "name": "Zonas de autorización",
+        "desc": "En estas Zonas, que aparecen en azul en el mapa DJI GO, los usuarios recibirán una advertencia y el vuelo está limitado por defecto. Las zonas de autorización pueden ser desbloqueadas por usuarios autorizados mediante una cuenta verificada por DJI."
+      }, {
+        "id": 2,
+        "name": "Zonas restringidas",
+        "desc": "En estas Zonas, que aparecen en rojo en la aplicación DJI GO, los usuarios recibirán una advertencia y se impedirá el vuelo. Si cree que tiene la autorización para operar en una Zona restringida, comuníquese con flysafe@dji.com o Desbloqueo en línea."
+      }, {
+        "id": 3,
+        "name": "Zonas de advertencia ampliadas",
+        "desc": "En estas Zonas, GEO le pedirá en el momento del vuelo que desbloquee la zona siguiendo los mismos pasos que en una Zona de autorización, pero no necesita una cuenta verificada o una conexión a Internet en el momento de su vuelo."
+      }, {
+        "id": 4,
+        "name": "Zonas reglamentarias restringidas",
+        "desc": "Debido a las regulaciones y políticas locales, los vuelos están prohibidos dentro del alcance de algunas áreas especiales. (Ejemplo: prisión)"
+      }, {
+        "id": 5,
+        "name": "Zonas recomendadas",
+        "desc": ""
+      }, {
+        "id": 6,
+        "name": "Zonas de altiutud",
+        "desc": "Las zonas de altitud aparecerán en gris en el mapa. Los usuarios reciben advertencias en DJI GO o DJI GO 4 y la altitud de vuelo es limitada."
+      }, {
+        "id": 7,
+        "name": "Zonas recomendadas",
+        "desc": "Esta área se muestra en verde en el mapa. Se recomienda que elija estas áreas para los arreglos de vuelo."
+      }, {
+        "id": 8,
+        "name": "Zonas aprobadas para VANTs livianos (China)",
+        "desc": "Para las zonas aprobadas, los pilotos de vehículos aéreos no tripulados ligeros que vuelan a una altitud de 120 mo menos no están obligados a obtener permiso para volar. Los pilotos que planean volar UAV de tamaño mediano en Zonas Aprobadas a una altitud superior a 120 m, o en Zonas GEO distintas de las Zonas Aprobadas, deben obtener permiso a través de UTMISS antes de despegar."
+      }, {
+        "id": 9,
+        "name": "Áreas densamente pobladas",
+        "desc": "Esta área se muestra en rojo en el mapa. En circunstancias normales, la población de esta zona está más concentrada, así que no sobrevuele esta zona. (Ejemplo: bloque comercial)"
+      }],
+      "types": [{
+        "id": 0,
+        "name": "Aeropuerto"
+      }, {
+        "id": 1,
+        "name": "Zona especial"
+      }, {
+        "id": 2,
+        "name": "Zona Militar"
+      }, {
+        "id": 4,
+        "name": "Zona recomendada"
+      }, {
+        "id": 10,
+        "name": "Aeropuerto"
+      }, {
+        "id": 13,
+        "name": "Aeropuerto recreacional"
+      }, {
+        "id": 14,
+        "name": "Aeropuerto recreacional"
+      }, {
+        "id": 15,
+        "name": "Espacio aéreo clase B"
+      }, {
+        "id": 16,
+        "name": "Espacio aéreo clase C"
+      }, {
+        "id": 17,
+        "name": "Espacio aéreo clase D"
+      }, {
+        "id": 18,
+        "name": "Espacio aéreo clase E"
+      }, {
+        "id": 19,
+        "name": "Helipuerto"
+      }, {
+        "id": 23,
+        "name": "Planta de energía"
+      }, {
+        "id": 24,
+        "name": "Prisión"
+      }, {
+        "id": 26,
+        "name": "Estadio"
+      }, {
+        "id": 27,
+        "name": "Espacio aéreo prohibido"
+      }, {
+        "id": 28,
+        "name": "Espacio aéreo restringido"
+      }, {
+        "id": 29,
+        "name": "Restricción de vuelo temporal"
+      }, {
+        "id": 30,
+        "name": "Planta de energía nuclear"
+      }, {
+        "id": 31,
+        "name": "Aeropuertos sin pavimentar"
+      }, {
+        "id": 32,
+        "name": "Zonas especiales"
+      }, {
+        "id": 33,
+        "name": "Zonas militares"
+      }, {
+        "id": 34,
+        "name": "Helipuerto"
+      }, {
+        "id": 35,
+        "name": "Base de hidroaviones"
+      }, {
+        "id": 36,
+        "name": "Restricción de vuelo temporal"
+      }, {
+        "id": 39,
+        "name": "Zonas aprobadas para VANTs livianos"
+      }, {
+        "id": 41,
+        "name": "Zonas reglamentarias restringidas para VANTs livianos"
+      }]
     };
+
     var es = {
-    	labels: {
-    		djiGeoZones: "Zonas Geo DJI",
-    		level: "Nivel",
-    		type: "Tipo",
-    		startTime: "Horario de apertura",
-    		endTime: "Horario de cierre",
-    		timeTips: "Sistema horario: 24 horas",
-    		maxAltitude: "Altitud máxima",
-    		address: "Dirección",
-    		tips: "Consejos",
-    		link: "Enlace",
-    		learnMore: "Leer más",
-    		helperZoom: "Acérquese para ver las zonas Geo"
-    	},
-    	levels: [
-    		{
-    			id: 0,
-    			name: "Zonas de advertencia",
-    			desc: "En estas Zonas, que pueden no aparecer necesariamente en el mapa DJI GO, los usuarios recibirán un mensaje de advertencia. Ejemplo de zona de advertencia: espacio aéreo de clase E"
-    		},
-    		{
-    			id: 1,
-    			name: "Zonas de autorización",
-    			desc: "En estas Zonas, que aparecen en azul en el mapa DJI GO, los usuarios recibirán una advertencia y el vuelo está limitado por defecto. Las zonas de autorización pueden ser desbloqueadas por usuarios autorizados mediante una cuenta verificada por DJI."
-    		},
-    		{
-    			id: 2,
-    			name: "Zonas restringidas",
-    			desc: "En estas Zonas, que aparecen en rojo en la aplicación DJI GO, los usuarios recibirán una advertencia y se impedirá el vuelo. Si cree que tiene la autorización para operar en una Zona restringida, comuníquese con flysafe@dji.com o Desbloqueo en línea."
-    		},
-    		{
-    			id: 3,
-    			name: "Zonas de advertencia ampliadas",
-    			desc: "En estas Zonas, GEO le pedirá en el momento del vuelo que desbloquee la zona siguiendo los mismos pasos que en una Zona de autorización, pero no necesita una cuenta verificada o una conexión a Internet en el momento de su vuelo."
-    		},
-    		{
-    			id: 4,
-    			name: "Zonas reglamentarias restringidas",
-    			desc: "Debido a las regulaciones y políticas locales, los vuelos están prohibidos dentro del alcance de algunas áreas especiales. (Ejemplo: prisión)"
-    		},
-    		{
-    			id: 5,
-    			name: "Zonas recomendadas",
-    			desc: ""
-    		},
-    		{
-    			id: 6,
-    			name: "Zonas de altiutud",
-    			desc: "Las zonas de altitud aparecerán en gris en el mapa. Los usuarios reciben advertencias en DJI GO o DJI GO 4 y la altitud de vuelo es limitada."
-    		},
-    		{
-    			id: 7,
-    			name: "Zonas recomendadas",
-    			desc: "Esta área se muestra en verde en el mapa. Se recomienda que elija estas áreas para los arreglos de vuelo."
-    		},
-    		{
-    			id: 8,
-    			name: "Zonas aprobadas para VANTs livianos (China)",
-    			desc: "Para las zonas aprobadas, los pilotos de vehículos aéreos no tripulados ligeros que vuelan a una altitud de 120 mo menos no están obligados a obtener permiso para volar. Los pilotos que planean volar UAV de tamaño mediano en Zonas Aprobadas a una altitud superior a 120 m, o en Zonas GEO distintas de las Zonas Aprobadas, deben obtener permiso a través de UTMISS antes de despegar."
-    		},
-    		{
-    			id: 9,
-    			name: "Áreas densamente pobladas",
-    			desc: "Esta área se muestra en rojo en el mapa. En circunstancias normales, la población de esta zona está más concentrada, así que no sobrevuele esta zona. (Ejemplo: bloque comercial)"
-    		}
-    	],
-    	types: [
-    		{
-    			id: 0,
-    			name: "Aeropuerto"
-    		},
-    		{
-    			id: 1,
-    			name: "Zona especial"
-    		},
-    		{
-    			id: 2,
-    			name: "Zona Militar"
-    		},
-    		{
-    			id: 4,
-    			name: "Zona recomendada"
-    		},
-    		{
-    			id: 10,
-    			name: "Aeropuerto"
-    		},
-    		{
-    			id: 13,
-    			name: "Aeropuerto recreacional"
-    		},
-    		{
-    			id: 14,
-    			name: "Aeropuerto recreacional"
-    		},
-    		{
-    			id: 15,
-    			name: "Espacio aéreo clase B"
-    		},
-    		{
-    			id: 16,
-    			name: "Espacio aéreo clase C"
-    		},
-    		{
-    			id: 17,
-    			name: "Espacio aéreo clase D"
-    		},
-    		{
-    			id: 18,
-    			name: "Espacio aéreo clase E"
-    		},
-    		{
-    			id: 19,
-    			name: "Helipuerto"
-    		},
-    		{
-    			id: 23,
-    			name: "Planta de energía"
-    		},
-    		{
-    			id: 24,
-    			name: "Prisión"
-    		},
-    		{
-    			id: 26,
-    			name: "Estadio"
-    		},
-    		{
-    			id: 27,
-    			name: "Espacio aéreo prohibido"
-    		},
-    		{
-    			id: 28,
-    			name: "Espacio aéreo restringido"
-    		},
-    		{
-    			id: 29,
-    			name: "Restricción de vuelo temporal"
-    		},
-    		{
-    			id: 30,
-    			name: "Planta de energía nuclear"
-    		},
-    		{
-    			id: 31,
-    			name: "Aeropuertos sin pavimentar"
-    		},
-    		{
-    			id: 32,
-    			name: "Zonas especiales"
-    		},
-    		{
-    			id: 33,
-    			name: "Zonas militares"
-    		},
-    		{
-    			id: 34,
-    			name: "Helipuerto"
-    		},
-    		{
-    			id: 35,
-    			name: "Base de hidroaviones"
-    		},
-    		{
-    			id: 36,
-    			name: "Restricción de vuelo temporal"
-    		},
-    		{
-    			id: 39,
-    			name: "Zonas aprobadas para VANTs livianos"
-    		},
-    		{
-    			id: 41,
-    			name: "Zonas reglamentarias restringidas para VANTs livianos"
-    		}
-    	]
+      "labels": {
+        "djiGeoZones": "Dji Geo Zones",
+        "level": "Level",
+        "type": "Type",
+        "startTime": "Start Time",
+        "endTime": "End Time",
+        "timeTips": "Time: 24-hour clock",
+        "maxAltitude": "Max. Altitude",
+        "address": "Address",
+        "tips": "Tips",
+        "link": "Link",
+        "learnMore": "Learn More",
+        "helperZoom": "Zoom in to see the Geo Zones",
+        "expand": "Expand",
+        "collapse": "Collapse"
+      },
+      "levels": [{
+        "id": 0,
+        "name": "Warning Zones",
+        "desc": "In these Zones, which may not necessarily appear on the DJI GO map, users will be prompted with a warning message. Example Warning Zone: Class E airspace"
+      }, {
+        "id": 1,
+        "name": "Authorization Zones",
+        "desc": "In these Zones, which appear blue in the DJI GO map, users will be prompted with a warning and flight is limited by default. Authorization Zones may be unlocked by authorized users using a DJI verified account."
+      }, {
+        "id": 2,
+        "name": "Restricted Zones",
+        "desc": "In these Zones, which appear red the DJI GO app, users will be prompted with a warning and flight is prevented. If you believe you have the authorization to operate in a Restricted Zone, please contact flysafe@dji.com or Online Unlocking."
+      }, {
+        "id": 3,
+        "name": "Enhanced Warning Zones",
+        "desc": "In these Zones, you will be prompted by GEO at the time of flight to unlock the zone using the same steps as in an Authorization Zone, but you do not require a verified account or an internet connection at the time of your flight."
+      }, {
+        "id": 4,
+        "name": "Regulatory Restricted Zones",
+        "desc": "Due to local regulations and policies, flights are prohibited within the scope of some special areas. (Example：Prison)"
+      }, {
+        "id": 5,
+        "name": "Recommended Zones",
+        "desc": ""
+      }, {
+        "id": 6,
+        "name": "Altitude Zones",
+        "desc": "Altitude zones will appear in gray on the map. Users receive warnings in DJI GO, or DJI GO 4 and flight altitude is limited."
+      }, {
+        "id": 7,
+        "name": "Recommended Zones",
+        "desc": "This area is shown in green on the map. It is recommended that you choose these areas for flight arrangements."
+      }, {
+        "id": 8,
+        "name": "Approved Zones for Light UAVs(China)",
+        "desc": "For Approved Zones, pilots of light UAVs flying at an altitude of 120 m or less are not required to obtain permission to fly. Pilots who are planning to fly medium-sized UAVs in Approved Zones at an altitude higher than 120 m, or in GEO Zones other than Approved Zones, must obtain permission via UTMISS before taking off"
+      }, {
+        "id": 9,
+        "name": "Densely Populated Area",
+        "desc": "This area is shown in red on the map. Under normal circumstances, the population of this area is more concentrated, so please do not fly over this area. (Example: Commercial Block)"
+      }],
+      "types": [{
+        "id": 0,
+        "name": "Airport"
+      }, {
+        "id": 1,
+        "name": "Special Zone"
+      }, {
+        "id": 2,
+        "name": "Military Zone"
+      }, {
+        "id": 4,
+        "name": "Recommended Zones"
+      }, {
+        "id": 10,
+        "name": "Airport"
+      }, {
+        "id": 13,
+        "name": "Recreational airport"
+      }, {
+        "id": 14,
+        "name": "Recreational airport"
+      }, {
+        "id": 15,
+        "name": "Class B Airspace"
+      }, {
+        "id": 16,
+        "name": "Class C Airspace"
+      }, {
+        "id": 17,
+        "name": "Class D Airspace"
+      }, {
+        "id": 18,
+        "name": "Class E Airspace"
+      }, {
+        "id": 19,
+        "name": "Heliport"
+      }, {
+        "id": 23,
+        "name": "Power plant"
+      }, {
+        "id": 24,
+        "name": "Prison"
+      }, {
+        "id": 26,
+        "name": "Stadium"
+      }, {
+        "id": 27,
+        "name": "Prohibited Airspace"
+      }, {
+        "id": 28,
+        "name": "Restricted Airspace"
+      }, {
+        "id": 29,
+        "name": "Temporary Flight Restriction"
+      }, {
+        "id": 30,
+        "name": "Nuclear Power Plant"
+      }, {
+        "id": 31,
+        "name": "Unpaved Airports"
+      }, {
+        "id": 32,
+        "name": "Special Zones"
+      }, {
+        "id": 33,
+        "name": "Military Zones"
+      }, {
+        "id": 34,
+        "name": "Heliport"
+      }, {
+        "id": 35,
+        "name": "Seaplane Base"
+      }, {
+        "id": 36,
+        "name": "Temporary Flight Restriction"
+      }, {
+        "id": 39,
+        "name": "Approved Zones for Light UAVs"
+      }, {
+        "id": 41,
+        "name": "Regulatory Restricted Zones for Light UAVs"
+      }]
     };
-    var languages = {
-    	en: en,
-    	es: es
-    };
+
+    var languages = /*#__PURE__*/Object.freeze({
+        __proto__: null,
+        en: en,
+        es: es
+    });
+
+    const img = "data:image/svg+xml,%3csvg id='Layer_1' data-name='Layer 1' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 280.18 280.18'%3e%3cdefs%3e%3cstyle%3e.cls-1%7bfill:%23ffce00%3bfill-opacity:0.68%3bstroke:%23ffce00%3b%7d.cls-1%2c.cls-3%2c.cls-5%2c.cls-6%7bstroke-miterlimit:10%3bstroke-width:0.75px%3b%7d.cls-2%7bfill:%23ff7900%3bfill-opacity:0.46%3b%7d.cls-3%7bfill:%231072d6%3bfill-opacity:0.57%3bstroke:%231072d6%3b%7d.cls-4%7bopacity:0.63%3b%7d.cls-5%7bfill:%23bcbcbc%3bstroke:%23666%3b%7d.cls-6%7bfill:%23fc3424%3bfill-opacity:0.4%3bstroke:%23fc3424%3b%7d%3c/style%3e%3c/defs%3e%3cpath class='cls-1' d='M109.79%2c109.23c-44.68%2c44.68-40.36%2c121.45%2c9.66%2c171.47S246.24%2c335%2c290.92%2c290.36s40.36-121.46-9.65-171.48S154.48%2c64.54%2c109.79%2c109.23ZM270.56%2c270c-34.64%2c34.64-94.15%2c31.29-132.92-7.48s-42.12-98.28-7.48-132.92%2c94.14-31.29%2c132.92%2c7.48S305.2%2c235.36%2c270.56%2c270Z' transform='translate(-59.88 -59.29)'/%3e%3cpath class='cls-2' d='M130.16%2c129.59c-34.64%2c34.64-31.29%2c94.15%2c7.48%2c132.92s98.28%2c42.12%2c132.92%2c7.48%2c31.29-94.14-7.48-132.92S164.79%2c95%2c130.16%2c129.59Zm118%2c118c-24%2c24-64.91%2c22.14-91.29-4.23S128.56%2c176.07%2c152.6%2c152s64.91-22.14%2c91.28%2c4.24S272.15%2c223.51%2c248.12%2c247.55Z' transform='translate(-59.88 -59.29)'/%3e%3cellipse class='cls-3' cx='200.36' cy='199.79' rx='61.55' ry='67.54' transform='translate(-142.47 140.9) rotate(-45)'/%3e%3cg id='Layer_3' data-name='Layer 3'%3e%3cg class='cls-4'%3e%3cpolygon class='cls-5' points='166.25 180 236.66 279.6 236.75 279.51 279.51 236.75 279.6 236.66 180 166.25 166.25 180'/%3e%3cpolygon class='cls-5' points='113.92 100.18 43.51 0.58 43.43 0.67 0.67 43.43 0.58 43.51 100.18 113.92 113.92 100.18'/%3e%3c/g%3e%3cpolygon class='cls-6' points='180 113.92 166.25 100.18 140.09 126.34 113.92 100.18 100.18 113.92 126.34 140.09 100.18 166.25 113.92 180 140.09 153.84 166.25 180 180 166.25 153.84 140.09 180 113.92'/%3e%3c/g%3e%3cg id='Layer_3_copy' data-name='Layer 3 copy'%3e%3cg class='cls-4'%3e%3cpolygon class='cls-5' points='100.18 166.25 0.58 236.66 0.67 236.75 43.43 279.51 43.51 279.6 113.92 180 100.18 166.25'/%3e%3cpolygon class='cls-5' points='180 113.92 279.6 43.51 279.51 43.43 236.75 0.67 236.66 0.58 166.25 100.18 180 113.92'/%3e%3c/g%3e%3c/g%3e%3c/svg%3e";
+
+    const img$1 = "data:image/svg+xml,%3c!-- Generated by IcoMoon.io --%3e%3csvg version='1.1' xmlns='http://www.w3.org/2000/svg' width='768' height='768' viewBox='0 0 768 768'%3e%3ctitle%3e%3c/title%3e%3cg id='icomoon-ignore'%3e%3c/g%3e%3cpath d='M352.5 288v-64.5h63v64.5h-63zM384 640.5q105 0 180.75-75.75t75.75-180.75-75.75-180.75-180.75-75.75-180.75 75.75-75.75 180.75 75.75 180.75 180.75 75.75zM384 64.5q132 0 225.75 93.75t93.75 225.75-93.75 225.75-225.75 93.75-225.75-93.75-93.75-225.75 93.75-225.75 225.75-93.75zM352.5 544.5v-192h63v192h-63z'%3e%3c/path%3e%3c/svg%3e";
 
     var __awaiter = undefined && undefined.__awaiter || function (thisArg, _arguments, P, generator) {
       function adopt(value) {
@@ -579,7 +512,6 @@
         step((generator = generator.apply(thisArg, _arguments || [])).next());
       });
     };
-    var geozoneSvg = '<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280.18 280.18"><defs><style>.cls-1{fill:#ffce00;fill-opacity:0.68;stroke:#ffce00;}.cls-1,.cls-3,.cls-5,.cls-6{stroke-miterlimit:10;stroke-width:0.75px;}.cls-2{fill:#ff7900;fill-opacity:0.46;}.cls-3{fill:#1072d6;fill-opacity:0.57;stroke:#1072d6;}.cls-4{opacity:0.63;}.cls-5{fill:#bcbcbc;stroke:#666;}.cls-6{fill:#fc3424;fill-opacity:0.4;stroke:#fc3424;}</style></defs><path class="cls-1" d="M109.79,109.23c-44.68,44.68-40.36,121.45,9.66,171.47S246.24,335,290.92,290.36s40.36-121.46-9.65-171.48S154.48,64.54,109.79,109.23ZM270.56,270c-34.64,34.64-94.15,31.29-132.92-7.48s-42.12-98.28-7.48-132.92,94.14-31.29,132.92,7.48S305.2,235.36,270.56,270Z" transform="translate(-59.88 -59.29)"/><path class="cls-2" d="M130.16,129.59c-34.64,34.64-31.29,94.15,7.48,132.92s98.28,42.12,132.92,7.48,31.29-94.14-7.48-132.92S164.79,95,130.16,129.59Zm118,118c-24,24-64.91,22.14-91.29-4.23S128.56,176.07,152.6,152s64.91-22.14,91.28,4.24S272.15,223.51,248.12,247.55Z" transform="translate(-59.88 -59.29)"/><ellipse class="cls-3" cx="200.36" cy="199.79" rx="61.55" ry="67.54" transform="translate(-142.47 140.9) rotate(-45)"/><g id="Layer_3" data-name="Layer 3"><g class="cls-4"><polygon class="cls-5" points="166.25 180 236.66 279.6 236.75 279.51 279.51 236.75 279.6 236.66 180 166.25 166.25 180"/><polygon class="cls-5" points="113.92 100.18 43.51 0.58 43.43 0.67 0.67 43.43 0.58 43.51 100.18 113.92 113.92 100.18"/></g><polygon class="cls-6" points="180 113.92 166.25 100.18 140.09 126.34 113.92 100.18 100.18 113.92 126.34 140.09 100.18 166.25 113.92 180 140.09 153.84 166.25 180 180 166.25 153.84 140.09 180 113.92"/></g><g id="Layer_3_copy" data-name="Layer 3 copy"><g class="cls-4"><polygon class="cls-5" points="100.18 166.25 0.58 236.66 0.67 236.75 43.43 279.51 43.51 279.6 113.92 180 100.18 166.25"/><polygon class="cls-5" points="180 113.92 279.6 43.51 279.51 43.43 236.75 0.67 236.66 0.58 166.25 100.18 180 113.92"/></g></g></svg>';
     /**
      * @protected
      */
@@ -607,10 +539,7 @@
       constructor(map, opt_options) {
         var options = Object.assign({}, opt_options); // LANGUAGE SUPPORT
 
-        this.language = options.language || 'en';
-        this.labelsLang = languages[this.language].labels;
-        this.levelsLang = languages[this.language].levels;
-        this.typesLang = languages[this.language].types; // API PARAMETERS
+        this.i18n = options.i18n || languages[options.language || 'en']; // API PARAMETERS
 
         this.drone = options.drone || 'spark';
         this.zonesMode = options.zonesMode || 'total';
@@ -847,6 +776,7 @@
           var createButtonCollapser = () => {
             var buttonCollapse = document.createElement('button');
             buttonCollapse.className = 'ol-dji-geozones--collapse';
+            buttonCollapse.title = this.i18n.labels.collapse;
 
             buttonCollapse.onclick = () => divControl.classList.add('ol-dji-geozones--collapsed');
 
@@ -855,7 +785,7 @@
 
           var divControl = document.createElement('div');
           divControl.className = 'ol-dji-geozones ol-control ol-dji-geozones--ctrl-disabled';
-          divControl.innerHTML = "\n            <header>\n                <h3>".concat(this.labelsLang.djiGeoZones, "</h3>\n                <span class=\"ol-dji-geozones--loading\">\n                    ").concat(this.loadingElement, "\n                </span>\n            </header>\n            <main>\n                <section class=\"ol-dji-geozones--selectors\"></section>\n                <section>\n                    <div class=\"ol-dji-geozones--logo\">").concat(geozoneSvg, "</div>\n                    <span class=\"ol-dji-geozones--advice\">").concat(this.labelsLang.helperZoom, "</span>\n                </section>\n            </main>\n            ");
+          divControl.innerHTML = "\n            <header>\n                <h3>".concat(this.i18n.labels.djiGeoZones, "</h3>\n                <span class=\"ol-dji-geozones--loading\">\n                    ").concat(this.loadingElement, "\n                </span>\n            </header>\n            <main>\n                <section class=\"ol-dji-geozones--selectors\"></section>\n                <section>\n                    <div class=\"ol-dji-geozones--logo\" title=\"").concat(this.i18n.labels.expand, "\"><img src=\"").concat(img, "\"/></div>\n                    <span class=\"ol-dji-geozones--advice\">").concat(this.i18n.labels.helperZoom, "</span>\n                </section>\n            </main>\n            ");
           var droneSelector = createDroneSelector();
           divControl.querySelector('.ol-dji-geozones--selectors').append(droneSelector);
           var levelSelector = createLevelSelector();
@@ -1041,14 +971,13 @@
                 Observable.unByKey(evtKey);
               };
 
-              var svg = "\n                <svg version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" width=\"768\" height=\"768\" viewBox=\"0 0 768 768\">\n                <path d=\"M352.5 288v-64.5h63v64.5h-63zM384 640.5q105 0 180.75-75.75t75.75-180.75-75.75-180.75-180.75-75.75-180.75 75.75-75.75 180.75 75.75 180.75 180.75 75.75zM384 64.5q132 0 225.75 93.75t93.75 225.75-93.75 225.75-225.75 93.75-225.75-93.75-93.75-225.75 93.75-225.75 225.75-93.75zM352.5 544.5v-192h63v192h-63z\"></path>\n                </svg>";
               var infoTooltip = document.createElement('span');
               infoTooltip.className = 'ol-dji-geozones--info';
               infoTooltip.innerHTML = "<span class=\"ol-dji-geozones--info-text\">".concat(levelParams.desc, "</span><span class=\"ol-dji-geozones--info-back\"></span>");
               infoTooltip.setAttribute('style', "--level-color: ".concat(levelParams.color));
               var iconTooltip = document.createElement('span');
               iconTooltip.className = 'ol-dji-geozones--icon';
-              iconTooltip.innerHTML = svg;
+              iconTooltip.innerHTML = "<img src=\"".concat(img$1, "\">");
 
               iconTooltip.onmouseover = () => showPopUp();
 
@@ -1076,7 +1005,7 @@
                 url
               } = _ref4;
               var levelParams = this.getLevelById(level);
-              var lbl = this.labelsLang;
+              var lbl = this.i18n.labels;
               var html = "\n                    <div class=\"ol-dji-geozones--marker\">\n                        <img src=\"".concat(levelParams.markerCircle, "\">\n                    </div>\n                    <div class=\"ol-dji-geozones--main\">\n                        <h3 class=\"ol-dji-geozones--title\">").concat(name, "</h3>\n                        <p class=\"ol-dji-geozones--level\">").concat(lbl.level, ": ").concat(levelParams.name, " </p>\n                        <p class=\"ol-dji-geozones--type\">").concat(lbl.type, ": ").concat(this.getGeozoneTypeById(type).name, "</p>\n                        ").concat(begin_at ? "<p class=\"ol-dji-geozones--start_time\">".concat(lbl.startTime, ": ").concat(begin_at, "</p>") : '', "\n                        ").concat(end_at ? "<p class=\"ol-dji-geozones--end_time\">".concat(lbl.endTime, ": ").concat(end_at, "</p><p class=\"ol-dji-geozones--time_tips\">").concat(lbl.timeTips, "</p>") : '', "         \n                        ").concat(height ? "<p class=\"ol-dji-geozones--height\">".concat(lbl.maxAltitude, " (m): ").concat(height, "</p>") : '', " \n                        ").concat(address ? "<p class=\"ol-dji-geozones--address\">".concat(lbl.address, ": ").concat(address, "</p>") : '', "\n                        ").concat(description ? "<p class=\"ol-dji-geozones--desc\">".concat(lbl.tips, ": ").concat(description, "</p>") : '', "\n                        ").concat(url ? "<p class=\"ol-dji-geozones--url\">".concat(lbl.link, ": <a href=\"").concat(url, "\">").concat(lbl.learnMore, "</a></p>") : '', "\n                </div>");
               var item = document.createElement('div');
               item.className = 'ol-dji-geozones--item';
@@ -1426,12 +1355,12 @@
         });
       }
       /**
-       * Show or hides the control
+       * Show or hides the control panel
        * @param visible
        */
 
 
-      setControlVisible(visible) {
+      setPanelVisible(visible) {
         if (!this.divControl) {
           return;
         }
@@ -1469,14 +1398,6 @@
         return find;
       }
       /**
-       * @private
-       */
-
-
-      getGeozoneTypes() {
-        return this.typesLang;
-      }
-      /**
        *
        * @param id
        * @private
@@ -1485,7 +1406,7 @@
 
       getGeozoneTypeById() {
         var id = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-        return this.typesLang.find(el => el.id == id);
+        return this.i18n.types.find(el => el.id == id);
       }
       /**
        * Gets a list with all the supported Drones
@@ -1496,10 +1417,31 @@
       getDrones() {
         return this.dronesToDisplay;
       }
+      /**
+       * Set the drone parameter for the api request.
+       * @param drone
+       * @param refresh If true, refresh the view making a new api request
+       */
+
 
       setDrone(drone) {
         var refresh = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
         this.drone = drone;
+
+        if (refresh) {
+          this.getInfoFromView();
+        }
+      }
+      /**
+       * Set the drone parameter for the api request.
+       * @param country
+       * @param refresh If true, refresh the view making a new api request
+       */
+
+
+      setCountry(country) {
+        var refresh = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+        this.country = country;
 
         if (refresh) {
           this.getInfoFromView();
@@ -1525,11 +1467,16 @@
         var id = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
         return this.levelsParamsList.find(lev => lev.id == id);
       }
+      /**
+       * Get all the parameters from a level and the i18n texts
+       * @param id
+       */
+
 
       getLevelById() {
         var id = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
         var params = this.levelsParamsList.find(lev => lev.id == id);
-        var texts = this.levelsLang.find(lev => lev.id == id);
+        var texts = this.i18n.levels.find(lev => lev.id == id);
         return Object.assign(Object.assign({}, params), texts);
       }
       /**
