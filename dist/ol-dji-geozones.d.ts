@@ -188,6 +188,9 @@ interface LevelParams {
     markerIcon: string;
     markerCircle: string;
 }
+/**
+ * **_[interface]_** - Custom Language specified when creating a DjiGeozones
+ */
 interface Lang {
     labels: {
         djiGeoZones: string;

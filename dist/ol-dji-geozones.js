@@ -187,7 +187,7 @@
     	}
     ];
 
-    var en = {
+    var es = {
       "labels": {
         "djiGeoZones": "Zonas Geo DJI",
         "level": "Nivel",
@@ -329,7 +329,7 @@
       }]
     };
 
-    var es = {
+    var en = {
       "labels": {
         "djiGeoZones": "Dji Geo Zones",
         "level": "Level",
@@ -473,8 +473,8 @@
 
     var languages = /*#__PURE__*/Object.freeze({
         __proto__: null,
-        en: en,
-        es: es
+        es: es,
+        en: en
     });
 
     const img = "data:image/svg+xml,%3csvg id='Layer_1' data-name='Layer 1' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 280.18 280.18'%3e%3cdefs%3e%3cstyle%3e.cls-1%7bfill:%23ffce00%3bfill-opacity:0.68%3bstroke:%23ffce00%3b%7d.cls-1%2c.cls-3%2c.cls-5%2c.cls-6%7bstroke-miterlimit:10%3bstroke-width:0.75px%3b%7d.cls-2%7bfill:%23ff7900%3bfill-opacity:0.46%3b%7d.cls-3%7bfill:%231072d6%3bfill-opacity:0.57%3bstroke:%231072d6%3b%7d.cls-4%7bopacity:0.63%3b%7d.cls-5%7bfill:%23bcbcbc%3bstroke:%23666%3b%7d.cls-6%7bfill:%23fc3424%3bfill-opacity:0.4%3bstroke:%23fc3424%3b%7d%3c/style%3e%3c/defs%3e%3cpath class='cls-1' d='M109.79%2c109.23c-44.68%2c44.68-40.36%2c121.45%2c9.66%2c171.47S246.24%2c335%2c290.92%2c290.36s40.36-121.46-9.65-171.48S154.48%2c64.54%2c109.79%2c109.23ZM270.56%2c270c-34.64%2c34.64-94.15%2c31.29-132.92-7.48s-42.12-98.28-7.48-132.92%2c94.14-31.29%2c132.92%2c7.48S305.2%2c235.36%2c270.56%2c270Z' transform='translate(-59.88 -59.29)'/%3e%3cpath class='cls-2' d='M130.16%2c129.59c-34.64%2c34.64-31.29%2c94.15%2c7.48%2c132.92s98.28%2c42.12%2c132.92%2c7.48%2c31.29-94.14-7.48-132.92S164.79%2c95%2c130.16%2c129.59Zm118%2c118c-24%2c24-64.91%2c22.14-91.29-4.23S128.56%2c176.07%2c152.6%2c152s64.91-22.14%2c91.28%2c4.24S272.15%2c223.51%2c248.12%2c247.55Z' transform='translate(-59.88 -59.29)'/%3e%3cellipse class='cls-3' cx='200.36' cy='199.79' rx='61.55' ry='67.54' transform='translate(-142.47 140.9) rotate(-45)'/%3e%3cg id='Layer_3' data-name='Layer 3'%3e%3cg class='cls-4'%3e%3cpolygon class='cls-5' points='166.25 180 236.66 279.6 236.75 279.51 279.51 236.75 279.6 236.66 180 166.25 166.25 180'/%3e%3cpolygon class='cls-5' points='113.92 100.18 43.51 0.58 43.43 0.67 0.67 43.43 0.58 43.51 100.18 113.92 113.92 100.18'/%3e%3c/g%3e%3cpolygon class='cls-6' points='180 113.92 166.25 100.18 140.09 126.34 113.92 100.18 100.18 113.92 126.34 140.09 100.18 166.25 113.92 180 140.09 153.84 166.25 180 180 166.25 153.84 140.09 180 113.92'/%3e%3c/g%3e%3cg id='Layer_3_copy' data-name='Layer 3 copy'%3e%3cg class='cls-4'%3e%3cpolygon class='cls-5' points='100.18 166.25 0.58 236.66 0.67 236.75 43.43 279.51 43.51 279.6 113.92 180 100.18 166.25'/%3e%3cpolygon class='cls-5' points='180 113.92 279.6 43.51 279.51 43.43 236.75 0.67 236.66 0.58 166.25 100.18 180 113.92'/%3e%3c/g%3e%3c/g%3e%3c/svg%3e";
@@ -956,25 +956,33 @@
           };
 
           var showGeozoneDataInPopUp = (geozonesData, coordinates) => {
-            var createTooltip = levelParams => {
+            var createTooltip = level => {
+              var getPos = el => {
+                return el.getBoundingClientRect();
+              };
+
               var evtKey;
 
               var showPopUp = () => {
                 infoTooltip.style.position = 'fixed';
-                infoTooltip.style.top = iconTooltip.getBoundingClientRect().top + 'px';
+                var position = getPos(iconTooltip);
+                infoTooltip.style.top = position.top + 'px';
+                infoTooltip.style.left = position.left + 'px';
                 infoTooltip.classList.add('ol-dji-geozones--active-tooltip');
                 evtKey = this.map.once('movestart', () => closePopUp());
+                document.body.append(infoTooltip);
               };
 
               var closePopUp = () => {
                 infoTooltip.classList.remove('ol-dji-geozones--active-tooltip');
                 Observable.unByKey(evtKey);
+                container.append(infoTooltip);
               };
 
               var infoTooltip = document.createElement('span');
               infoTooltip.className = 'ol-dji-geozones--info';
-              infoTooltip.innerHTML = "<span class=\"ol-dji-geozones--info-text\">".concat(levelParams.desc, "</span><span class=\"ol-dji-geozones--info-back\"></span>");
-              infoTooltip.setAttribute('style', "--level-color: ".concat(levelParams.color));
+              infoTooltip.innerHTML = "<span class=\"ol-dji-geozones--info-text\">".concat(level.desc, "</span><span class=\"ol-dji-geozones--info-back\"></span>");
+              infoTooltip.setAttribute('style', "--level-color: ".concat(level.color));
               var iconTooltip = document.createElement('span');
               iconTooltip.className = 'ol-dji-geozones--icon';
               iconTooltip.innerHTML = "<img src=\"".concat(img$1, "\">");
@@ -992,7 +1000,7 @@
               return container;
             };
 
-            var parseDataToHtml = (_ref4) => {
+            var parseDataToHtml = responseApi => {
               var {
                 name,
                 level,
@@ -1003,14 +1011,14 @@
                 end_at,
                 address,
                 url
-              } = _ref4;
-              var levelParams = this.getLevelById(level);
+              } = responseApi;
+              var levelValues = this.getLevelById(level);
               var lbl = this.i18n.labels;
-              var html = "\n                    <div class=\"ol-dji-geozones--marker\">\n                        <img src=\"".concat(levelParams.markerCircle, "\">\n                    </div>\n                    <div class=\"ol-dji-geozones--main\">\n                        <h3 class=\"ol-dji-geozones--title\">").concat(name, "</h3>\n                        <p class=\"ol-dji-geozones--level\">").concat(lbl.level, ": ").concat(levelParams.name, " </p>\n                        <p class=\"ol-dji-geozones--type\">").concat(lbl.type, ": ").concat(this.getGeozoneTypeById(type).name, "</p>\n                        ").concat(begin_at ? "<p class=\"ol-dji-geozones--start_time\">".concat(lbl.startTime, ": ").concat(begin_at, "</p>") : '', "\n                        ").concat(end_at ? "<p class=\"ol-dji-geozones--end_time\">".concat(lbl.endTime, ": ").concat(end_at, "</p><p class=\"ol-dji-geozones--time_tips\">").concat(lbl.timeTips, "</p>") : '', "         \n                        ").concat(height ? "<p class=\"ol-dji-geozones--height\">".concat(lbl.maxAltitude, " (m): ").concat(height, "</p>") : '', " \n                        ").concat(address ? "<p class=\"ol-dji-geozones--address\">".concat(lbl.address, ": ").concat(address, "</p>") : '', "\n                        ").concat(description ? "<p class=\"ol-dji-geozones--desc\">".concat(lbl.tips, ": ").concat(description, "</p>") : '', "\n                        ").concat(url ? "<p class=\"ol-dji-geozones--url\">".concat(lbl.link, ": <a href=\"").concat(url, "\">").concat(lbl.learnMore, "</a></p>") : '', "\n                </div>");
+              var html = "\n                    <div class=\"ol-dji-geozones--marker\">\n                        <img src=\"".concat(levelValues.markerCircle, "\">\n                    </div>\n                    <div class=\"ol-dji-geozones--main\">\n                        <h3 class=\"ol-dji-geozones--title\">").concat(name, "</h3>\n                        <p class=\"ol-dji-geozones--level\">").concat(lbl.level, ": ").concat(levelValues.name, " </p>\n                        <p class=\"ol-dji-geozones--type\">").concat(lbl.type, ": ").concat(this.getGeozoneTypeById(type).name, "</p>\n                        ").concat(begin_at ? "<p class=\"ol-dji-geozones--start_time\">".concat(lbl.startTime, ": ").concat(begin_at, "</p>") : '', "\n                        ").concat(end_at ? "<p class=\"ol-dji-geozones--end_time\">".concat(lbl.endTime, ": ").concat(end_at, "</p><p class=\"ol-dji-geozones--time_tips\">").concat(lbl.timeTips, "</p>") : '', "         \n                        ").concat(height ? "<p class=\"ol-dji-geozones--height\">".concat(lbl.maxAltitude, " (m): ").concat(height, "</p>") : '', " \n                        ").concat(address ? "<p class=\"ol-dji-geozones--address\">".concat(lbl.address, ": ").concat(address, "</p>") : '', "\n                        ").concat(description ? "<p class=\"ol-dji-geozones--desc\">".concat(lbl.tips, ": ").concat(description, "</p>") : '', "\n                        ").concat(url ? "<p class=\"ol-dji-geozones--url\">".concat(lbl.link, ": <a href=\"").concat(url, "\">").concat(lbl.learnMore, "</a></p>") : '', "\n                </div>");
               var item = document.createElement('div');
               item.className = 'ol-dji-geozones--item';
               item.innerHTML = html;
-              item.querySelector('.ol-dji-geozones--level').append(createTooltip(levelParams));
+              item.querySelector('.ol-dji-geozones--level').append(createTooltip(levelValues));
               return item;
             };
 
@@ -1277,11 +1285,11 @@
 
       getApiGeoData(typeApiRequest, latLng) {
         return __awaiter(this, void 0, void 0, function* () {
-          var apiRequest = (typeApiRequest, _ref5, searchRadius) => {
+          var apiRequest = (typeApiRequest, _ref4, searchRadius) => {
             var {
               lng,
               lat
-            } = _ref5;
+            } = _ref4;
             return __awaiter(this, void 0, void 0, function* () {
               var api_endpoint = typeApiRequest === 'areas' ? API_AREAS_ENDPOINT : API_INFO_ENDPOINT; // If not proxy is passed, make a direct request
               // Maybe in the future the api will has updated CORS restrictions
@@ -1327,11 +1335,11 @@
             return data;
           });
 
-          var getMapRadius = (_ref6) => {
+          var getMapRadius = (_ref5) => {
             var {
               lng,
               lat
-            } = _ref6;
+            } = _ref5;
             var center = [lng, lat];
             var size = this.map.getSize();
             var extent = this.view.calculateExtent(size);

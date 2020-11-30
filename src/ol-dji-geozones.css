@@ -86,7 +86,7 @@
   position: absolute;
   right: 2px;
   top: 2px;
-  background-color: transparent;
+  background-color: #e8e8e8;
   cursor: pointer;
   color: #464646;  
 }
@@ -96,6 +96,7 @@
 .ol-control button.ol-dji-geozones--collapse:hover {
   background-color: transparent;
   color: #000000;
+  background-color: #c5c5c5;
 }
 .ol-dji-geozones--collapse:after{
   content: '−';
@@ -228,13 +229,13 @@
   box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
   line-height: 1.5;
   text-align: center;
+  margin-left: -100px;
+  z-index: 99;
+  transform: translateY(-100%);
 }
 .ol-dji-geozones--info.ol-dji-geozones--active-tooltip {
   position: relative;
   display: block;
-  margin-left: -100px;
-  z-index: 99;
-  transform: translateY(-100%);
 }
 .ol-dji-geozones--info.ol-dji-geozones--active-tooltip:after,
 .ol-dji-geozones--info.ol-dji-geozones--active-tooltip:before {

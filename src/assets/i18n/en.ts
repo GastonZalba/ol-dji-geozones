@@ -1,6 +1,6 @@
 import { Lang } from '../../ol-dji-geozones';
 
-export const es:
+export const en:
     Lang = {
     "labels": {
         "djiGeoZones": "Dji Geo Zones",

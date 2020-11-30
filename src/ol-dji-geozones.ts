@@ -32,6 +32,7 @@ import * as languages from './assets/i18n/index';
 // Images
 import geozoneSvg from './assets/images/geozone.svg';
 import infoSvg from './assets/images/info.svg';
+import { brotliDecompressSync } from 'zlib';
 
 
 /**
@@ -615,26 +616,35 @@ export default class DjiGeozones {
             coordinates: Coordinate
         ) => {
 
-            const createTooltip = (levelParams) => {
+            const createTooltip = (level) => {
+
+                const getPos = (el: HTMLElement) => {
+                    return el.getBoundingClientRect();
+                }
 
                 let evtKey: EventsKey;
 
                 const showPopUp = () => {
                     infoTooltip.style.position = 'fixed';
-                    infoTooltip.style.top = iconTooltip.getBoundingClientRect().top + 'px';
+
+                    let position = getPos(iconTooltip);
+                    infoTooltip.style.top = position.top + 'px';
+                    infoTooltip.style.left = position.left + 'px';
                     infoTooltip.classList.add('ol-dji-geozones--active-tooltip');
-                    evtKey = this.map.once('movestart', () => closePopUp())
+                    evtKey = this.map.once('movestart', () => closePopUp());
+                    document.body.append(infoTooltip);
                 }
 
                 const closePopUp = () => {
                     infoTooltip.classList.remove('ol-dji-geozones--active-tooltip');
                     unByKey(evtKey);
+                    container.append(infoTooltip);
                 }
 
                 const infoTooltip = document.createElement('span');
                 infoTooltip.className = 'ol-dji-geozones--info';
-                infoTooltip.innerHTML = `<span class="ol-dji-geozones--info-text">${levelParams.desc}</span><span class="ol-dji-geozones--info-back"></span>`;
-                infoTooltip.setAttribute('style', `--level-color: ${levelParams.color}`);
+                infoTooltip.innerHTML = `<span class="ol-dji-geozones--info-text">${level.desc}</span><span class="ol-dji-geozones--info-back"></span>`;
+                infoTooltip.setAttribute('style', `--level-color: ${level.color}`);
 
                 const iconTooltip = document.createElement('span');
                 iconTooltip.className = 'ol-dji-geozones--icon';
@@ -651,28 +661,30 @@ export default class DjiGeozones {
                 return container;
             }
 
-            const parseDataToHtml = ({
-                name,
-                level,
-                type,
-                height,
-                description,
-                begin_at,
-                end_at,
-                address,
-                url
-            }) => {
+            const parseDataToHtml = (responseApi: DjiApiResponse): HTMLDivElement => {
 
-                const levelParams = this.getLevelById(level);
+                const {
+                    name,
+                    level,
+                    type,
+                    height,
+                    description,
+                    begin_at,
+                    end_at,
+                    address,
+                    url
+                } = responseApi;
+
+                const levelValues = this.getLevelById(level);
                 const lbl = this.i18n.labels;
 
                 const html = `
                     <div class="ol-dji-geozones--marker">
-                        <img src="${levelParams.markerCircle}">
+                        <img src="${levelValues.markerCircle}">
                     </div>
                     <div class="ol-dji-geozones--main">
                         <h3 class="ol-dji-geozones--title">${name}</h3>
-                        <p class="ol-dji-geozones--level">${lbl.level}: ${levelParams.name} </p>
+                        <p class="ol-dji-geozones--level">${lbl.level}: ${levelValues.name} </p>
                         <p class="ol-dji-geozones--type">${lbl.type}: ${this.getGeozoneTypeById(type).name}</p>
                         ${begin_at
                         ? `<p class="ol-dji-geozones--start_time">${lbl.startTime}: ${begin_at}</p>`
@@ -704,7 +716,7 @@ export default class DjiGeozones {
                 item.className = 'ol-dji-geozones--item';
                 item.innerHTML = html;
 
-                item.querySelector('.ol-dji-geozones--level').append(createTooltip(levelParams));
+                item.querySelector('.ol-dji-geozones--level').append(createTooltip(levelValues));
 
                 return item;
 
@@ -1024,7 +1036,7 @@ export default class DjiGeozones {
                     : api_endpoint
             );
 
-            const queryObj: DjiApi = {
+            const queryObj: DjiApiArguments = {
                 drone: this.drone,
                 zones_mode: this.zonesMode,
                 country: this.country,
@@ -1294,13 +1306,28 @@ export default class DjiGeozones {
     }
 
 }
-
-
+/**
+ * **_[interface]_** - Dji Api Response
+ * @private
+ */
+interface DjiApiResponse {
+    name: string;
+    level: number;
+    type: number;
+    height: number;
+    description: string;
+    begin_at: string;
+    end_at: string;
+    address: string;
+    url: string;
+    [key: string]: any;
+    color: string;
+}
 /**
  * **_[interface]_** - Dji Api Parameters
  *
  */
-interface DjiApi {
+interface DjiApiArguments {
     /**
      * - `0` - Warning Zones
      * - `1` - Authorization Zones
@@ -1394,7 +1421,9 @@ interface LevelParams {
     markerIcon: string;
     markerCircle: string;
 }
-
+/**
+ * **_[interface]_** - Custom Language specified when creating a DjiGeozones
+ */
 interface Lang {
     labels: {
         djiGeoZones: string;
