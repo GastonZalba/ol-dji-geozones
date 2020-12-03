@@ -13,5 +13,4 @@
       "moduleResolution": "node"
     },
     "include": ["./src"],
-    "exclude": ["**/*.en.d.ts"]
   }

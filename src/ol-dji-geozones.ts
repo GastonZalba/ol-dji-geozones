@@ -614,7 +614,7 @@ export default class DjiGeozones {
     };
 
     const showGeozoneDataInPopUp = (
-      geozonesData: { [key: string]: unknown } | Array<unknown>,
+      geozonesData: Array<DjiApiResponseArea>,
       coordinates: Coordinate
     ) => {
       const createTooltip = (level) => {
@@ -661,7 +661,7 @@ export default class DjiGeozones {
         return container;
       };
 
-      const parseDataToHtml = (responseApi: DjiApiResponse): HTMLDivElement => {
+      const parseDataToHtml = (responseApiArea: DjiApiResponseArea): HTMLDivElement => {
         const {
           name,
           level,
@@ -672,7 +672,7 @@ export default class DjiGeozones {
           end_at,
           address,
           url
-        } = responseApi;
+        } = responseApiArea;
 
         const levelValues = this.getLevelById(level);
         const lbl = this.i18n.labels;
@@ -1026,7 +1026,7 @@ export default class DjiGeozones {
   async getApiGeoData(
     typeApiRequest: 'areas' | 'info',
     latLng: { lat: number; lng: number }
-  ): Promise<unknown> {
+  ): Promise<DjiApiResponse> {
     const apiRequest = async (
       typeApiRequest: 'areas' | 'info',
       { lng, lat },
@@ -1166,7 +1166,7 @@ export default class DjiGeozones {
    * @param id
    * @private
    */
-  getGeozoneTypeById(id: number = null): unknown {
+  getGeozoneTypeById(id: number = null): Lang["types"][0] {
     return this.i18n.types.find((el) => el.id == id);
   }
 
@@ -1222,7 +1222,7 @@ export default class DjiGeozones {
    * Get all the parameters from a level and the i18n texts
    * @param id
    */
-  getLevelById(id: number = null): { [key: string]: unknown } {
+  getLevelById(id: number = null): Level {
     const params = this.levelsParamsList.find(
       (lev: LevelParams) => lev.id == id
     );
@@ -1318,7 +1318,7 @@ export default class DjiGeozones {
  * **_[interface]_** - Dji Api Response
  * @private
  */
-interface DjiApiResponse {
+interface DjiApiResponseArea {
   name: string;
   level: number;
   type: number;
@@ -1331,6 +1331,13 @@ interface DjiApiResponse {
   [key: string]: unknown;
   color: string;
 }
+/**
+ * **_[interface]_** - Dji Api Response
+ * @private
+ */
+interface DjiApiResponse {
+    areas: Array<DjiApiResponseArea>
+  }
 /**
  * **_[interface]_** - Dji Api Parameters
  *
@@ -1431,6 +1438,22 @@ interface LevelParams {
 }
 
 /**
+ * **_[interface]_** - DjiGeozones levels translations specified when creating a DjiGeozones
+ * @private
+ */
+interface LevelLang {
+    id: number;
+    name: string;
+    desc: string;
+}
+
+/**
+ * **_[interface]_** - DjiGeozones levels parameters and trasnlations specified when creating a DjiGeozones
+ * @private
+ */
+interface Level extends LevelParams, LevelLang {}
+
+/**
  * **_[interface]_** - Custom Language specified when creating a DjiGeozones
  */
 interface Lang {
@@ -1450,11 +1473,7 @@ interface Lang {
     expand: string;
     collapse: string;
   };
-  levels: {
-    id: number;
-    name: string;
-    desc: string;
-  }[];
+  levels: LevelLang[];
   types: {
     id: number;
     name: string;

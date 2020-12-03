@@ -104,7 +104,7 @@
   background-color: #c5c5c5;
 }
 .ol-dji-geozones--collapse:after {
-  content: "−";
+  content: '−';
 }
 .ol-dji-geozones--logo {
   cursor: pointer;
@@ -127,7 +127,7 @@
 .ol-dji-geozones--ol-popup:before {
   top: 100%;
   border: solid transparent;
-  content: " ";
+  content: ' ';
   height: 0;
   width: 0;
   position: absolute;
@@ -157,7 +157,7 @@
   color: #535353;
 }
 .ol-dji-geozones--ol-popup-closer:after {
-  content: "✖";
+  content: '✖';
 }
 .ol-dji-geozones--ol-popup-content {
   width: 340px;
@@ -170,7 +170,7 @@
   pointer-events: auto;
   color: #707473;
   font-size: 12px;
-  font: 12px/20px "Helvetica Neue", Arial, Helvetica, sans-serif;
+  font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
   max-height: 300px;
   overflow-x: hidden;
   overflow-y: auto;
@@ -205,7 +205,7 @@
   padding-right: 15px;
 }
 .ol-dji-geozones--item:after {
-  content: " ";
+  content: ' ';
   display: block;
   height: 0;
   clear: both;
@@ -247,7 +247,7 @@
 .ol-dji-geozones--info.ol-dji-geozones--active-tooltip:before {
   top: 100%;
   border: solid transparent;
-  content: " ";
+  content: ' ';
   height: 0;
   width: 0;
   position: absolute;

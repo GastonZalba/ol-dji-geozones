@@ -69,7 +69,7 @@ export default class DjiGeozones {
     getApiGeoData(typeApiRequest: 'areas' | 'info', latLng: {
         lat: number;
         lng: number;
-    }): Promise<any>;
+    }): Promise<DjiApiResponse>;
     /**
      * Show or hides the control panel
      * @param visible
@@ -89,10 +89,7 @@ export default class DjiGeozones {
      * @param id
      * @private
      */
-    getGeozoneTypeById(id?: number): {
-        id: number;
-        name: string;
-    };
+    getGeozoneTypeById(id?: number): Lang["types"][0];
     /**
      * Gets a list with all the supported Drones
      * @private
@@ -125,15 +122,7 @@ export default class DjiGeozones {
      * Get all the parameters from a level and the i18n texts
      * @param id
      */
-    getLevelById(id?: number): {
-        id: number;
-        name: string;
-        desc: string;
-        color: string;
-        zIndex: number;
-        markerIcon: string;
-        markerCircle: string;
-    };
+    getLevelById(id?: number): Level;
     /**
      * Replace the active levels with this values
      *
@@ -169,6 +158,30 @@ export default class DjiGeozones {
     static colorWithAlpha(color: string, alpha?: number): string;
 }
 /**
+ * **_[interface]_** - Dji Api Response
+ * @private
+ */
+interface DjiApiResponseArea {
+    name: string;
+    level: number;
+    type: number;
+    height: number;
+    description: string;
+    begin_at: string;
+    end_at: string;
+    address: string;
+    url: string;
+    [key: string]: unknown;
+    color: string;
+}
+/**
+ * **_[interface]_** - Dji Api Response
+ * @private
+ */
+interface DjiApiResponse {
+    areas: Array<DjiApiResponseArea>;
+}
+/**
  * **_[interface]_** - Drone
  * @private
  */
@@ -187,6 +200,21 @@ interface LevelParams {
     zIndex: number;
     markerIcon: string;
     markerCircle: string;
+}
+/**
+ * **_[interface]_** - DjiGeozones levels translations specified when creating a DjiGeozones
+ * @private
+ */
+interface LevelLang {
+    id: number;
+    name: string;
+    desc: string;
+}
+/**
+ * **_[interface]_** - DjiGeozones levels parameters and trasnlations specified when creating a DjiGeozones
+ * @private
+ */
+interface Level extends LevelParams, LevelLang {
 }
 /**
  * **_[interface]_** - Custom Language specified when creating a DjiGeozones
@@ -208,11 +236,7 @@ interface Lang {
         expand: string;
         collapse: string;
     };
-    levels: {
-        id: number;
-        name: string;
-        desc: string;
-    }[];
+    levels: LevelLang[];
     types: {
         id: number;
         name: string;

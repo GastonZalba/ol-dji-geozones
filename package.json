@@ -9,13 +9,13 @@
     "dist"
   ],
   "scripts": {
-    "precleanstart": "node scripts/clean.js",
+    "precleanstart": "del-cli dist tmp",
     "doc": "documentation readme src/ol-dji-geozones.ts  --quiet=true --access=public --access=undefined --section=API --parse-extension ts && node scripts/external-links.js README.md && prettier --write README.md",
-    "lint": "eslint src/*.ts && prettier --check src",
     "format": "eslint --fix src/*.ts && prettier --write src",
+    "lint": "eslint src/*.ts && prettier --check src",
     "copy-assets": "ncp src/assets/ tmp/assets/",
     "build": "npm run precleanstart && tsc --pretty && npm run copy-assets && rollup --config rollup.config.js",
-    "postbuild": "ncp src/ol-dji-geozones.css dist/ol-dji-geozones.css"
+    "postbuild": "ncp src/ol-dji-geozones.css dist/ol-dji-geozones.css && del-cli dist/assets tmp"
   },
   "keywords": [
     "ol",
@@ -50,6 +50,7 @@
     "@types/ol": "^6.4.2",
     "@typescript-eslint/eslint-plugin": "^4.8.2",
     "@typescript-eslint/parser": "^4.8.2",
+    "del-cli": "^3.0.1",
     "documentation": "^13.1.0",
     "eslint-config-openlayers": "^14.0.0",
     "eslint-config-prettier": "^6.15.0",
