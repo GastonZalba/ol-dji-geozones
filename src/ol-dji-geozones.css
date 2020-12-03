@@ -5,6 +5,11 @@
   background-color: rgb(255 255 255);
   box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.278);
 }
+.ol-dji-geozones.ol-control.ol-dji-geozones--collapsed {
+  width: 42px;
+  box-sizing: border-box;
+  padding: 4px;
+}
 .ol-dji-geozones h3 {
   color: #343434;
   margin: 0.2em 0;
@@ -88,7 +93,7 @@
   top: 2px;
   background-color: #e8e8e8;
   cursor: pointer;
-  color: #464646;  
+  color: #464646;
 }
 .ol-control button.ol-dji-geozones--collapse:focus {
   outline: 0;
@@ -98,7 +103,7 @@
   color: #000000;
   background-color: #c5c5c5;
 }
-.ol-dji-geozones--collapse:after{
+.ol-dji-geozones--collapse:after {
   content: '−';
 }
 .ol-dji-geozones--logo {
@@ -109,7 +114,8 @@
   display: block;
 }
 .ol-dji-geozones--logo img {
-  width: 40px;
+  vertical-align: middle;
+  width: 100%;
 }
 /* PopUp */
 .ol-dji-geozones--ol-popup {
@@ -121,7 +127,7 @@
 .ol-dji-geozones--ol-popup:before {
   top: 100%;
   border: solid transparent;
-  content: " ";
+  content: ' ';
   height: 0;
   width: 0;
   position: absolute;
@@ -151,7 +157,7 @@
   color: #535353;
 }
 .ol-dji-geozones--ol-popup-closer:after {
-  content: "✖";
+  content: '✖';
 }
 .ol-dji-geozones--ol-popup-content {
   width: 340px;
@@ -164,7 +170,7 @@
   pointer-events: auto;
   color: #707473;
   font-size: 12px;
-  font: 12px/20px "Helvetica Neue", Arial, Helvetica, sans-serif;
+  font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
   max-height: 300px;
   overflow-x: hidden;
   overflow-y: auto;
@@ -199,7 +205,7 @@
   padding-right: 15px;
 }
 .ol-dji-geozones--item:after {
-  content: " ";
+  content: ' ';
   display: block;
   height: 0;
   clear: both;
@@ -241,7 +247,7 @@
 .ol-dji-geozones--info.ol-dji-geozones--active-tooltip:before {
   top: 100%;
   border: solid transparent;
-  content: " ";
+  content: ' ';
   height: 0;
   width: 0;
   position: absolute;
@@ -273,7 +279,7 @@
 .ol-dji-geozones--tooltip {
   display: inline-block;
 }
-.ol-dji-geozones--tooltip .ol-dji-geozones--icon img{
+.ol-dji-geozones--tooltip .ol-dji-geozones--icon img {
   width: 18px;
   height: 18px;
   vertical-align: middle;
