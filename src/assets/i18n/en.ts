@@ -1,6 +1,6 @@
-import { Lang } from '../../ol-dji-geozones';
+import { i18n } from '../../ol-dji-geozones';
 
-export const en: Lang = {
+export const en: i18n = {
   labels: {
     djiGeoZones: 'Dji Geo Zones',
     level: 'Level',

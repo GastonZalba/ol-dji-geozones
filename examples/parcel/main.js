@@ -16,13 +16,17 @@ const map = new Map({
     ],
     target: 'map',
     view: new View({
-        center: [0, 0],
-        zoom: 2,
+        projection: 'EPSG:3857',
+        center: [-6503744, -4115148],
+        zoom: 11
     }),
 });
 
 const opt_options = {
-    urlProxy: 'https://cors-anywhere.herokuapp.com/', // You can use the public demo CORS Anywhere for testing
+    // This proxy url is a public demo of CORS Anywhere, use it only for testing. 
+    // For production deploy a custom instance (visit https://github.com/Rob--W/cors-anywhere/)
+    // or use yor own proxy.
+    urlProxy: 'https://cors-anywhere.herokuapp.com/',
     drone: 'mavic-2',
     country: 'AR',
     levelsToDisplay: [2, 6, 1, 0, 3, 4, 7],

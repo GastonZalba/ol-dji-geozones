@@ -1,6 +1,5 @@
 import VectorLayer from 'ol/layer/Vector';
 import Overlay from 'ol/Overlay';
-import { MultiPolygon } from 'ol/geom';
 import { Control } from 'ol/control';
 import { Extent } from 'ol/extent';
 import { MapBrowserEvent, PluggableMap, View } from 'ol';
@@ -18,35 +17,35 @@ import Projection from 'ol/proj/Projection';
  * @param opt_options DjiGeozones options, see [DjiGeozones Options](#options) for more details.
  */
 export default class DjiGeozones {
-    protected i18n: Lang;
-    protected drone: string;
-    protected zonesMode: string;
-    protected country: string;
-    protected levelsToDisplay: Array<number>;
-    protected levelsActive: Array<number>;
-    protected extent: Extent;
-    protected urlProxy: string;
-    protected useApiForPopUp: boolean;
-    protected levelsParamsList: Array<LevelParams>;
-    protected dronesToDisplay: Array<Drone>;
-    protected map: PluggableMap;
-    protected view: View;
-    protected overlay: Overlay;
-    protected currentZoom: number;
-    protected lastZoom: number;
-    protected control: Control;
-    protected projection: Projection;
-    protected isVisible: boolean;
-    protected clickEvent: 'singleclick' | 'dblclick';
-    private moveendEvtKey;
-    private clickEvtKey;
-    protected vectorLayers: Array<VectorLayer>;
-    protected divControl: HTMLElement;
-    protected areaDownloaded: MultiPolygon;
-    protected loadingElement: string;
-    protected popupContent: HTMLElement;
+    private _drone;
+    private _zonesMode;
+    private _country;
+    private _levelsParams;
+    private _levelsToDisplay;
+    private _activeLevels;
+    private _i18n;
+    private _extent;
+    private _urlProxy;
+    private _useApiForPopUp;
+    private _isVisible;
+    private _currentZoom;
+    private _lastZoom;
+    private _moveendEvtKey;
+    private _clickEvtKey;
+    private _layers;
+    private _dronesToDisplay;
+    private _areaDownloaded;
+    private _loadingElement;
+    clickEvent: 'singleclick' | 'dblclick';
+    divControl: HTMLElement;
+    popupContent: HTMLElement;
+    map: PluggableMap;
+    view: View;
+    projection: Projection;
+    overlay: Overlay;
+    control: Control;
     constructor(map: PluggableMap, opt_options?: Options);
-    init(showPanel: boolean, targetControl: string | HTMLElement): void;
+    init(showPanel: boolean, startCollapsed: boolean, targetControl: string | HTMLElement): void;
     /**
      *
      * @param evt
@@ -76,42 +75,57 @@ export default class DjiGeozones {
      */
     setPanelVisible(visible: boolean): void;
     /**
+     * Collapse/expand the control panel
+     * @param collapsed
+     */
+    setPanelCollapsed(collapsed: boolean): void;
+    /**
      * Get all the layers
      */
-    getLayers(): Array<VectorLayer>;
+    get layers(): Array<VectorLayer>;
     /**
      * Get the layer acordding the level
      * @param level
      */
     getLayerByLevel(level: number): VectorLayer;
     /**
-     *
+     * Get the geozone type (airport, heliport, etc) by id
      * @param id
      * @private
      */
-    getGeozoneTypeById(id?: number): Lang["types"][0];
+    getGeozoneTypeById(id?: number): i18n["types"][0];
     /**
      * Gets a list with all the supported Drones
      * @private
      */
-    getDrones(): Array<Drone>;
+    get dronesToDisplay(): Array<Drone>;
     /**
      * Set the drone parameter for the api request.
      * @param drone
-     * @param refresh If true, refresh the view making a new api request
      */
-    setDrone(drone: string, refresh?: boolean): void;
+    set drone(drone: string);
+    /**
+     * Get Api parameter drone parameter
+     */
+    get drone(): string;
+    /**
+     * Set the zonesMode parameter for the api request.
+     * @param drone
+     */
+    set zonesMode(zonesMode: string);
+    /**
+     * Get Api parameter ZonesMode
+     */
+    get zonesMode(): string;
     /**
      * Set the drone parameter for the api request.
      * @param country
-     * @param refresh If true, refresh the view making a new api request
      */
-    setCountry(country: string, refresh?: boolean): void;
+    set country(country: string);
     /**
-     * Get the parameters from all the levels
-     * @private
+     * Get Api parameter Country
      */
-    getLevelsParams(): Array<LevelParams>;
+    get country(): string;
     /**
      * Get the level parameters, like color, icon, and description
      * @param id
@@ -124,16 +138,15 @@ export default class DjiGeozones {
      */
     getLevelById(id?: number): Level;
     /**
-     * Replace the active levels with this values
-     *
+     * Replace the active levels with this values and refresh the view
      * @param levels
-     * @param refresh If true, refresh the view and show the levels
      */
-    setLevels(levels: Array<number> | number, refresh?: boolean): void;
+    set activeLevels(levels: Array<number>);
+    get activeLevels(): Array<number>;
     /**
      * Add the level/s to the view
      * @param levels
-     * @param refresh If true, refresh the view and show the actived levels
+     * @param refresh If true, refresh the view and show the active levels
      */
     addLevels(levels: Array<number> | number, refresh?: boolean): void;
     /**
@@ -219,7 +232,7 @@ interface Level extends LevelParams, LevelLang {
 /**
  * **_[interface]_** - Custom Language specified when creating a DjiGeozones
  */
-interface Lang {
+interface i18n {
     labels: {
         djiGeoZones: string;
         level: string;
@@ -254,9 +267,12 @@ interface Lang {
  *   levelsToDisplay: [2, 6, 1, 0, 3, 4, 7],
  *   levelsActive: [2, 6, 1, 0, 3, 4, 7],
  *   showPanel: true,
- *   targetControl: null,
+ *   targetPanel: null,
  *   extent: null,
- *   loadingElement: '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>'
+ *   loadingElement: '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>',
+ *   clickEvent: 'singleclick',
+ *   language: 'en',
+ *   i18n: null
  * }
  * ```
  */
@@ -300,6 +316,10 @@ interface Options {
      */
     targetPanel?: HTMLElement | string;
     /**
+     * Whether panel is minimized when created. Defaults to false.
+     */
+    startCollapsed?: false;
+    /**
      * Loading element to be shown in the Controller on loading API data
      */
     loadingElement?: string;
@@ -315,6 +335,6 @@ interface Options {
     /**
      * Add custom translations. If this is provided, language will be ignored.
      */
-    i18n?: Lang;
+    i18n?: i18n;
 }
-export { Options, Drone, Lang };
+export { Options, Drone, i18n };

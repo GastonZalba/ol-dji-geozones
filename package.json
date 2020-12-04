@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "precleanstart": "del-cli dist tmp",
-    "doc": "documentation readme src/ol-dji-geozones.ts  --quiet=true --access=public --access=undefined --section=API --parse-extension ts && node scripts/external-links.js README.md && prettier --write README.md",
+    "doc": "documentation readme src/ol-dji-geozones.ts --quiet=true --access=public --access=undefined --section=API --parse-extension ts && node scripts/external-links.js README.md && prettier --write README.md",
     "format": "eslint --fix src/*.ts && prettier --write src",
     "lint": "eslint src/*.ts && prettier --check src",
     "copy-assets": "ncp src/assets/ tmp/assets/",

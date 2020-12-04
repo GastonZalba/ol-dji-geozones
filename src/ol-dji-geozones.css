@@ -5,7 +5,7 @@
   background-color: rgb(255 255 255);
   box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.278);
 }
-.ol-dji-geozones.ol-control.ol-dji-geozones--collapsed {
+.ol-dji-geozones.ol-control.ol-dji-geozones--ctrl-collapsed {
   width: 42px;
   box-sizing: border-box;
   padding: 4px;
@@ -54,12 +54,12 @@
   display: none;
 }
 
-.ol-dji-geozones--collapsed header,
-.ol-dji-geozones--collapsed .ol-dji-geozones--selectors,
-.ol-dji-geozones--collapsed .ol-dji-geozones--advice {
+.ol-dji-geozones--ctrl-collapsed header,
+.ol-dji-geozones--ctrl-collapsed .ol-dji-geozones--selectors,
+.ol-dji-geozones--ctrl-collapsed .ol-dji-geozones--advice {
   display: none;
 }
-.ol-dji-geozones--collapsed .ol-dji-geozones--logo {
+.ol-dji-geozones--ctrl-collapsed .ol-dji-geozones--logo {
   display: block;
 }
 
@@ -110,7 +110,7 @@
   cursor: pointer;
   display: none;
 }
-.ol-dji-geozones--collapsed .ol-dji-geozones--logo {
+.ol-dji-geozones--ctrl-collapsed .ol-dji-geozones--logo {
   display: block;
 }
 .ol-dji-geozones--logo img {

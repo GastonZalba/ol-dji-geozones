@@ -15,15 +15,21 @@
   });
   
   var opt_options = {
-    urlProxy: 'https://cors-anywhere.herokuapp.com/', // You can use the public demo CORS Anywhere for testing
+    // This proxy url is a public demo of CORS Anywhere, use it only for testing. 
+    // For production deploy a custom instance (visit https://github.com/Rob--W/cors-anywhere/)
+    // or use yor own proxy.
+    urlProxy: 'https://cors-anywhere.herokuapp.com/',
     drone: 'mavic-2',
     country: 'AR',
-    levelsToDisplay: [2, 6, 1, 0, 3, 4, 7],
-    levelsActive: [0, 1, 2, 3, 4, 6, 7],
+    displayLevels: [2, 6, 1, 0, 3, 4, 7],
+    activeLevels: [0, 1, 2, 3, 4, 6, 7],
     showPanel: true,
-    language: 'en'
+    language: 'en',
+    startCollapsed: false
   };
 
-  new DjiGeozones(map, opt_options);
+  var djiGeozones = new DjiGeozones(map, opt_options);
+
+  console.log(djiGeozones);
 
 })();

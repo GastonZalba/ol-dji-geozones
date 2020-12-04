@@ -539,41 +539,42 @@
       constructor(map, opt_options) {
         var options = Object.assign({}, opt_options); // LANGUAGE SUPPORT
 
-        this.i18n = options.i18n || languages[options.language || 'en']; // API PARAMETERS
+        this._i18n = options.i18n || languages[options.language || 'en']; // API PARAMETERS
 
-        this.drone = options.drone || 'spark';
-        this.zonesMode = options.zonesMode || 'total';
-        this.country = options.country || 'US';
-        this.levelsToDisplay = options.levelsToDisplay || [2, 6, 1, 0, 3, 4, 7];
-        this.levelsActive = options.levelsActive || [2, 6, 1, 0, 3, 4, 7];
-        this.levelsParamsList = levelsParams; // If not provided, we use all the available drones
+        this._drone = options.drone || 'spark';
+        this._zonesMode = options.zonesMode || 'total';
+        this._country = options.country || 'US';
+        this._levelsToDisplay = options.levelsToDisplay || [2, 6, 1, 0, 3, 4, 7];
+        this._activeLevels = options.levelsActive || [2, 6, 1, 0, 3, 4, 7];
+        this._levelsParams = levelsParams; // If not provided, we use all the available drones
         // This can be passed to use translations.
 
-        this.dronesToDisplay = options.dronesToDisplay || dronesList;
-        this.extent = options.extent || null; // Add slash on the end if not present
+        this._dronesToDisplay = options.dronesToDisplay || dronesList;
+        this._extent = options.extent || null; // Add slash on the end if not present
 
-        this.urlProxy = options.urlProxy.replace(/\/?$/, '/');
-        this.loadingElement = options.loadingElement || '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>';
+        this._urlProxy = options.urlProxy.replace(/\/?$/, '/');
+        this._loadingElement = options.loadingElement || '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>';
         this.clickEvent = options.clickEvent || 'singleclick'; // By default, we use the properties features to show in the popup.
         // The official DJI map, makes an extra request to another API to get the data. I don't understand why.
         // It's more slow and requieres extra requests to an already downloaded data...
         // Either way, this extra API calls are supported if you want.
 
-        this.useApiForPopUp = false; // MAP
+        this._useApiForPopUp = false; // MAP
 
         var showPanel = 'showPanel' in options ? options.showPanel : true;
         var targetPanel = options.targetPanel || null;
+        var startCollapsed = 'startCollapsed' in options ? options.startCollapsed : false;
         this.map = map;
         this.view = map.getView();
         this.projection = this.view.getProjection();
-        this.isVisible = this.view.getZoom() < MIN_ZOOM;
-        this.vectorLayers = [];
+        this._isVisible = this.view.getZoom() < MIN_ZOOM;
+        this._layers = [];
         this.divControl = null;
-        this.areaDownloaded = null;
-        this.init(showPanel, targetPanel);
+        this._areaDownloaded = null;
+        this.init(showPanel, startCollapsed, targetPanel);
       }
 
-      init(showPanel, targetControl) {
+      init(showPanel, startCollapsed, targetControl) {
         /**
          * Create and add a Vector Layer for each level
          * @private
@@ -621,17 +622,17 @@
           API_LEVELS.forEach(level => {
             var layer = new VectorLayer__default['default']({
               zIndex: this.getLevelParamsById(level).zIndex * 2,
-              visible: this.levelsActive.includes(level) ? true : false,
+              visible: this.activeLevels.includes(level) ? true : false,
               source: new VectorSource__default['default']({
                 attributions: '<a href="https://www.dji.com/flysafe/geo-map" rel="nofollow noopener noreferrer" target="_blank">DJI GeoZoneMap</a>'
               }),
               style: styleFunction,
-              extent: this.extent
+              extent: this._extent
             });
             layer.set('name', 'ol-dji-geozones');
             layer.set('level', level);
             this.map.addLayer(layer);
-            this.vectorLayers.push(layer);
+            this.layers.push(layer);
           });
         };
         /**
@@ -692,9 +693,9 @@
             droneSelector.className = 'ol-dji-geozones--drone-selector';
             var select = document.createElement('select');
             select.onchange = handleChange;
-            if (!this.isVisible) select.setAttribute('disabled', 'disabled');
+            if (!this._isVisible) select.setAttribute('disabled', 'disabled');
             var options = '';
-            this.getDrones().forEach(drone => {
+            this.dronesToDisplay.forEach(drone => {
               var selected = this.drone === drone.id ? 'selected' : '';
               options += "<option value=\"".concat(drone.id, "\" ").concat(selected, ">").concat(drone.name, "</option>");
             });
@@ -740,7 +741,7 @@
               checkbox.id = name;
               checkbox.value = String(value);
               checkbox.onclick = handleClick;
-              if (this.levelsActive.indexOf(value) !== -1) checkbox.checked = true;
+              if (this.activeLevels.indexOf(value) !== -1) checkbox.checked = true;
               if (disabled) checkbox.disabled = true;
               return checkbox;
             };
@@ -751,7 +752,7 @@
                 desc,
                 color
               } = _ref3;
-              var disabled = !this.isVisible;
+              var disabled = !this._isVisible;
               var id = 'level' + value;
               var divContainer = document.createElement('div');
               divContainer.className = "ol-dji-geozones--item-ctl ol-dji-geozones--item-ctl-".concat(value);
@@ -766,26 +767,30 @@
 
             var levelSelector = document.createElement('div');
             levelSelector.className = 'ol-dji-geozones--level-selector';
-            this.levelsToDisplay.forEach(lev => {
+
+            this._levelsToDisplay.forEach(lev => {
               var level = createLevelItem(lev, this.getLevelById(lev));
               levelSelector.append(level);
             });
+
             return levelSelector;
           };
 
           var createButtonCollapser = () => {
             var buttonCollapse = document.createElement('button');
             buttonCollapse.className = 'ol-dji-geozones--collapse';
-            buttonCollapse.title = this.i18n.labels.collapse;
+            buttonCollapse.title = this._i18n.labels.collapse;
 
-            buttonCollapse.onclick = () => divControl.classList.add('ol-dji-geozones--collapsed');
+            buttonCollapse.onclick = () => this.setPanelCollapsed(true);
 
             return buttonCollapse;
           };
 
           var divControl = document.createElement('div');
-          divControl.className = 'ol-dji-geozones ol-control ol-dji-geozones--ctrl-disabled';
-          divControl.innerHTML = "\n            <header>\n                <h3>".concat(this.i18n.labels.djiGeoZones, "</h3>\n                <span class=\"ol-dji-geozones--loading\">\n                    ").concat(this.loadingElement, "\n                </span>\n            </header>\n            <main>\n                <section class=\"ol-dji-geozones--selectors\"></section>\n                <section>\n                    <div class=\"ol-dji-geozones--logo\" title=\"").concat(this.i18n.labels.expand, "\"><img src=\"").concat(img, "\"/></div>\n                    <span class=\"ol-dji-geozones--advice\">").concat(this.i18n.labels.helperZoom, "</span>\n                </section>\n            </main>\n            ");
+          var className = 'ol-dji-geozones ol-control ol-dji-geozones--ctrl-disabled';
+          if (startCollapsed) className += ' ol-dji-geozones--ctrl-collapsed';
+          divControl.className = className;
+          divControl.innerHTML = "\n            <header>\n                <h3>".concat(this._i18n.labels.djiGeoZones, "</h3>\n                <span class=\"ol-dji-geozones--loading\">\n                    ").concat(this._loadingElement, "\n                </span>\n            </header>\n            <main>\n                <section class=\"ol-dji-geozones--selectors\"></section>\n                <section>\n                    <div class=\"ol-dji-geozones--logo\" title=\"").concat(this._i18n.labels.expand, "\"><img src=\"").concat(img, "\"/></div>\n                    <span class=\"ol-dji-geozones--advice\">").concat(this._i18n.labels.helperZoom, "</span>\n                </section>\n            </main>\n            ");
           var droneSelector = createDroneSelector();
           divControl.querySelector('.ol-dji-geozones--selectors').append(droneSelector);
           var levelSelector = createLevelSelector();
@@ -794,7 +799,7 @@
           divControl.querySelector('header').append(buttonCollapse);
           var logo = divControl.querySelector('.ol-dji-geozones--logo');
 
-          logo.onclick = () => divControl.classList.remove('ol-dji-geozones--collapsed');
+          logo.onclick = () => this.setPanelCollapsed(false);
 
           this.divControl = divControl;
           var options = {
@@ -846,31 +851,31 @@
 
           var handleZoomEnd = () => {
             var setVisible = bool => {
-              this.vectorLayers.forEach(layer => {
+              this.layers.forEach(layer => {
                 if (!bool) {
                   layer.setVisible(bool);
-                } else if (bool && this.levelsActive.includes(layer.get('level'))) {
+                } else if (bool && this.activeLevels.includes(layer.get('level'))) {
                   layer.setVisible(bool);
                 }
               });
             };
 
-            if (this.currentZoom < MIN_ZOOM) {
+            if (this._currentZoom < MIN_ZOOM) {
               // Hide the layer and disable the control
-              if (this.isVisible) {
+              if (this._isVisible) {
                 setVisible(false);
-                this.isVisible = false;
+                this._isVisible = false;
                 setControlEnabled(false);
               }
             } else {
               // Show the layers and enable the control
-              if (!this.isVisible) {
+              if (!this._isVisible) {
                 setVisible(true);
-                this.isVisible = true;
+                this._isVisible = true;
                 setControlEnabled(true);
               } else {
                 // If the view is closer, don't do anything, we already had the features
-                if (this.currentZoom > this.lastZoom) return;
+                if (this._currentZoom > this._lastZoom) return;
               }
 
               this.getInfoFromView();
@@ -878,21 +883,21 @@
           };
 
           var handleDragEnd = () => {
-            if (!this.isVisible) return;
+            if (!this._isVisible) return;
             this.getInfoFromView();
           };
 
           var clickHandler = evt => {
-            var type = this.useApiForPopUp ? 'useApiForPopUp' : 'useFeaturesForPopUp';
+            var type = this._useApiForPopUp ? 'useApiForPopUp' : 'useFeaturesForPopUp';
             this.getPointInfoFromClick(evt, type);
           };
 
-          this.moveendEvtKey = this.map.on('moveend', () => {
-            this.currentZoom = this.view.getZoom();
-            if (this.currentZoom !== this.lastZoom) handleZoomEnd();else handleDragEnd();
-            this.lastZoom = this.currentZoom;
+          this._moveendEvtKey = this.map.on('moveend', () => {
+            this._currentZoom = this.view.getZoom();
+            if (this._currentZoom !== this._lastZoom) handleZoomEnd();else handleDragEnd();
+            this._lastZoom = this._currentZoom;
           });
-          this.clickEvtKey = this.map.on(this.clickEvent, clickHandler);
+          this._clickEvtKey = this.map.on(this.clickEvent, clickHandler);
         };
 
         createVectorLayers();
@@ -1013,7 +1018,7 @@
                 url
               } = responseApiArea;
               var levelValues = this.getLevelById(level);
-              var lbl = this.i18n.labels;
+              var lbl = this._i18n.labels;
               var html = "\n                    <div class=\"ol-dji-geozones--marker\">\n                        <img src=\"".concat(levelValues.markerCircle, "\">\n                    </div>\n                    <div class=\"ol-dji-geozones--main\">\n                        <h3 class=\"ol-dji-geozones--title\">").concat(name, "</h3>\n                        <p class=\"ol-dji-geozones--level\">").concat(lbl.level, ": ").concat(levelValues.name, " </p>\n                        <p class=\"ol-dji-geozones--type\">").concat(lbl.type, ": ").concat(this.getGeozoneTypeById(type).name, "</p>\n                        ").concat(begin_at ? "<p class=\"ol-dji-geozones--start_time\">".concat(lbl.startTime, ": ").concat(begin_at, "</p>") : '', "\n                        ").concat(end_at ? "<p class=\"ol-dji-geozones--end_time\">".concat(lbl.endTime, ": ").concat(end_at, "</p><p class=\"ol-dji-geozones--time_tips\">").concat(lbl.timeTips, "</p>") : '', "         \n                        ").concat(height ? "<p class=\"ol-dji-geozones--height\">".concat(lbl.maxAltitude, " (m): ").concat(height, "</p>") : '', " \n                        ").concat(address ? "<p class=\"ol-dji-geozones--address\">".concat(lbl.address, ": ").concat(address, "</p>") : '', "\n                        ").concat(description ? "<p class=\"ol-dji-geozones--desc\">".concat(lbl.tips, ": ").concat(description, "</p>") : '', "\n                        ").concat(url ? "<p class=\"ol-dji-geozones--url\">".concat(lbl.link, ": <a href=\"").concat(url, "\">").concat(lbl.learnMore, "</a></p>") : '', "\n                </div>");
               var item = document.createElement('div');
               item.className = 'ol-dji-geozones--item';
@@ -1038,7 +1043,7 @@
           };
 
           try {
-            if (!this.isVisible) {
+            if (!this._isVisible) {
               this.overlay.setPosition(undefined);
               return;
             }
@@ -1050,7 +1055,7 @@
 
             if (type === 'useApiForPopUp') {
               if (this.map.hasFeatureAtPixel(evt.pixel, opt_options)) {
-                this.popupContent.innerHTML = this.loadingElement.toString();
+                this.popupContent.innerHTML = this._loadingElement.toString();
                 this.overlay.setPosition(evt.coordinate);
                 data = yield getInfoFromApiLatLng(evt.coordinate);
               } // Use the previously downloaded features information
@@ -1086,7 +1091,7 @@
 
         var fixLevelValue = feature => {
           var color = feature.get('color');
-          var level = Object.keys(this.levelsParamsList).find(key => this.levelsParamsList[key].color === color);
+          var level = Object.keys(this._levelsParams).find(key => this._levelsParams[key].color === color);
           feature.set('level', level);
           return feature;
         };
@@ -1106,7 +1111,7 @@
           var getFeatureById = id => {
             var feature;
 
-            for (var layer of this.vectorLayers) {
+            for (var layer of this.layers) {
               feature = layer.getSource().getFeatureById(id);
               if (feature) break;
             }
@@ -1238,7 +1243,7 @@
 
 
         var clearFeatures = () => {
-          this.vectorLayers.forEach(layer => {
+          this.layers.forEach(layer => {
             layer.getSource().clear();
           });
         }; // Prevent multiples requests
@@ -1260,7 +1265,7 @@
             };
 
             if (clear) {
-              this.areaDownloaded = null; // Remove area already downloaded
+              this._areaDownloaded = null; // Remove area already downloaded
             }
 
             var data = yield this.getApiGeoData('areas', viewLatLng);
@@ -1294,7 +1299,7 @@
               var api_endpoint = typeApiRequest === 'areas' ? API_AREAS_ENDPOINT : API_INFO_ENDPOINT; // If not proxy is passed, make a direct request
               // Maybe in the future the api will has updated CORS restrictions
 
-              var url = new URL(this.urlProxy ? this.urlProxy + api_endpoint : api_endpoint);
+              var url = new URL(this._urlProxy ? this._urlProxy + api_endpoint : api_endpoint);
               var queryObj = {
                 drone: this.drone,
                 zones_mode: this.zonesMode,
@@ -1320,15 +1325,15 @@
             var extent$1 = this.view.calculateExtent();
             var polygon = Polygon.fromExtent(extent$1);
 
-            if (this.areaDownloaded) {
-              if (this.areaDownloaded.intersectsCoordinate(extent.getCenter(extent$1)) && this.areaDownloaded.intersectsCoordinate(extent.getBottomLeft(extent$1)) && this.areaDownloaded.intersectsCoordinate(extent.getTopRight(extent$1)) && this.areaDownloaded.intersectsCoordinate(extent.getBottomRight(extent$1)) && this.areaDownloaded.intersectsCoordinate(extent.getTopLeft(extent$1))) {
+            if (this._areaDownloaded) {
+              if (this._areaDownloaded.intersectsCoordinate(extent.getCenter(extent$1)) && this._areaDownloaded.intersectsCoordinate(extent.getBottomLeft(extent$1)) && this._areaDownloaded.intersectsCoordinate(extent.getTopRight(extent$1)) && this._areaDownloaded.intersectsCoordinate(extent.getBottomRight(extent$1)) && this._areaDownloaded.intersectsCoordinate(extent.getTopLeft(extent$1))) {
                 // whe already have the data, do nothing
                 return;
               }
 
-              this.areaDownloaded.appendPolygon(polygon);
+              this._areaDownloaded.appendPolygon(polygon);
             } else {
-              this.areaDownloaded = new geom.MultiPolygon([polygon.getCoordinates()]);
+              this._areaDownloaded = new geom.MultiPolygon([polygon.getCoordinates()]);
             }
 
             var data = yield apiRequest('areas', centerLatLng, searchRadius);
@@ -1349,7 +1354,7 @@
             return parseInt(String(centerToSW));
           };
 
-          if (!this.isVisible) return;
+          if (!this._isVisible) return;
           var searchRadius = getMapRadius(latLng);
           var data;
 
@@ -1380,12 +1385,29 @@
         }
       }
       /**
+       * Collapse/expand the control panel
+       * @param collapsed
+       */
+
+
+      setPanelCollapsed(collapsed) {
+        if (!this.divControl) {
+          return;
+        }
+
+        if (collapsed) {
+          this.divControl.classList.add('ol-dji-geozones--ctrl-collapsed');
+        } else {
+          this.divControl.classList.remove('ol-dji-geozones--ctrl-collapsed');
+        }
+      }
+      /**
        * Get all the layers
        */
 
 
-      getLayers() {
-        return this.vectorLayers;
+      get layers() {
+        return this._layers;
       }
       /**
        * Get the layer acordding the level
@@ -1396,7 +1418,7 @@
       getLayerByLevel(level) {
         var find;
 
-        for (var layer of this.vectorLayers) {
+        for (var layer of this.layers) {
           if (layer.get('level') != undefined && layer.get('level') == level) {
             find = layer;
             break;
@@ -1406,7 +1428,7 @@
         return find;
       }
       /**
-       *
+       * Get the geozone type (airport, heliport, etc) by id
        * @param id
        * @private
        */
@@ -1414,7 +1436,7 @@
 
       getGeozoneTypeById() {
         var id = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-        return this.i18n.types.find(el => el.id == id);
+        return this._i18n.types.find(el => el.id == id);
       }
       /**
        * Gets a list with all the supported Drones
@@ -1422,47 +1444,62 @@
        */
 
 
-      getDrones() {
-        return this.dronesToDisplay;
+      get dronesToDisplay() {
+        return this._dronesToDisplay;
       }
       /**
        * Set the drone parameter for the api request.
        * @param drone
-       * @param refresh If true, refresh the view making a new api request
        */
 
 
-      setDrone(drone) {
-        var refresh = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-        this.drone = drone;
+      set drone(drone) {
+        this._drone = drone;
+        this.getInfoFromView();
+      }
+      /**
+       * Get Api parameter drone parameter
+       */
 
-        if (refresh) {
-          this.getInfoFromView();
-        }
+
+      get drone() {
+        return this._drone;
+      }
+      /**
+       * Set the zonesMode parameter for the api request.
+       * @param drone
+       */
+
+
+      set zonesMode(zonesMode) {
+        this._zonesMode = zonesMode;
+        this.getInfoFromView();
+      }
+      /**
+       * Get Api parameter ZonesMode
+       */
+
+
+      get zonesMode() {
+        return this._zonesMode;
       }
       /**
        * Set the drone parameter for the api request.
        * @param country
-       * @param refresh If true, refresh the view making a new api request
        */
 
 
-      setCountry(country) {
-        var refresh = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-        this.country = country;
-
-        if (refresh) {
-          this.getInfoFromView();
-        }
+      set country(country) {
+        this._country = country;
+        this.getInfoFromView();
       }
       /**
-       * Get the parameters from all the levels
-       * @private
+       * Get Api parameter Country
        */
 
 
-      getLevelsParams() {
-        return this.levelsParamsList;
+      get country() {
+        return this._country;
       }
       /**
        * Get the level parameters, like color, icon, and description
@@ -1473,7 +1510,7 @@
 
       getLevelParamsById() {
         var id = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-        return this.levelsParamsList.find(lev => lev.id == id);
+        return this._levelsParams.find(lev => lev.id == id);
       }
       /**
        * Get all the parameters from a level and the i18n texts
@@ -1483,46 +1520,47 @@
 
       getLevelById() {
         var id = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-        var params = this.levelsParamsList.find(lev => lev.id == id);
-        var texts = this.i18n.levels.find(lev => lev.id == id);
+
+        var params = this._levelsParams.find(lev => lev.id == id);
+
+        var texts = this._i18n.levels.find(lev => lev.id == id);
+
         return Object.assign(Object.assign({}, params), texts);
       }
       /**
-       * Replace the active levels with this values
-       *
+       * Replace the active levels with this values and refresh the view
        * @param levels
-       * @param refresh If true, refresh the view and show the levels
        */
 
 
-      setLevels(levels) {
-        var refresh = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-        var arrLevels = !Array.isArray(levels) ? [levels] : levels;
-        this.levelsActive = arrLevels;
+      set activeLevels(levels) {
+        this.activeLevels = levels;
 
-        if (refresh) {
-          this.levelsToDisplay.forEach(lev => {
-            var layer = this.getLayerByLevel(lev);
+        this._levelsToDisplay.forEach(lev => {
+          var layer = this.getLayerByLevel(lev);
 
-            if (arrLevels.includes(lev)) {
-              layer.setVisible(true);
-            } else {
-              layer.setVisible(false);
-            }
-          });
-        }
+          if (levels.includes(lev)) {
+            layer.setVisible(true);
+          } else {
+            layer.setVisible(false);
+          }
+        });
+      }
+
+      get activeLevels() {
+        return this._activeLevels;
       }
       /**
        * Add the level/s to the view
        * @param levels
-       * @param refresh If true, refresh the view and show the actived levels
+       * @param refresh If true, refresh the view and show the active levels
        */
 
 
       addLevels(levels) {
         var refresh = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
         var arrLevels = !Array.isArray(levels) ? [levels] : levels;
-        this.levelsActive = [...this.levelsActive, ...arrLevels];
+        this.activeLevels = [...this.activeLevels, ...arrLevels];
 
         if (refresh) {
           arrLevels.forEach(lev => {
@@ -1542,7 +1580,7 @@
       removeLevels(levels) {
         var refresh = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
         var arrLevels = !Array.isArray(levels) ? [levels] : levels;
-        this.levelsActive = this.levelsActive.filter(x => !arrLevels.includes(x));
+        this.activeLevels = this.activeLevels.filter(x => !arrLevels.includes(x));
 
         if (refresh) {
           arrLevels.forEach(lev => {
@@ -1558,11 +1596,11 @@
 
       destroy() {
         this.map.removeControl(this.control);
-        this.getLayers().forEach(layer => {
+        this.layers.forEach(layer => {
           this.map.removeLayer(layer);
         });
-        Observable.unByKey(this.clickEvtKey);
-        Observable.unByKey(this.moveendEvtKey);
+        Observable.unByKey(this._clickEvtKey);
+        Observable.unByKey(this._moveendEvtKey);
       }
       /**
        *  **_[static]_** - Generate an RGBA color from an hexadecimal
