@@ -280,8 +280,8 @@ export default class DjiGeozones {
         let options = '';
 
         this.dronesToDisplay.forEach((drone: Drone) => {
-          const selected = this.drone === drone.label ? 'selected' : '';
-          options += `<option value="${drone.label}" ${selected}>${drone.label}</option>`;
+          const selected = this.drone === drone.id? 'selected' : '';
+          options += `<option value="${drone.id}" ${selected}>${drone.label}</option>`;
         });
 
         select.innerHTML = options;

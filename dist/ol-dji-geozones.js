@@ -698,8 +698,8 @@
             if (!this._isVisible) select.setAttribute('disabled', 'disabled');
             var options = '';
             this.dronesToDisplay.forEach(drone => {
-              var selected = this.drone === drone.label ? 'selected' : '';
-              options += "<option value=\"".concat(drone.label, "\" ").concat(selected, ">").concat(drone.label, "</option>");
+              var selected = this.drone === drone.id ? 'selected' : '';
+              options += "<option value=\"".concat(drone.id, "\" ").concat(selected, ">").concat(drone.label, "</option>");
             });
             select.innerHTML = options;
             droneSelector.append(select);

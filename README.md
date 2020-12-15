@@ -10,6 +10,8 @@ Tested with OpenLayers version 5 and 6.
 
 Now days, DJI doesn't offer any API documentation, so future support and access to the data is uncertain. Furthermore, the API endpoint has CORS restrictions, so all browsers requests must be proxied.
 
+![](/screenshots/example-1.jpg)
+![](/screenshots/example-2.jpg)
 ## Examples
 
 - [Basic usage](http://raw.githack.com/GastonZalba/ol-dji-geozones/master/examples/basic.html)
@@ -169,6 +171,7 @@ TypeScript types are shipped with the project in the dist directory and should b
   - [startCollapsed](#startcollapsed)
   - [loadingElement](#loadingelement)
   - [clickEvent](#clickevent)
+  - [theme](#theme)
   - [language](#language)
   - [i18n](#i18n-1)
 
@@ -509,6 +512,12 @@ Type: [string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Globa
 Type of Click event to activate the PopUp
 
 Type: (`"singleclick"` \| `"dblclick"`)
+
+#### theme
+
+Color theme of the Control Panel
+
+Type: (`"light"` \| `"dark"`)
 
 #### language
 
