@@ -9,7 +9,6 @@
     "dist"
   ],
   "scripts": {
-    "watch": "nodemon --watch 'src/**' -e ts,css --ignore 'dist/' --exec npm run build",
     "precleanstart": "del-cli dist tmp",
     "doc": "documentation readme src/ol-dji-geozones.ts --quiet=true --access=public --access=undefined --section=API --parse-extension ts && node scripts/external-links.js README.md && prettier --write README.md",
     "format": "eslint --fix src/*.ts && prettier --write src",
@@ -65,7 +64,6 @@
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-prettier": "^3.1.4",
     "ncp": "^2.0.0",
-    "nodemon": "^2.0.6",
     "ol": "^6.1.1",
     "prettier": "^2.2.0",
     "rollup": "^2.33.3",
