@@ -27,9 +27,9 @@ const options: Options = {
     urlProxy: 'https://cors-anywhere.herokuapp.com/',
     drone: 'mavic-2',
     country: 'AR',
-    levelsToDisplay: [2, 6, 1, 0, 3, 4, 7],
-    levelsActive: [0, 1, 2, 3, 4, 6, 7],
-    showPanel: true,
+    displayLevels: [2, 6, 1, 0, 3, 4, 7],
+    activeLevels: [0, 1, 2, 3, 4, 6, 7],
+    createPanel: true,
     language: 'en',
     // Create customized language/texts
     i18n: {

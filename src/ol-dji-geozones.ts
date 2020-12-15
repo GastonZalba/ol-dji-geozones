@@ -1524,8 +1524,8 @@ interface i18n {
  *   drone: 'spark', // See parameter in the DJI API section
  *   zonesMode: 'total', // See parameter in the DJI API section
  *   country: 'US', // See parameter in the DJI API section
- *   levelsToDisplay: [2, 6, 1, 0, 3, 4, 7],
- *   levelsActive: [2, 6, 1, 0, 3, 4, 7],
+ *   displayLevels: [2, 6, 1, 0, 3, 4, 7],
+ *   activeLevels: [2, 6, 1, 0, 3, 4, 7],
  *   createPanel: true,
  *   targetPanel: null,
  *   extent: null,
