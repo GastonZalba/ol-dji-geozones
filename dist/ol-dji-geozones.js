@@ -87,103 +87,103 @@
     var dronesList = [
     	{
     		id: "mavic-mini",
-    		name: "Mavic Mini"
+    		label: "Mavic Mini"
     	},
     	{
     		id: "mavic-2-enterprise",
-    		name: "Mavic 2 Enterprise"
+    		label: "Mavic 2 Enterprise"
     	},
     	{
     		id: "mavic-2",
-    		name: "Mavic 2"
+    		label: "Mavic 2"
     	},
     	{
     		id: "mavic-air",
-    		name: "Mavic Air"
+    		label: "Mavic Air"
     	},
     	{
     		id: "mavic-air-2",
-    		name: "Mavic Air 2"
+    		label: "Mavic Air 2"
     	},
     	{
     		id: "mavic-pro",
-    		name: "Mavic Pro"
+    		label: "Mavic Pro"
     	},
     	{
     		id: "spark",
-    		name: "Spark"
+    		label: "Spark"
     	},
     	{
     		id: "phantom-4-pro",
-    		name: "Phantom 4 Pro"
+    		label: "Phantom 4 Pro"
     	},
     	{
     		id: "phantom-4-advanced",
-    		name: "Phantom 4 Advanced"
+    		label: "Phantom 4 Advanced"
     	},
     	{
     		id: "phantom-4",
-    		name: "Phantom 4"
+    		label: "Phantom 4"
     	},
     	{
     		id: "phantom-4-rtk",
-    		name: "Phantom 4 RTK"
+    		label: "Phantom 4 RTK"
     	},
     	{
     		id: "phantom-4-multispectral",
-    		name: "Phantom 4 Multispectral"
+    		label: "Phantom 4 Multispectral"
     	},
     	{
     		id: "phantom-3-pro",
-    		name: "Phantom 3 Pro"
+    		label: "Phantom 3 Pro"
     	},
     	{
     		id: "phantom-3-advanced",
-    		name: "Phantom 3 Advanced"
+    		label: "Phantom 3 Advanced"
     	},
     	{
     		id: "phantom-3-standard",
-    		name: "Phantom 3 Standard"
+    		label: "Phantom 3 Standard"
     	},
     	{
     		id: "phantom-3-4K",
-    		name: "Phantom 3 4K"
+    		label: "Phantom 3 4K"
     	},
     	{
     		id: "phantom-3-se",
-    		name: "Phantom 3 SE"
+    		label: "Phantom 3 SE"
     	},
     	{
     		id: "inspire-2",
-    		name: "Inspire 2"
+    		label: "Inspire 2"
     	},
     	{
     		id: "inspire-1-series",
-    		name: "Inspire 1 Series"
+    		label: "Inspire 1 Series"
     	},
     	{
     		id: "m200-series",
-    		name: "M200 Series"
+    		label: "M200 Series"
     	},
     	{
     		id: "m300-series",
-    		name: "M300 Series"
+    		label: "M300 Series"
     	},
     	{
     		id: "m600-series",
-    		name: "M600 Series"
+    		label: "M600 Series"
     	},
     	{
     		id: "m100",
-    		name: "M100"
+    		label: "M100"
     	},
     	{
     		id: "mg1p",
-    		name: "MG 1S/1A/1P/1P RTK/T10/T16/T20/T30"
+    		label: "MG 1S/1A/1P/1P RTK/T10/T16/T20/T30"
     	},
     	{
     		id: "dji-mini-2",
-    		name: "DJI Mini 2"
+    		label: "DJI Mini 2"
     	}
     ];
 
@@ -544,9 +544,9 @@
         this._drone = options.drone || 'spark';
         this._zonesMode = options.zonesMode || 'total';
         this._country = options.country || 'US';
-        this._levelsToDisplay = options.levelsToDisplay || [2, 6, 1, 0, 3, 4, 7];
-        this._activeLevels = options.levelsActive || [2, 6, 1, 0, 3, 4, 7];
-        this._levelsParams = levelsParams; // If not provided, we use all the available drones
+        this._displayLevels = options.displayLevels || [2, 6, 1, 0, 3, 4, 7];
+        this._activeLevels = options.activeLevels || [2, 6, 1, 0, 3, 4, 7];
+        this._paramsLevels = levelsParams; // If not provided, we use all the available drones
         // This can be passed to use translations.
 
         this._dronesToDisplay = options.dronesToDisplay || dronesList;
@@ -561,9 +561,10 @@
 
         this._useApiForPopUp = false; // MAP
 
-        var showPanel = 'showPanel' in options ? options.showPanel : true;
+        var createPanel = 'createPanel' in options ? options.createPanel : true;
         var targetPanel = options.targetPanel || null;
         var startCollapsed = 'startCollapsed' in options ? options.startCollapsed : false;
+        this.theme = options.theme || 'light';
         this.map = map;
         this.view = map.getView();
         this.projection = this.view.getProjection();
@@ -571,13 +572,13 @@
         this._layers = [];
         this.divControl = null;
         this._areaDownloaded = null;
-        this.init(showPanel, startCollapsed, targetPanel);
+        this.init(createPanel, startCollapsed, targetPanel);
       }
 
-      init(showPanel, startCollapsed, targetControl) {
+      init(createPanel, startCollapsed, targetControl) {
         /**
          * Create and add a Vector Layer for each level
-         * @private
+         * @protected
          */
         var createVectorLayers = () => {
           /**
@@ -585,7 +586,7 @@
            * level, and color obtained from the API
            *
            * @param feature
-           * @private
+           * @protected
            */
           var styleFunction = feature => {
             var geomType = feature.getGeometry().getType();
@@ -632,19 +633,20 @@
             layer.set('name', 'ol-dji-geozones');
             layer.set('level', level);
             this.map.addLayer(layer);
-            this.layers.push(layer);
+
+            this._layers.push(layer);
           });
         };
         /**
          * Create the PopUp element and add it to an Overlay
-         * @private
+         * @protected
          */
 
 
         var createPopUpOverlay = () => {
           var popupContainer = document.createElement('div');
           popupContainer.id = 'ol-dji-geozones--popup';
-          popupContainer.className = 'ol-popup ol-dji-geozones--ol-popup';
+          popupContainer.className = "ol-popup ol-dji-geozones--ol-popup ol-dji-geozones--".concat(this.theme);
           this.popupContent = document.createElement('div');
           this.popupContent.id = 'ol-dji-geozones--popup-content';
           this.popupContent.className = 'ol-dji-geozones--ol-popup-content';
@@ -673,7 +675,7 @@
         /**
          * Add panel controller to the viewport map.
          * @param targetPanel If provided, the panel wil be rendered outside the viewport
-         * @private
+         * @protected
          */
 
 
@@ -696,8 +698,8 @@
             if (!this._isVisible) select.setAttribute('disabled', 'disabled');
             var options = '';
             this.dronesToDisplay.forEach(drone => {
-              var selected = this.drone === drone.id ? 'selected' : '';
-              options += "<option value=\"".concat(drone.id, "\" ").concat(selected, ">").concat(drone.name, "</option>");
+              var selected = this.drone === drone.label ? 'selected' : '';
+              options += "<option value=\"".concat(drone.label, "\" ").concat(selected, ">").concat(drone.label, "</option>");
             });
             select.innerHTML = options;
             droneSelector.append(select);
@@ -768,7 +770,7 @@
             var levelSelector = document.createElement('div');
             levelSelector.className = 'ol-dji-geozones--level-selector';
 
-            this._levelsToDisplay.forEach(lev => {
+            this._displayLevels.forEach(lev => {
               var level = createLevelItem(lev, this.getLevelById(lev));
               levelSelector.append(level);
             });
@@ -787,7 +789,7 @@
           };
 
           var divControl = document.createElement('div');
-          var className = 'ol-dji-geozones ol-control ol-dji-geozones--ctrl-disabled';
+          var className = "ol-dji-geozones ol-control ol-dji-geozones--ctrl-disabled ol-dji-geozones--".concat(this.theme);
           if (startCollapsed) className += ' ol-dji-geozones--ctrl-collapsed';
           divControl.className = className;
           divControl.innerHTML = "\n            <header>\n                <h3>".concat(this._i18n.labels.djiGeoZones, "</h3>\n                <span class=\"ol-dji-geozones--loading\">\n                    ").concat(this._loadingElement, "\n                </span>\n            </header>\n            <main>\n                <section class=\"ol-dji-geozones--selectors\"></section>\n                <section>\n                    <div class=\"ol-dji-geozones--logo\" title=\"").concat(this._i18n.labels.expand, "\"><img src=\"").concat(img, "\"/></div>\n                    <span class=\"ol-dji-geozones--advice\">").concat(this._i18n.labels.helperZoom, "</span>\n                </section>\n            </main>\n            ");
@@ -815,14 +817,14 @@
           this.map.addControl(this.control);
         };
         /**
-         * @private
+         * @protected
          */
 
 
         var addMapEvents = () => {
           /**
            * Enable or disable the inputs and the select in the control
-           * @private
+           * @protected
            */
           var setControlEnabled = enabled => {
             if (!this.divControl) return;
@@ -903,13 +905,13 @@
         createVectorLayers();
         createPopUpOverlay();
         addMapEvents();
-        if (showPanel) addMapControl(targetControl);
+        if (createPanel) addMapControl(targetControl);
       }
       /**
        *
        * @param evt
        * @param type
-       * @private
+       * @protected
        */
 
 
@@ -946,7 +948,7 @@
           /**
            *
            * @param features
-           * @private
+           * @protected
            */
 
 
@@ -985,7 +987,7 @@
               };
 
               var infoTooltip = document.createElement('span');
-              infoTooltip.className = 'ol-dji-geozones--info';
+              infoTooltip.className = "ol-dji-geozones--info ol-dji-geozones--".concat(this.theme);
               infoTooltip.innerHTML = "<span class=\"ol-dji-geozones--info-text\">".concat(level.desc, "</span><span class=\"ol-dji-geozones--info-back\"></span>");
               infoTooltip.setAttribute('style', "--level-color: ".concat(level.color));
               var iconTooltip = document.createElement('span');
@@ -1074,7 +1076,7 @@
       /**
        *
        * @param clear
-       * @private
+       * @protected
        */
 
 
@@ -1086,19 +1088,19 @@
         /**
          * The level parameter returned by the API is wrong, so wee need to fixed using the color
          * @param feature
-         * @private
+         * @protected
          */
 
         var fixLevelValue = feature => {
           var color = feature.get('color');
-          var level = Object.keys(this._levelsParams).find(key => this._levelsParams[key].color === color);
+          var level = Object.keys(this._paramsLevels).find(key => this._paramsLevels[key].color === color);
           feature.set('level', level);
           return feature;
         };
         /**
          * Parse the json response of the API an create Open Layers features.
          * @param djiJson
-         * @private
+         * @protected
          */
 
 
@@ -1106,7 +1108,7 @@
           /**
            *
            * @param id
-           * @private
+           * @protected
            */
           var getFeatureById = id => {
             var feature;
@@ -1213,7 +1215,7 @@
         /**
          *
          * @param features
-         * @private
+         * @protected
          */
 
 
@@ -1228,7 +1230,7 @@
         /**
          * Show/hide the loading in the control
          * @param {Boolean} bool
-         * @private
+         * @protected
          */
 
 
@@ -1238,7 +1240,7 @@
         };
         /**
          * Clear all the elements in the Dji Geozones layers
-         * @private
+         * @protected
          */
 
 
@@ -1284,7 +1286,7 @@
        * Controller for the API rquests.
        * @param typeApiRequest
        * @param latLng
-       * @private
+       * @protected
        */
 
 
@@ -1379,9 +1381,9 @@
         }
 
         if (visible) {
-          this.divControl.classList.add('ol-dji-geozones--ctrl-hidden');
-        } else {
           this.divControl.classList.remove('ol-dji-geozones--ctrl-hidden');
+        } else {
+          this.divControl.classList.add('ol-dji-geozones--ctrl-hidden');
         }
       }
       /**
@@ -1430,7 +1432,7 @@
       /**
        * Get the geozone type (airport, heliport, etc) by id
        * @param id
-       * @private
+       * @protected
        */
 
 
@@ -1439,8 +1441,8 @@
         return this._i18n.types.find(el => el.id == id);
       }
       /**
-       * Gets a list with all the supported Drones
-       * @private
+       * Getter for the list with all the supported Drones
+       * @protected
        */
 
 
@@ -1448,7 +1450,7 @@
         return this._dronesToDisplay;
       }
       /**
-       * Set the drone parameter for the api request.
+       * Setter for API parameter `drone`. Triggers an API request
        * @param drone
        */
 
@@ -1458,7 +1460,7 @@
         this.getInfoFromView();
       }
       /**
-       * Get Api parameter drone parameter
+       * Getter for Api parameter drone
        */
 
 
@@ -1466,8 +1468,8 @@
         return this._drone;
       }
       /**
-       * Set the zonesMode parameter for the api request.
-       * @param drone
+       * Setter for API parameter `zonesMode`. Triggers an API request
+       * @param zonesMode
        */
 
 
@@ -1476,7 +1478,7 @@
         this.getInfoFromView();
       }
       /**
-       * Get Api parameter ZonesMode
+       * Getter for API parameter `zonesMode`
        */
 
 
@@ -1484,7 +1486,7 @@
         return this._zonesMode;
       }
       /**
-       * Set the drone parameter for the api request.
+       * Setter for API parameter `country`. Triggers an API request
        * @param country
        */
 
@@ -1494,7 +1496,7 @@
         this.getInfoFromView();
       }
       /**
-       * Get Api parameter Country
+       * Getter for API parameter `country`
        */
 
 
@@ -1504,13 +1506,13 @@
       /**
        * Get the level parameters, like color, icon, and description
        * @param id
-       * @private
+       * @protected
        */
 
 
       getLevelParamsById() {
         var id = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-        return this._levelsParams.find(lev => lev.id == id);
+        return this._paramsLevels.find(lev => lev.id == id);
       }
       /**
        * Get all the parameters from a level and the i18n texts
@@ -1521,7 +1523,7 @@
       getLevelById() {
         var id = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 
-        var params = this._levelsParams.find(lev => lev.id == id);
+        var params = this._paramsLevels.find(lev => lev.id == id);
 
         var texts = this._i18n.levels.find(lev => lev.id == id);
 
@@ -1534,9 +1536,9 @@
 
 
       set activeLevels(levels) {
-        this.activeLevels = levels;
+        this._activeLevels = levels;
 
-        this._levelsToDisplay.forEach(lev => {
+        this._displayLevels.forEach(lev => {
           var layer = this.getLayerByLevel(lev);
 
           if (levels.includes(lev)) {
@@ -1608,7 +1610,7 @@
        * Adapted from https://stackoverflow.com/questions/28004153
        * @param color Hexadeciaml color
        * @param alpha Opacity
-       * @private
+       * @protected
        */
 
 

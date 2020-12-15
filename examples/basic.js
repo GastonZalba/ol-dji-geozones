@@ -25,7 +25,8 @@
     activeLevels: [0, 1, 2, 3, 4, 6, 7],
     showPanel: true,
     language: 'en',
-    startCollapsed: false
+    startCollapsed: false,
+    theme: 'dark'
   };
 
   var djiGeozones = new DjiGeozones(map, opt_options);

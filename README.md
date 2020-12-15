@@ -1,6 +1,6 @@
 # OpenLayers DjiGeozones
 
-Create a Layer with DJI Geo Zones for an OpenLayers map. Also, you can add a Control Panel to select the drone and the levels to be shown.
+Display DJI Geo Zones in an OpenLayers map. Also, you can add a Control Panel with map legends and selectors to change the drone and the levels to be shown.
 
 The data is obtained directly from an undocumented DJI [API](https://www-api.dji.com/api/geo/areas). The official DJI Fly Safe Geo Zone Map that use the same data can be found [here](https://www.dji.com/flysafe/geo-map).
 
@@ -8,12 +8,12 @@ Tested with OpenLayers version 5 and 6.
 
 ### DISCLAIMER
 
-Now days, DJI doesn't offer any API documentation, so future support and access to the data is uncertain. Further, the API endpoint has CORS restrictions, so all browsers requests must be reverse proxied.
+Now days, DJI doesn't offer any API documentation, so future support and access to the data is uncertain. Furthermore, the API endpoint has CORS restrictions, so all browsers requests must be proxied.
 
 ## Examples
 
 - [Basic usage](http://raw.githack.com/GastonZalba/ol-dji-geozones/master/examples/basic.html)
-  - Create an OpenLayers map instance, and pass that map to the DJIGeozones constructor.
+  - Create an OpenLayers map instance, and pass that map and options to the DJIGeozones constructor.
 
 ## Usage
 
@@ -24,11 +24,11 @@ let opt_options = {
   drone: 'spark', // See drone parameter in the DJI API section
   zonesMode: 'total', // See drone parameter in the DJI API section
   country: 'US', // See country parameter in the DJI API section
-  levelsToDisplay: [2, 6, 1, 0, 3, 4, 7], // Order is kept in the Control
+  levelsToDisplay: [2, 6, 1, 0, 3, 4, 7], // Order is kept in the Control Panel
   levelsActive: [2, 6, 1, 0, 3, 4, 7],
-  dronesToDisplay:
+  dronesToDisplay: [], // By default, an array with all the drones
   extent: null,
-  showPanel: true, // Create or not the control
+  createPanel: true, // Create or not the control
   targetPanel: null, // Specify a target if you want the control to be rendered outside of the map's viewport.
   startCollapsed: false,
   clickEvent: 'singleclick',
@@ -47,7 +47,7 @@ const djiGeozones = new DjiGeozones(map, opt_options);
 // Instance methods
 // This methods clean the loaded features and fires a new API request.
 djiGeozones.drone = 'spark';
-djiGeozones.country = 'US'; // At the moment, this doesn't appear to affect the api response
+djiGeozones.country = 'US'; // At the moment, this doesn't seem to affect the api response
 djiGeozones.zonesMode = 'total';
 
 djiGeozones.activeLevels = [1, 2, 3, 4, 6, 7]; // Set custom level values
@@ -63,14 +63,14 @@ let layer = djiGeozones.getLayerByLevel(7); // returns an ol/layer/Vector~Vector
 
 ## [DJI API](https://www-api.dji.com/api/geo/areas) - What we know
 
-### Some consideratios
+### Some considerations
 
 - The API doesn't accepts requests in large zoom levels (&lt;9) aka search_radius, so the Geozones in the map are disabled in these zoom scales to manage this beahaivor.
 
 - The data returned by the API has some problems/strange behaviors:
 
   - The elements in _level 6_ (Altitude Zones, grey color) are returning from the api with _level 2_ in the properties (Restricted Zones, red color), and the elements in _level 4_ (Regulatory Restricted Zones, light blue color) with _level 7_ (Recommended Zones, green color).
-    This makes very messy the frontend, and make it impossible to filter these levels accordingly in each request. To avoid this problem, this module functions completely different from the official map: performs the API requests including all _levels_, distributing the results in differents layers according to each level, and filter the active levels by manipulating the layer visibility (not in the API request)
+    This makes very messy the frontend, and make it impossible to filter these levels accordingly in each request. To avoid this problem, this module functions completely different from the official map: performs the API requests including all _levels_, distributing the results in differents layers according to each level, and filtering that manipulating the layers visibility (not by the API request).
 
 - See [DjiApi API](#DjiApi) for parameters and details.
 
@@ -104,7 +104,7 @@ NPM package: [ol-dji-geozones](https://www.npmjs.com/package/ol-dji-geozones).
 
 Install the package via `npm`
 
-    npm install ol-dji-geozones
+    npm install ol-dji-geozones --save-dev
 
 #### CSS
 
@@ -126,26 +126,31 @@ TypeScript types are shipped with the project in the dist directory and should b
     - [Parameters](#parameters-1)
   - [setPanelCollapsed](#setpanelcollapsed)
     - [Parameters](#parameters-2)
-  - [getLayers](#getlayers)
+  - [layers](#layers)
   - [getLayerByLevel](#getlayerbylevel)
     - [Parameters](#parameters-3)
-  - [setDrone](#setdrone)
+  - [drone](#drone)
     - [Parameters](#parameters-4)
-  - [setCountry](#setcountry)
+  - [drone](#drone-1)
+  - [zonesMode](#zonesmode)
     - [Parameters](#parameters-5)
-  - [getLevelById](#getlevelbyid)
+  - [zonesMode](#zonesmode-1)
+  - [country](#country)
     - [Parameters](#parameters-6)
-  - [setLevels](#setlevels)
+  - [country](#country-1)
+  - [getLevelById](#getlevelbyid)
     - [Parameters](#parameters-7)
-  - [addLevels](#addlevels)
+  - [activeLevels](#activelevels)
     - [Parameters](#parameters-8)
-  - [removeLevels](#removelevels)
+  - [addLevels](#addlevels)
     - [Parameters](#parameters-9)
+  - [removeLevels](#removelevels)
+    - [Parameters](#parameters-10)
   - [destroy](#destroy)
 - [ApiReqArguments](#apireqarguments)
   - [level](#level)
-  - [drone](#drone)
-  - [country](#country)
+  - [drone](#drone-2)
+  - [country](#country-2)
   - [zones_mode](#zones_mode)
   - [lng](#lng)
   - [lat](#lat)
@@ -153,13 +158,13 @@ TypeScript types are shipped with the project in the dist directory and should b
 - [i18n](#i18n)
 - [Options](#options)
   - [urlProxy](#urlproxy)
-  - [zonesMode](#zonesmode)
-  - [country](#country-1)
-  - [levelsToDisplay](#levelstodisplay)
-  - [levelsActive](#levelsactive)
+  - [zonesMode](#zonesmode-2)
+  - [country](#country-3)
+  - [displayLevels](#displaylevels)
+  - [activeLevels](#activelevels-1)
   - [dronesToDisplay](#dronestodisplay)
   - [extent](#extent)
-  - [showPanel](#showpanel)
+  - [createPanel](#createpanel)
   - [targetPanel](#targetpanel)
   - [startCollapsed](#startcollapsed)
   - [loadingElement](#loadingelement)
@@ -201,9 +206,11 @@ Collapse/expand the control panel
 
 Returns **void**
 
-#### getLayers
+#### layers
 
 Get all the layers
+
+Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;VectorLayer>
 
 Returns **[Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;VectorLayer>**
 
@@ -217,27 +224,59 @@ Get the layer acordding the level
 
 Returns **VectorLayer**
 
-#### setDrone
+#### drone
 
-Set the drone parameter for the api request.
+Setter for API parameter `drone`. Triggers an API request
+
+Type: [string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)
 
 ##### Parameters
 
 - `drone` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)**
-- `refresh` If true, refresh the view making a new api request (optional, default `true`)
 
-Returns **void**
+#### drone
 
-#### setCountry
+Getter for Api parameter drone
 
-Set the drone parameter for the api request.
+Type: [string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)
+
+Returns **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)**
+
+#### zonesMode
+
+Setter for API parameter `zonesMode`. Triggers an API request
+
+Type: [string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)
+
+##### Parameters
+
+- `zonesMode` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)**
+
+#### zonesMode
+
+Getter for API parameter `zonesMode`
+
+Type: [string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)
+
+Returns **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)**
+
+#### country
+
+Setter for API parameter `country`. Triggers an API request
+
+Type: [string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)
 
 ##### Parameters
 
 - `country` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)**
-- `refresh` If true, refresh the view making a new api request (optional, default `true`)
 
-Returns **void**
+#### country
+
+Getter for API parameter `country`
+
+Type: [string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)
+
+Returns **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)**
 
 #### getLevelById
 
@@ -249,16 +288,15 @@ Get all the parameters from a level and the i18n texts
 
 Returns **Level**
 
-#### setLevels
+#### activeLevels
 
-Replace the active levels with this values
+Replace the active levels with this values and refresh the view
+
+Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)>
 
 ##### Parameters
 
-- `levels` **([Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)> | [number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number))**
-- `refresh` If true, refresh the view and show the levels (optional, default `true`)
-
-Returns **void**
+- `levels` **[Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)>**
 
 #### addLevels
 
@@ -388,7 +426,7 @@ Default values:
   country: 'US', // See parameter in the DJI API section
   levelsToDisplay: [2, 6, 1, 0, 3, 4, 7],
   levelsActive: [2, 6, 1, 0, 3, 4, 7],
-  showPanel: true,
+  createPanel: true,
   targetPanel: null,
   extent: null,
   loadingElement: '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>',
@@ -416,13 +454,13 @@ Country identifier to be used in the API request
 
 Type: [string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)
 
-#### levelsToDisplay
+#### displayLevels
 
 Geozone Levels to be shown in the control panel
 
 Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)>
 
-#### levelsActive
+#### activeLevels
 
 Geozone Levels to be actived by default in the Control and API request
 
@@ -430,7 +468,8 @@ Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global
 
 #### dronesToDisplay
 
-Use a custom drone list to show in the select
+Use a custom drone list to show in the select.
+See [drone](#drone-2) for the complete list.
 
 Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;Drone>
 
@@ -441,7 +480,7 @@ The layers will not be rendered outside of this extent.
 
 Type: Extent
 
-#### showPanel
+#### createPanel
 
 Display or hide the control panel on the map
 
@@ -461,7 +500,7 @@ Type: `false`
 
 #### loadingElement
 
-Loading element to be shown in the Controller on loading API data
+Loading element to be shown in the Controller when loading API data
 
 Type: [string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)
 
@@ -473,7 +512,7 @@ Type: (`"singleclick"` \| `"dblclick"`)
 
 #### language
 
-Language to be used in the Controller panel and PopUp. This doesn't affects the API requests
+Language to be used in the Controller panel and PopUp. This doesn't affects the API requests.
 If i18n is set, this will be ignored.
 
 Type: (`"en"` \| `"es"`)

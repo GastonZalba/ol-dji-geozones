@@ -1,9 +1,11 @@
 import VectorLayer from 'ol/layer/Vector';
 import Overlay from 'ol/Overlay';
+import { MultiPolygon } from 'ol/geom';
 import { Control } from 'ol/control';
 import { Extent } from 'ol/extent';
 import { MapBrowserEvent, PluggableMap, View } from 'ol';
 import Projection from 'ol/proj/Projection';
+import { EventsKey } from 'ol/events';
 /**
  * OpenLayers DJI Geozone, creates multiples VectorLayers to
  * display interactives DJI Geo Zones on the map, requesting the
@@ -17,25 +19,26 @@ import Projection from 'ol/proj/Projection';
  * @param opt_options DjiGeozones options, see [DjiGeozones Options](#options) for more details.
  */
 export default class DjiGeozones {
-    private _drone;
-    private _zonesMode;
-    private _country;
-    private _levelsParams;
-    private _levelsToDisplay;
-    private _activeLevels;
-    private _i18n;
-    private _extent;
-    private _urlProxy;
-    private _useApiForPopUp;
-    private _isVisible;
-    private _currentZoom;
-    private _lastZoom;
-    private _moveendEvtKey;
-    private _clickEvtKey;
-    private _layers;
-    private _dronesToDisplay;
-    private _areaDownloaded;
-    private _loadingElement;
+    protected _drone: string;
+    protected _zonesMode: string;
+    protected _country: string;
+    protected _paramsLevels: Array<LevelParams>;
+    protected _displayLevels: Array<number>;
+    protected _activeLevels: Array<number>;
+    protected _i18n: i18n;
+    protected _extent: Extent;
+    protected _urlProxy: string;
+    protected _useApiForPopUp: boolean;
+    protected _isVisible: boolean;
+    protected _currentZoom: number;
+    protected _lastZoom: number;
+    protected _moveendEvtKey: EventsKey;
+    protected _clickEvtKey: EventsKey | Array<EventsKey>;
+    protected _layers: Array<VectorLayer>;
+    protected _dronesToDisplay: Array<Drone>;
+    protected _areaDownloaded: MultiPolygon;
+    protected _loadingElement: string;
+    protected theme: string;
     clickEvent: 'singleclick' | 'dblclick';
     divControl: HTMLElement;
     popupContent: HTMLElement;
@@ -45,25 +48,25 @@ export default class DjiGeozones {
     overlay: Overlay;
     control: Control;
     constructor(map: PluggableMap, opt_options?: Options);
-    init(showPanel: boolean, startCollapsed: boolean, targetControl: string | HTMLElement): void;
+    init(createPanel: boolean, startCollapsed: boolean, targetControl: string | HTMLElement): void;
     /**
      *
      * @param evt
      * @param type
-     * @private
+     * @protected
      */
     getPointInfoFromClick(evt: MapBrowserEvent, type: 'useApiForPopUp' | 'useFeaturesForPopUp'): Promise<void>;
     /**
      *
      * @param clear
-     * @private
+     * @protected
      */
     getInfoFromView(clear?: boolean): void;
     /**
      * Controller for the API rquests.
      * @param typeApiRequest
      * @param latLng
-     * @private
+     * @protected
      */
     getApiGeoData(typeApiRequest: 'areas' | 'info', latLng: {
         lat: number;
@@ -91,45 +94,45 @@ export default class DjiGeozones {
     /**
      * Get the geozone type (airport, heliport, etc) by id
      * @param id
-     * @private
+     * @protected
      */
-    getGeozoneTypeById(id?: number): i18n["types"][0];
+    getGeozoneTypeById(id?: number): i18n['types'][0];
     /**
-     * Gets a list with all the supported Drones
-     * @private
+     * Getter for the list with all the supported Drones
+     * @protected
      */
     get dronesToDisplay(): Array<Drone>;
     /**
-     * Set the drone parameter for the api request.
+     * Setter for API parameter `drone`. Triggers an API request
      * @param drone
      */
     set drone(drone: string);
     /**
-     * Get Api parameter drone parameter
+     * Getter for Api parameter drone
      */
     get drone(): string;
     /**
-     * Set the zonesMode parameter for the api request.
-     * @param drone
+     * Setter for API parameter `zonesMode`. Triggers an API request
+     * @param zonesMode
      */
     set zonesMode(zonesMode: string);
     /**
-     * Get Api parameter ZonesMode
+     * Getter for API parameter `zonesMode`
      */
     get zonesMode(): string;
     /**
-     * Set the drone parameter for the api request.
+     * Setter for API parameter `country`. Triggers an API request
      * @param country
      */
     set country(country: string);
     /**
-     * Get Api parameter Country
+     * Getter for API parameter `country`
      */
     get country(): string;
     /**
      * Get the level parameters, like color, icon, and description
      * @param id
-     * @private
+     * @protected
      */
     getLevelParamsById(id?: number): LevelParams;
     /**
@@ -166,13 +169,13 @@ export default class DjiGeozones {
      * Adapted from https://stackoverflow.com/questions/28004153
      * @param color Hexadeciaml color
      * @param alpha Opacity
-     * @private
+     * @protected
      */
     static colorWithAlpha(color: string, alpha?: number): string;
 }
 /**
  * **_[interface]_** - Dji Api Response
- * @private
+ * @protected
  */
 interface DjiApiResponseArea {
     name: string;
@@ -189,23 +192,23 @@ interface DjiApiResponseArea {
 }
 /**
  * **_[interface]_** - Dji Api Response
- * @private
+ * @protected
  */
 interface DjiApiResponse {
     areas: Array<DjiApiResponseArea>;
 }
 /**
  * **_[interface]_** - Drone
- * @private
+ * @protected
  */
 interface Drone {
     id: string;
-    name: string;
+    label: string;
 }
 /**
  * **_[interface]_** - DjiGeozones levels parameters specified when creating a DjiGeozones
  * Provide the colors, icons and more from each level.
- * @private
+ * @protected
  */
 interface LevelParams {
     id: number;
@@ -216,7 +219,7 @@ interface LevelParams {
 }
 /**
  * **_[interface]_** - DjiGeozones levels translations specified when creating a DjiGeozones
- * @private
+ * @protected
  */
 interface LevelLang {
     id: number;
@@ -225,7 +228,7 @@ interface LevelLang {
 }
 /**
  * **_[interface]_** - DjiGeozones levels parameters and trasnlations specified when creating a DjiGeozones
- * @private
+ * @protected
  */
 interface Level extends LevelParams, LevelLang {
 }
@@ -266,7 +269,7 @@ interface i18n {
  *   country: 'US', // See parameter in the DJI API section
  *   levelsToDisplay: [2, 6, 1, 0, 3, 4, 7],
  *   levelsActive: [2, 6, 1, 0, 3, 4, 7],
- *   showPanel: true,
+ *   createPanel: true,
  *   targetPanel: null,
  *   extent: null,
  *   loadingElement: '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>',
@@ -293,13 +296,14 @@ interface Options {
     /**
      * Geozone Levels to be shown in the control panel
      */
-    levelsToDisplay?: Array<number>;
+    displayLevels?: Array<number>;
     /**
      * Geozone Levels to be actived by default in the Control and API request
      */
-    levelsActive?: Array<number>;
+    activeLevels?: Array<number>;
     /**
-     * Use a custom drone list to show in the select
+     * Use a custom drone list to show in the select.
+     * See [drone](#drone-2) for the complete list.
      */
     dronesToDisplay?: Array<Drone>;
     /**
@@ -310,7 +314,7 @@ interface Options {
     /**
      * Display or hide the control panel on the map
      */
-    showPanel?: boolean;
+    createPanel?: boolean;
     /**
      * Specify a target if you want the control to be rendered outside of the map's viewport.
      */
@@ -320,7 +324,7 @@ interface Options {
      */
     startCollapsed?: false;
     /**
-     * Loading element to be shown in the Controller on loading API data
+     * Loading element to be shown in the Controller when loading API data
      */
     loadingElement?: string;
     /**
@@ -328,7 +332,11 @@ interface Options {
      */
     clickEvent?: 'singleclick' | 'dblclick';
     /**
-     * Language to be used in the Controller panel and PopUp. This doesn't affects the API requests
+     * Color theme of the Control Panel
+     */
+    theme?: 'light' | 'dark';
+    /**
+     * Language to be used in the Controller panel and PopUp. This doesn't affects the API requests.
      * If i18n is set, this will be ignored.
      */
     language?: 'en' | 'es';

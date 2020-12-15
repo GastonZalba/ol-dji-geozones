@@ -1,7 +1,7 @@
 {
   "name": "ol-dji-geozones",
   "version": "1.0.0",
-  "description": "",
+  "description": "Display DJI Geo Zones in an OpenLayers map.",
   "main": "dist/ol-dji-geozones.js",
   "module": "dist/ol-dji-geozones.js",
   "types": "dist/ol-dji-geozones.d.ts",
@@ -9,6 +9,7 @@
     "dist"
   ],
   "scripts": {
+    "watch": "nodemon --watch 'src/**' -e ts,css --ignore 'dist/' --exec npm run build",
     "precleanstart": "del-cli dist tmp",
     "doc": "documentation readme src/ol-dji-geozones.ts --quiet=true --access=public --access=undefined --section=API --parse-extension ts && node scripts/external-links.js README.md && prettier --write README.md",
     "format": "eslint --fix src/*.ts && prettier --write src",
@@ -20,6 +21,7 @@
   "keywords": [
     "ol",
     "openlayers",
+    "open layers",
     "dji",
     "uav",
     "vant",
@@ -29,13 +31,20 @@
     "flyzafe",
     "airports",
     "aerodrome",
-    "airspace"
+    "airspace",
+    "mavic",
+    "phantom 4"
   ],
   "author": "Gastón Zalba",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GastonZalba/ol-dji-geozones.git"
+  },
   "bugs": {
     "url": "https://github.com/GastonZalba/ol-dji-geozones/issues"
   },
+  "homepage": "https://github.com/GastonZalba/ol-dji-geozones#readme",
   "dependencies": {},
   "peerDependencies": {
     "ol": ">=5.0.0"
@@ -56,6 +65,7 @@
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-prettier": "^3.1.4",
     "ncp": "^2.0.0",
+    "nodemon": "^2.0.6",
     "ol": "^6.1.1",
     "prettier": "^2.2.0",
     "rollup": "^2.33.3",
