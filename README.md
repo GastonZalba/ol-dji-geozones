@@ -1,6 +1,6 @@
 # OpenLayers DjiGeozones
 
-Display DJI Geo Zones in an OpenLayers map. Also, you can add a Control Panel with map legends and selectors to change the drone and the levels to be shown.
+Displays DJI Geo Zones on an OpenLayers map. Also, you can add a Control Panel with map legends and selectors to change the drone and the levels to be shown.
 
 The data is obtained directly from an undocumented DJI [API](https://www-api.dji.com/api/geo/areas). The official DJI Fly Safe Geo Zone Map that use the same data can be found [here](https://www.dji.com/flysafe/geo-map).
 
@@ -15,7 +15,7 @@ Now days, DJI doesn't offer any API documentation, so future support and access 
 
 ## Examples
 
-- [Basic usage](http://raw.githack.com/GastonZalba/ol-dji-geozones/master/examples/basic.html)
+- [Basic usage](https://raw.githack.com/GastonZalba/ol-dji-geozones/master/examples/basic.html)
   - Create an OpenLayers map instance, and pass that map and options to the DjiGeozones constructor.
 
 ## Usage
