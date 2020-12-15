@@ -26,7 +26,7 @@
     showPanel: true,
     language: 'en',
     startCollapsed: false,
-    theme: 'dark'
+    theme: 'light'
   };
 
   var djiGeozones = new DjiGeozones(map, opt_options);

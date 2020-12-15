@@ -280,7 +280,7 @@ export default class DjiGeozones {
         let options = '';
 
         this.dronesToDisplay.forEach((drone: Drone) => {
-          const selected = this.drone === drone.id? 'selected' : '';
+          const selected = this.drone === drone.id ? 'selected' : '';
           options += `<option value="${drone.id}" ${selected}>${drone.label}</option>`;
         });
 
@@ -289,8 +289,8 @@ export default class DjiGeozones {
         droneSelector.append(select);
 
         return droneSelector;
-      };  
- 
+      };
+
       const createLevelSelector = (): HTMLDivElement => {
         const handleClick = ({ target }) => {
           const level = Number(target.value);
@@ -379,8 +379,7 @@ export default class DjiGeozones {
 
       const divControl = document.createElement('div');
 
-      let className =
-        `ol-dji-geozones ol-control ol-dji-geozones--ctrl-disabled ol-dji-geozones--${this.theme}`;
+      let className = `ol-dji-geozones ol-control ol-dji-geozones--ctrl-disabled ol-dji-geozones--${this.theme}`;
       if (startCollapsed) className += ' ol-dji-geozones--ctrl-collapsed';
       divControl.className = className;
 

@@ -10,12 +10,13 @@ Tested with OpenLayers version 5 and 6.
 
 Now days, DJI doesn't offer any API documentation, so future support and access to the data is uncertain. Furthermore, the API endpoint has CORS restrictions, so all browsers requests must be proxied.
 
-![](/screenshots/example-1.jpg)
-![](/screenshots/example-2.jpg)
+<img src="screenshots/example-1.jpg" alt="Light mode">
+<img src="screenshots/example-2.jpg" alt="Dark mode">
+
 ## Examples
 
 - [Basic usage](http://raw.githack.com/GastonZalba/ol-dji-geozones/master/examples/basic.html)
-  - Create an OpenLayers map instance, and pass that map and options to the DJIGeozones constructor.
+  - Create an OpenLayers map instance, and pass that map and options to the DjiGeozones constructor.
 
 ## Usage
 
@@ -534,7 +535,7 @@ Type: [i18n](#i18n)
 
 ## TODO
 
-- Add test to checks inexpected changes on the API response.
+- Add test to check inexpected changes on the API response.
 
 ## License
 
