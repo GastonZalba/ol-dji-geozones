@@ -8,7 +8,7 @@ Tested with OpenLayers version 5 and 6.
 
 ### DISCLAIMER
 
-Now days, DJI doesn't offer any API documentation, so future support and access to the data is uncertain. Furthermore, the API endpoint has CORS restrictions, so all browsers requests must be proxied.
+Nowadays, DJI doesn't offer any API documentation, so future support and access to the data is uncertain. Furthermore, the API endpoint has CORS restrictions, so all browsers requests must be proxied.
 
 <img src="screenshots/example-1.jpg" alt="Light mode">
 <img src="screenshots/example-2.jpg" alt="Dark mode">
@@ -345,7 +345,7 @@ Returns **void**
 - `6` - Altitude Zones
 - `7` - Recommended Zones
 - `8` - Approved Zones for Light UAVs(China) **Only valid for China**
-- `9` - Densely Populated Area **NOT SUPPORTED - This level exists in the oficial Geo Zone Map, but this data is not provided by the api. On the other hand, now days this level is apparently valid only for Japan and China**
+- `9` - Densely Populated Area **NOT SUPPORTED - This level exists in the oficial Geo Zone Map, but this data is not provided by the api. On the other hand, nowadays this level is apparently valid only for Japan and China**
 
 Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)>
 
