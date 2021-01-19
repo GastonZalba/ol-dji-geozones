@@ -33,6 +33,9 @@ import * as languages from './assets/i18n/index';
 import geozoneSvg from './assets/images/geozone.svg';
 import infoSvg from './assets/images/info.svg';
 
+// Css
+import './assets/css/ol-dji-geozones.css';
+
 /**
  * @protected
  */

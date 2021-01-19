@@ -4,7 +4,7 @@ import View from 'ol/View';
 import OSM from 'ol/source/OSM';
 import TileLayer from 'ol/layer/Tile';
 
-import DjiGeozones, { Lang, Options }  from '../../../dist/ol-dji-geozones';
+import DjiGeozones, { i18n, Options }  from '../../../dist/ol-dji-geozones';
 
 const map = new Map({
     layers: [
@@ -211,7 +211,7 @@ const options: Options = {
                 "name": "Regulatory Restricted Zones for Light UAVs"
             }
         ]
-    } as Lang
+    } as i18n
 };
 
 new DjiGeozones(map, options);

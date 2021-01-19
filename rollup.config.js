@@ -2,6 +2,9 @@ import babel from '@rollup/plugin-babel';
 import json from "@rollup/plugin-json";
 import image from '@rollup/plugin-image';
 import { terser } from "rollup-plugin-terser";
+import { writeFileSync } from 'fs';
+import CleanCss from 'clean-css';
+import css from 'rollup-plugin-css-only';
 
 let globals = {
     'ol/Map': 'ol.Map',
@@ -43,6 +46,13 @@ module.exports = {
         babel({
             "babelHelpers": "bundled",
             "exclude": ["node_modules/**", "src/assets/**"]
+        }),
+        css({
+            output: function (styles, styleNodes) {
+                writeFileSync('dist/ol-dji-geozones.css', styles)
+                const compressed = new CleanCss().minify(styles).styles;
+                writeFileSync('dist/ol-dji-geozones.min.css', compressed)
+            }
         })
     ],
     external: function (id) {

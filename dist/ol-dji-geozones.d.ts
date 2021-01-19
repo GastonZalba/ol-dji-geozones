@@ -6,6 +6,7 @@ import { Extent } from 'ol/extent';
 import { MapBrowserEvent, PluggableMap, View } from 'ol';
 import Projection from 'ol/proj/Projection';
 import { EventsKey } from 'ol/events';
+import './assets/css/ol-dji-geozones.css';
 /**
  * OpenLayers DJI Geozone, creates multiples VectorLayers to
  * display interactives DJI Geo Zones on the map, requesting the

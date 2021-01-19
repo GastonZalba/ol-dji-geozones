@@ -14,7 +14,7 @@ Nowadays, DJI doesn't offer any API documentation, so future support and access 
 <img src="screenshots/example-2.jpg" alt="Dark mode">
 
 ## Examples
-
+All the examples are configured using a free Proxy. If you notice some lag or slow performance, try one of your own.
 - [Basic usage](https://raw.githack.com/GastonZalba/ol-dji-geozones/master/examples/basic.html)
   - Create an OpenLayers map instance, and pass that map and options to the DjiGeozones constructor.
 
@@ -90,13 +90,13 @@ See [CHANGELOG](./CHANGELOG.md) for details of changes in each release.
 Load `ol-dji-geozones.js` after OpenLayers. Dji Geozone is available as `DjiGeozones`.
 
 ```HTML
-<script src="https://unpkg.com/ol-dji-geozones@1.0.0"></script>
+<script src="https://unpkg.com/ol-dji-geozones@1.0.2"></script>
 ```
 
 #### CSS
 
 ```HTML
-<link rel="stylesheet" href="https://unpkg.com/ol-dji-geozones@1.0.0/dist/ol-dji-geozones.css" />
+<link rel="stylesheet" href="https://unpkg.com/ol-dji-geozones@1.0.2/dist/ol-dji-geozones.css" />
 ```
 
 ### Parcel, Webpack, etc.
@@ -111,7 +111,7 @@ Install the package via `npm`
 
 #### CSS
 
-The CSS file `ol-dji-geozones.css` can be found in `./node_modules/ol-dji-geozones/dist`
+The CSS file `ol-dji-geozones.css` can be found in `./node_modules/ol-dji-geozones/dist/css`
 
 ##### TypeScript type definition
 

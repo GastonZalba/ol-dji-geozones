@@ -6,4 +6,8 @@
 
 ## v1.0.1
 
-* Added and minified version, fixed some typos in readme and corrected definition file.
+* Added a js minified version, fixed some typos in readme and corrected definition file.
+
+## v1.0.2
+
+* Added a css minified version and fixed some examples.
