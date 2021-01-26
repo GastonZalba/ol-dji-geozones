@@ -15,3 +15,7 @@
 ## v1.0.3
 
 * Added ES module version.
+
+## v1.0.4
+
+* Fixed attribute "files" inside package.json

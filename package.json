@@ -1,6 +1,6 @@
 {
   "name": "ol-dji-geozones",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Displays DJI Geo Zones on an OpenLayers map.",
   "browser": "dist/ol-dji-geozones.js",
   "main": "dist/ol-dji-geozones.js",
@@ -8,7 +8,8 @@
   "types": "lib/ol-dji-geozones.d.ts",
   "style": "lib/ol-dji-geozones.css",
   "files": [
-    "dist"
+    "lib/**/*",
+    "dist/**/*"
   ],
   "scripts": {
     "precleanstart": "del-cli dist lib tmp-dist tmp-lib",
