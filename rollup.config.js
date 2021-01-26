@@ -1,9 +1,8 @@
+import pkg from './package.json';
 import babel from '@rollup/plugin-babel';
 import json from "@rollup/plugin-json";
 import image from '@rollup/plugin-image';
-import { terser } from "rollup-plugin-terser";
-import { writeFileSync } from 'fs';
-import CleanCss from 'clean-css';
+import { mkdirSync, writeFileSync } from 'fs';
 import css from 'rollup-plugin-css-only';
 
 let globals = {
@@ -24,18 +23,11 @@ let globals = {
 };
 
 module.exports = {
-    input: 'tmp/ol-dji-geozones.js',
+    input: 'tmp-lib/ol-dji-geozones.js',
     output: [
         {
-            file: 'dist/ol-dji-geozones.js',
-            format: 'umd',
-            name: 'DjiGeozones',
-            globals: globals
-        },
-        {
-            file: 'dist/ol-dji-geozones.min.js',
-            format: 'umd',
-            plugins: [terser()],
+            file: pkg.module,
+            format: 'es',
             name: 'DjiGeozones',
             globals: globals
         }
@@ -43,15 +35,24 @@ module.exports = {
     plugins: [
         json(),
         image(),
-        babel({
-            "babelHelpers": "bundled",
-            "exclude": ["node_modules/**", "src/assets/**"]
+        babel({            
+            presets: [
+                [
+                    "@babel/preset-env",
+                    {
+                        "targets": {
+                            "esmodules": true
+                        }
+                    }
+                ]
+                ],
+            babelHelpers: 'bundled',
+            exclude: ["node_modules/**", "src/assets/**"]
         }),
         css({
             output: function (styles, styleNodes) {
-                writeFileSync('dist/ol-dji-geozones.css', styles)
-                const compressed = new CleanCss().minify(styles).styles;
-                writeFileSync('dist/ol-dji-geozones.min.css', compressed)
+                mkdirSync('lib', { recursive: true });
+                writeFileSync('lib/ol-dji-geozones.css', styles)
             }
         })
     ],

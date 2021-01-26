@@ -24,8 +24,181 @@ import { EventsKey } from 'ol/events';
 import { unByKey } from 'ol/Observable';
 
 // Import configuration values
-import levelsParams from './_levels-params.json';
-import dronesList from './_drones.json';
+const levelsParams = [
+  {
+    "id": 0,
+    "color": "#FFCC00",
+    "zIndex": 1,
+    "markerIcon": "https://www1.djicdn.com/dps/6734f5340f66c7be37db48c8889392bf.png",
+    "markerCircle": "https://www2.djicdn.com/assets/images/flysafe/geo-system/warning-98a8a2c8d6768e22957488ce962d77c3.png?from=cdnMap"
+  },
+  {
+    "id": 1,
+    "color": "#1088F2",
+    "zIndex": 3,
+    "markerIcon": "https://www1.djicdn.com/dps/fbbea9e33581907cac182adb4bcd0c94.png",
+    "markerCircle": "https://www4.djicdn.com/assets/images/flysafe/geo-system/authorization-878e879982c9555bcaab7bb6bce3c6ca.png?from=cdnMap"
+  },
+  {
+    "id": 2,
+    "color": "#DE4329",
+    "zIndex": 5,
+    "markerIcon": "https://www1.djicdn.com/dps/d47dfe9f089f259631fbed99610b8b5a.png",
+    "markerCircle": "https://www5.djicdn.com/assets/images/flysafe/geo-system/restricted-e0ce1467a8df2d07ec6a33cf11f4279e.png?from=cdnMap"
+  },
+  {
+    "id": 3,
+    "color": "#EE8815",
+    "zIndex": 2,
+    "markerIcon": "https://www1.djicdn.com/dps/df822149e1e6e9e804e177813e044238.png",
+    "markerCircle": "https://www4.djicdn.com/assets/images/flysafe/geo-system/enhanced_warning-623fea05bff2f83f3c0ff5a65a41a1df.png?from=cdnMap"
+  },
+  {
+    "id": 4,
+    "color": "#37C4DB",
+    "zIndex": 1,
+    "markerIcon": "https://www1.djicdn.com/dps/53b33783709b6ed06bc3afdd21ac2a81.png",
+    "markerCircle": "https://www4.djicdn.com/assets/images/flysafe/geo-system/recommended-e92f991d039ae145c9b1c72ad62b26b2.png?from=cdnMap"
+  },
+  {
+    "id": 5,
+    "color": "#00BE00",
+    "zIndex": 1,
+    "markerIcon": "https://www1.djicdn.com/dps/53b33783709b6ed06bc3afdd21ac2a81.png",
+    "markerCircle": "https://www4.djicdn.com/assets/images/flysafe/geo-system/recommended-e92f991d039ae145c9b1c72ad62b26b2.png?from=cdnMap"
+  },
+  {
+    "id": 6,
+    "color": "#979797",
+    "zIndex": 0,
+    "markerIcon": "https://www1.djicdn.com/dps/f5961991d664e130fcf9ad01b1f28043.png",
+    "markerCircle": "https://www1.djicdn.com/assets/images/flysafe/geo-system/Oval-34907c1071d63a3f1fffdc739b0943d9.png?from=cdnMap"
+  },
+  {
+    "id": 7,
+    "color": "#00BE00",
+    "zIndex": 1,
+    "markerIcon": "https://www1.djicdn.com/dps/9d922ae5fbd80d3166a844a9e249ceb3.png",
+    "markerCircle": "https://www1.djicdn.com/assets/images/flysafe/geo-system/regulations-2dfeef5b11017811dcaa720c86c49406.png?from=cdnMap"
+  },
+  {
+    "id": 8,
+    "color": "#00BE00",
+    "zIndex": 1,
+    "markerIcon": "https://www1.djicdn.com/dps/53b33783709b6ed06bc3afdd21ac2a81.png",
+    "markerCircle": "https://www1.djicdn.com/dps/a968914208241c3f6a5a3c64c221b8ff.png"
+  },
+  {
+    "id": 9,
+    "color": "#DE4329",
+    "zIndex": 5,
+    "markerIcon": "https://www1.djicdn.com/dps/d47dfe9f089f259631fbed99610b8b5a.png",
+    "markerCircle": "https://www5.djicdn.com/assets/images/flysafe/geo-system/restricted-e0ce1467a8df2d07ec6a33cf11f4279e.png?from=cdnMap"
+  }
+]
+;
+const dronesList = [
+  {
+    "id": "mavic-mini",
+    "label": "Mavic Mini"
+  },
+  {
+    "id": "mavic-2-enterprise",
+    "label": "Mavic 2 Enterprise"
+  },
+  {
+    "id": "mavic-2",
+    "label": "Mavic 2"
+  },
+  {
+    "id": "mavic-air",
+    "label": "Mavic Air"
+  },
+  {
+    "id": "mavic-air-2",
+    "label": "Mavic Air 2"
+  },
+  {
+    "id": "mavic-pro",
+    "label": "Mavic Pro"
+  },
+  {
+    "id": "spark",
+    "label": "Spark"
+  },
+  {
+    "id": "phantom-4-pro",
+    "label": "Phantom 4 Pro"
+  },
+  {
+    "id": "phantom-4-advanced",
+    "label": "Phantom 4 Advanced"
+  },
+  {
+    "id": "phantom-4",
+    "label": "Phantom 4"
+  },
+  {
+    "id": "phantom-4-rtk",
+    "label": "Phantom 4 RTK"
+  },
+  {
+    "id": "phantom-4-multispectral",
+    "label": "Phantom 4 Multispectral"
+  },
+  {
+    "id": "phantom-3-pro",
+    "label": "Phantom 3 Pro"
+  },
+  {
+    "id": "phantom-3-advanced",
+    "label": "Phantom 3 Advanced"
+  },
+  {
+    "id": "phantom-3-standard",
+    "label": "Phantom 3 Standard"
+  },
+  {
+    "id": "phantom-3-4K",
+    "label": "Phantom 3 4K"
+  },
+  {
+    "id": "phantom-3-se",
+    "label": "Phantom 3 SE"
+  },
+  {
+    "id": "inspire-2",
+    "label": "Inspire 2"
+  },
+  {
+    "id": "inspire-1-series",
+    "label": "Inspire 1 Series"
+  },
+  {
+    "id": "m200-series",
+    "label": "M200 Series"
+  },
+  {
+    "id": "m300-series",
+    "label": "M300 Series"
+  },
+  {
+    "id": "m600-series",
+    "label": "M600 Series"
+  },
+  {
+    "id": "m100",
+    "label": "M100"
+  },
+  {
+    "id": "mg1p",
+    "label": "MG 1S/1A/1P/1P RTK/T10/T16/T20/T30"
+  },
+  {
+    "id": "dji-mini-2",
+    "label": "DJI Mini 2"
+  }
+];
 
 import * as languages from './assets/i18n/index';
 
@@ -43,6 +216,7 @@ const API_AREAS_ENDPOINT = 'www-api.dji.com/api/geo/areas';
 const API_INFO_ENDPOINT = 'www-api.dji.com/api/geo/point-info';
 const API_LEVELS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; // request all the levels, we filter later to avoid some api problems
 const MIN_ZOOM = 9; // < 9 breaks the API
+
 
 /**
  * OpenLayers DJI Geozone, creates multiples VectorLayers to
@@ -162,6 +336,7 @@ export default class DjiGeozones {
      * @protected
      */
     const createVectorLayers = () => {
+      
       /**
        * Create the style of each layer acoording to the geometry,
        * level, and color obtained from the API

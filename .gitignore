@@ -2,3 +2,5 @@ node_modules
 .cache
 package-lock.json
 tmp
+tmp-dist
+tmp-lib

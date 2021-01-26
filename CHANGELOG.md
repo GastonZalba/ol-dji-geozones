@@ -11,3 +11,7 @@
 ## v1.0.2
 
 * Added a css minified version and fixed some examples.
+
+## v1.0.3
+
+* Added ES module version.

@@ -1,22 +1,23 @@
 {
   "name": "ol-dji-geozones",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Displays DJI Geo Zones on an OpenLayers map.",
+  "browser": "dist/ol-dji-geozones.js",
   "main": "dist/ol-dji-geozones.js",
-  "module": "dist/ol-dji-geozones.js",
-  "types": "dist/ol-dji-geozones.d.ts",
-  "style": "dist/ol-dji-geozones.css",
+  "module": "lib/ol-dji-geozones.js",
+  "types": "lib/ol-dji-geozones.d.ts",
+  "style": "lib/ol-dji-geozones.css",
   "files": [
     "dist"
   ],
   "scripts": {
-    "precleanstart": "del-cli dist tmp",
+    "precleanstart": "del-cli dist lib tmp-dist tmp-lib",
     "doc": "documentation readme src/ol-dji-geozones.ts --quiet=true --access=public --access=undefined --section=API --parse-extension ts && node scripts/external-links.js README.md && prettier --write README.md",
     "format": "eslint --fix src/*.ts && prettier --write src",
     "lint": "eslint src/*.ts && prettier --check src",
-    "copy-assets": "ncp src/assets/ tmp/assets/",
-    "build": "npm run precleanstart && tsc --pretty && npm run copy-assets && rollup --config rollup.config.js",
-    "postbuild": "del-cli dist/assets tmp"
+    "copy-assets": "ncp src/assets/ tmp-dist/assets/ && ncp src/assets/ tmp-lib/assets/",
+    "build": "npm run precleanstart && tsc --pretty --project ./tsconfig.json && tsc --pretty --project ./tsconfig-dist.json && npm run copy-assets && rollup --config rollup.config.dist.js && rollup --config rollup.config.js",
+    "postbuild": "ncp tmp-lib/ol-dji-geozones.d.ts dist/ol-dji-geozones.d.ts && ncp tmp-lib/ol-dji-geozones.d.ts lib/ol-dji-geozones.d.ts && del-cli tmp-dist tmp-lib"
   },
   "keywords": [
     "ol",
@@ -50,10 +51,13 @@
   },
   "devDependencies": {
     "@babel/core": "^7.12.3",
+    "@babel/plugin-transform-runtime": "^7.12.10",
     "@babel/preset-env": "^7.12.1",
     "@rollup/plugin-babel": "^5.2.1",
+    "@rollup/plugin-commonjs": "^17.0.0",
     "@rollup/plugin-image": "^2.0.5",
     "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^11.1.0",
     "@types/node": "^14.14.10",
     "@types/ol": "^6.4.2",
     "@typescript-eslint/eslint-plugin": "^4.8.2",
@@ -69,36 +73,8 @@
     "prettier": "^2.2.0",
     "rollup": "^2.33.3",
     "rollup-plugin-css-only": "^3.1.0",
+    "rollup-plugin-node-builtins": "^2.1.2",
     "rollup-plugin-terser": "^7.0.2",
     "typescript": "^4.1.2"
-  },
-  "eslintConfig": {
-    "parser": "@typescript-eslint/parser",
-    "plugins": [
-      "@typescript-eslint"
-    ],
-    "extends": [
-      "eslint:recommended",
-      "plugin:@typescript-eslint/recommended"
-    ],
-    "rules": {
-      "@typescript-eslint/no-unused-vars": [
-        "error",
-        {
-          "argsIgnorePattern": "^_"
-        }
-      ]
-    },
-    "globals": {
-      "ol": "readonly",
-      "document": "writable"
-    }
-  },
-  "prettier": {
-    "tabWidth": 2,
-    "singleQuote": true,
-    "trailingComma": "none",
-    "quoteProps": "consistent",
-    "bracketSpacing": true
   }
 }
