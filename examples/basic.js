@@ -10,7 +10,7 @@
     view: new ol.View({
       projection: 'EPSG:3857',
       center: [-6503744, -4115148],
-      zoom: 11
+      zoom: 10
     })
   });
   
@@ -26,10 +26,16 @@
     showPanel: true,
     language: 'en',
     startCollapsed: false,
+    startActive: false,
     theme: 'light'
   };
 
   var djiGeozones = new DjiGeozones(map, opt_options);
+
+  setTimeout(function(){
+    djiGeozones.show();
+  },4000)
+
 
   console.log(djiGeozones);
 

@@ -31,6 +31,7 @@ export default class DjiGeozones {
     protected _urlProxy: string;
     protected _useApiForPopUp: boolean;
     protected _isVisible: boolean;
+    protected _forceHidden: boolean;
     protected _currentZoom: number;
     protected _lastZoom: number;
     protected _moveendEvtKey: EventsKey;
@@ -50,6 +51,15 @@ export default class DjiGeozones {
     control: Control;
     constructor(map: PluggableMap, opt_options?: Options);
     init(createPanel: boolean, startCollapsed: boolean, targetControl: string | HTMLElement): void;
+    /**
+     * @private
+     */
+    _setLayersVisible(bool: boolean): void;
+    /**
+     * Enable or disable the inputs and the select in the control
+     * @private
+     */
+    _setControlEnabled(enabled: boolean): void;
     /**
      *
      * @param evt
@@ -165,6 +175,14 @@ export default class DjiGeozones {
      */
     destroy(): void;
     /**
+     * Hide the geoZones and the Control
+     */
+    hide(): void;
+    /**
+     * Show the geoZones nd the Control
+     */
+    show(): void;
+    /**
      *  **_[static]_** - Generate an RGBA color from an hexadecimal
      *
      * Adapted from https://stackoverflow.com/questions/28004153
@@ -272,6 +290,8 @@ interface i18n {
  *   activeLevels: [2, 6, 1, 0, 3, 4, 7],
  *   createPanel: true,
  *   targetPanel: null,
+ *   startCollapsed: true,
+ *   startActive: true,
  *   extent: null,
  *   loadingElement: '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>',
  *   clickEvent: 'singleclick',
@@ -324,6 +344,10 @@ interface Options {
      * Whether panel is minimized when created. Defaults to false.
      */
     startCollapsed?: false;
+    /**
+     * Show GeoZones on initialize
+     */
+    startActive?: boolean;
     /**
      * Loading element to be shown in the Controller when loading API data
      */

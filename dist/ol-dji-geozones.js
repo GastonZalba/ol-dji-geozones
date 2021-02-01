@@ -1453,7 +1453,8 @@
       this.map = map;
       this.view = map.getView();
       this.projection = this.view.getProjection();
-      this._isVisible = this.view.getZoom() < MIN_ZOOM;
+      this._forceHidden = 'startActive' in options ? !options.startActive : false;
+      this._isVisible = this._forceHidden ? false : this.view.getZoom() >= MIN_ZOOM;
       this._layers = [];
       this.divControl = null;
       this._areaDownloaded = null;
@@ -1516,7 +1517,7 @@
               name: 'ol-dji-geozones',
               level: level,
               zIndex: _this.getLevelParamsById(level).zIndex * 2,
-              visible: _this.activeLevels.includes(level) ? true : false,
+              visible: _this._forceHidden ? false : _this.activeLevels.includes(level) ? true : false,
               source: new VectorSource__default['default']({
                 attributions: '<a href="https://www.dji.com/flysafe/geo-map" rel="nofollow noopener noreferrer" target="_blank">DJI GeoZoneMap</a>'
               }),
@@ -1683,8 +1684,10 @@
           };
 
           var divControl = document.createElement('div');
-          var className = "ol-dji-geozones ol-control ol-dji-geozones--ctrl-disabled ol-dji-geozones--".concat(_this.theme);
+          var className = "ol-dji-geozones ol-control ol-dji-geozones--".concat(_this.theme);
           if (startCollapsed) className += ' ol-dji-geozones--ctrl-collapsed';
+          if (_this._forceHidden) className += ' ol-dji-geozones--ctrl-hidden';
+          if (!_this._isVisible) className += ' ol-dji-geozones--ctrl-disabled';
           divControl.className = className;
           divControl.innerHTML = "\n            <header>\n                <h3>".concat(_this._i18n.labels.djiGeoZones, "</h3>\n                <span class=\"ol-dji-geozones--loading\">\n                    ").concat(_this._loadingElement, "\n                </span>\n            </header>\n            <main>\n                <section class=\"ol-dji-geozones--selectors\"></section>\n                <section>\n                    <div class=\"ol-dji-geozones--logo\" title=\"").concat(_this._i18n.labels.expand, "\"><img src=\"").concat(img, "\"/></div>\n                    <span class=\"ol-dji-geozones--advice\">").concat(_this._i18n.labels.helperZoom, "</span>\n                </section>\n            </main>\n            ");
           var droneSelector = createDroneSelector();
@@ -1719,62 +1722,24 @@
 
 
         var addMapEvents = function addMapEvents() {
-          /**
-           * Enable or disable the inputs and the select in the control
-           * @protected
-           */
-          var setControlEnabled = function setControlEnabled(enabled) {
-            if (!_this.divControl) return;
-
-            var changeState = function changeState(array) {
-              array.forEach(function (el) {
-                if (enabled) {
-                  el.removeAttribute('disabled');
-                } else {
-                  el.disabled = true;
-                }
-              });
-            };
-
-            if (enabled) {
-              _this.divControl.classList.remove('ol-dji-geozones--ctrl-disabled');
-            } else {
-              _this.divControl.classList.add('ol-dji-geozones--ctrl-disabled');
-            }
-
-            var inputs = _this.divControl.querySelectorAll('input');
-
-            changeState(inputs);
-
-            var selects = _this.divControl.querySelectorAll('select');
-
-            changeState(selects);
-          };
-
           var handleZoomEnd = function handleZoomEnd() {
-            var setVisible = function setVisible(bool) {
-              _this.layers.forEach(function (layer) {
-                if (!bool) {
-                  layer.setVisible(bool);
-                } else if (bool && _this.activeLevels.includes(layer.get('level'))) {
-                  layer.setVisible(bool);
-                }
-              });
-            };
-
             if (_this._currentZoom < MIN_ZOOM) {
               // Hide the layer and disable the control
               if (_this._isVisible) {
-                setVisible(false);
+                _this._setLayersVisible(false);
+
                 _this._isVisible = false;
-                setControlEnabled(false);
+
+                _this._setControlEnabled(false);
               }
             } else {
               // Show the layers and enable the control
               if (!_this._isVisible) {
-                setVisible(true);
+                _this._setLayersVisible(true);
+
                 _this._isVisible = true;
-                setControlEnabled(true);
+
+                _this._setControlEnabled(true);
               } else {
                 // If the view is closer, don't do anything, we already had the features
                 if (_this._currentZoom > _this._lastZoom) return;
@@ -1797,6 +1762,7 @@
           };
 
           _this._moveendEvtKey = _this.map.on('moveend', function () {
+            if (_this._forceHidden) return;
             _this._currentZoom = _this.view.getZoom();
             if (_this._currentZoom !== _this._lastZoom) handleZoomEnd();else handleDragEnd();
             _this._lastZoom = _this._currentZoom;
@@ -1810,6 +1776,54 @@
         if (createPanel) addMapControl(targetControl);
       }
       /**
+       * @private
+       */
+
+    }, {
+      key: "_setLayersVisible",
+      value: function _setLayersVisible(bool) {
+        var _this2 = this;
+
+        this.layers.forEach(function (layer) {
+          if (!bool) {
+            layer.setVisible(bool);
+          } else if (bool && _this2.activeLevels.includes(layer.get('level'))) {
+            layer.setVisible(bool);
+          }
+        });
+      }
+      /**
+       * Enable or disable the inputs and the select in the control
+       * @private
+       */
+
+    }, {
+      key: "_setControlEnabled",
+      value: function _setControlEnabled(enabled) {
+        if (!this.divControl) return;
+
+        var changeState = function changeState(array) {
+          array.forEach(function (el) {
+            if (enabled) {
+              el.removeAttribute('disabled');
+            } else {
+              el.disabled = true;
+            }
+          });
+        };
+
+        if (enabled) {
+          this.divControl.classList.remove('ol-dji-geozones--ctrl-disabled');
+        } else {
+          this.divControl.classList.add('ol-dji-geozones--ctrl-disabled');
+        }
+
+        var inputs = this.divControl.querySelectorAll('input');
+        changeState(inputs);
+        var selects = this.divControl.querySelectorAll('select');
+        changeState(selects);
+      }
+      /**
        *
        * @param evt
        * @param type
@@ -1820,7 +1834,7 @@
       key: "getPointInfoFromClick",
       value: function getPointInfoFromClick(evt, type) {
         return __awaiter(this, void 0, void 0, /*#__PURE__*/regenerator.mark(function _callee3() {
-          var _this2 = this;
+          var _this3 = this;
 
           var infoKeys, idInfoRequest, getInfoFromApiLatLng, getInfoFromFeatures, showGeozoneDataInPopUp, opt_options, data, features;
           return regenerator.wrap(function _callee3$(_context3) {
@@ -1831,8 +1845,8 @@
                   idInfoRequest = 0;
 
                   getInfoFromApiLatLng = function getInfoFromApiLatLng(coordinate) {
-                    return __awaiter(_this2, void 0, void 0, /*#__PURE__*/regenerator.mark(function _callee2() {
-                      var _this3 = this;
+                    return __awaiter(_this3, void 0, void 0, /*#__PURE__*/regenerator.mark(function _callee2() {
+                      var _this4 = this;
 
                       var request;
                       return regenerator.wrap(function _callee2$(_context2) {
@@ -1844,7 +1858,7 @@
                               request = idInfoRequest;
                               return _context2.abrupt("return", new Promise(function (resolve) {
                                 setTimeout(function () {
-                                  return __awaiter(_this3, void 0, void 0, /*#__PURE__*/regenerator.mark(function _callee() {
+                                  return __awaiter(_this4, void 0, void 0, /*#__PURE__*/regenerator.mark(function _callee() {
                                     var center4326, clickLatLng, apiJson, areas, featuresProps, _iterator, _step, area;
 
                                     return regenerator.wrap(function _callee$(_context) {
@@ -1938,7 +1952,7 @@
                         infoTooltip.style.top = position.top + 'px';
                         infoTooltip.style.left = position.left + 'px';
                         infoTooltip.classList.add('ol-dji-geozones--active-tooltip');
-                        evtKey = _this2.map.once('movestart', function () {
+                        evtKey = _this3.map.once('movestart', function () {
                           return closePopUp();
                         });
                         document.body.append(infoTooltip);
@@ -1951,7 +1965,7 @@
                       };
 
                       var infoTooltip = document.createElement('span');
-                      infoTooltip.className = "ol-dji-geozones--info ol-dji-geozones--".concat(_this2.theme);
+                      infoTooltip.className = "ol-dji-geozones--info ol-dji-geozones--".concat(_this3.theme);
                       infoTooltip.innerHTML = "<span class=\"ol-dji-geozones--info-text\">".concat(level.desc, "</span><span class=\"ol-dji-geozones--info-back\"></span>");
                       infoTooltip.setAttribute('style', "--level-color: ".concat(level.color));
                       var iconTooltip = document.createElement('span');
@@ -1988,10 +2002,10 @@
                           address = responseApiArea.address,
                           url = responseApiArea.url;
 
-                      var levelValues = _this2.getLevelById(level);
+                      var levelValues = _this3.getLevelById(level);
 
-                      var lbl = _this2._i18n.labels;
-                      var html = "\n                    <div class=\"ol-dji-geozones--marker\">\n                        <img src=\"".concat(levelValues.markerCircle, "\">\n                    </div>\n                    <div class=\"ol-dji-geozones--main\">\n                        <h3 class=\"ol-dji-geozones--title\">").concat(name, "</h3>\n                        <p class=\"ol-dji-geozones--level\">").concat(lbl.level, ": ").concat(levelValues.name, " </p>\n                        <p class=\"ol-dji-geozones--type\">").concat(lbl.type, ": ").concat(_this2.getGeozoneTypeById(type).name, "</p>\n                        ").concat(begin_at ? "<p class=\"ol-dji-geozones--start_time\">".concat(lbl.startTime, ": ").concat(begin_at, "</p>") : '', "\n                        ").concat(end_at ? "<p class=\"ol-dji-geozones--end_time\">".concat(lbl.endTime, ": ").concat(end_at, "</p><p class=\"ol-dji-geozones--time_tips\">").concat(lbl.timeTips, "</p>") : '', "         \n                        ").concat(height ? "<p class=\"ol-dji-geozones--height\">".concat(lbl.maxAltitude, " (m): ").concat(height, "</p>") : '', " \n                        ").concat(address ? "<p class=\"ol-dji-geozones--address\">".concat(lbl.address, ": ").concat(address, "</p>") : '', "\n                        ").concat(description ? "<p class=\"ol-dji-geozones--desc\">".concat(lbl.tips, ": ").concat(description, "</p>") : '', "\n                        ").concat(url ? "<p class=\"ol-dji-geozones--url\">".concat(lbl.link, ": <a href=\"").concat(url, "\">").concat(lbl.learnMore, "</a></p>") : '', "\n                </div>");
+                      var lbl = _this3._i18n.labels;
+                      var html = "\n                    <div class=\"ol-dji-geozones--marker\">\n                        <img src=\"".concat(levelValues.markerCircle, "\">\n                    </div>\n                    <div class=\"ol-dji-geozones--main\">\n                        <h3 class=\"ol-dji-geozones--title\">").concat(name, "</h3>\n                        <p class=\"ol-dji-geozones--level\">").concat(lbl.level, ": ").concat(levelValues.name, " </p>\n                        <p class=\"ol-dji-geozones--type\">").concat(lbl.type, ": ").concat(_this3.getGeozoneTypeById(type).name, "</p>\n                        ").concat(begin_at ? "<p class=\"ol-dji-geozones--start_time\">".concat(lbl.startTime, ": ").concat(begin_at, "</p>") : '', "\n                        ").concat(end_at ? "<p class=\"ol-dji-geozones--end_time\">".concat(lbl.endTime, ": ").concat(end_at, "</p><p class=\"ol-dji-geozones--time_tips\">").concat(lbl.timeTips, "</p>") : '', "         \n                        ").concat(height ? "<p class=\"ol-dji-geozones--height\">".concat(lbl.maxAltitude, " (m): ").concat(height, "</p>") : '', " \n                        ").concat(address ? "<p class=\"ol-dji-geozones--address\">".concat(lbl.address, ": ").concat(address, "</p>") : '', "\n                        ").concat(description ? "<p class=\"ol-dji-geozones--desc\">".concat(lbl.tips, ": ").concat(description, "</p>") : '', "\n                        ").concat(url ? "<p class=\"ol-dji-geozones--url\">".concat(lbl.link, ": <a href=\"").concat(url, "\">").concat(lbl.learnMore, "</a></p>") : '', "\n                </div>");
                       var item = document.createElement('div');
                       item.className = 'ol-dji-geozones--item';
                       item.innerHTML = html;
@@ -2001,20 +2015,20 @@
 
                     var preventDuplicates = [];
                     var arrGeozonesData = Array.isArray(geozonesData) ? geozonesData : [geozonesData];
-                    _this2.popupContent.innerHTML = '';
+                    _this3.popupContent.innerHTML = '';
                     arrGeozonesData.forEach(function (geozoneProps) {
                       var element = parseDataToHtml(geozoneProps); // The oficial DJI map show duplicates, but we don't want that
 
                       if (preventDuplicates.indexOf(element.innerHTML) === -1) {
                         preventDuplicates.push(element.innerHTML);
 
-                        _this2.popupContent.append(element);
+                        _this3.popupContent.append(element);
 
-                        _this2.popupContent.append(document.createElement('HR'));
+                        _this3.popupContent.append(document.createElement('HR'));
                       }
                     });
 
-                    _this2.overlay.setPosition(coordinates);
+                    _this3.overlay.setPosition(coordinates);
                   };
 
                   _context3.prev = 5;
@@ -2087,7 +2101,7 @@
     }, {
       key: "getInfoFromView",
       value: function getInfoFromView() {
-        var _this4 = this;
+        var _this5 = this;
 
         var clear = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
         var idAreasRequest = 0;
@@ -2099,8 +2113,8 @@
 
         var fixLevelValue = function fixLevelValue(feature) {
           var color = feature.get('color');
-          var level = Object.keys(_this4._paramsLevels).find(function (key) {
-            return _this4._paramsLevels[key].color === color;
+          var level = Object.keys(_this5._paramsLevels).find(function (key) {
+            return _this5._paramsLevels[key].color === color;
           });
           feature.set('level', level);
           return feature;
@@ -2121,7 +2135,7 @@
           var getFeatureById = function getFeatureById(id) {
             var feature;
 
-            var _iterator2 = _createForOfIteratorHelper(_this4.layers),
+            var _iterator2 = _createForOfIteratorHelper(_this5.layers),
                 _step2;
 
             try {
@@ -2177,14 +2191,14 @@
 
               if (area.polygon_points) {
                 var featureExtra = new Feature__default['default'](Object.assign(Object.assign({}, featureProps), {
-                  geometry: new geom.Polygon(area.polygon_points).transform('EPSG:4326', _this4.projection)
+                  geometry: new geom.Polygon(area.polygon_points).transform('EPSG:4326', _this5.projection)
                 }));
                 featureExtra.setId(area.area_id + '_poly');
                 features.push(fixLevelValue(featureExtra));
               }
 
               var feature = new Feature__default['default'](Object.assign(Object.assign({}, featureProps), {
-                geometry: new geom.Point([area.lng, area.lat]).transform('EPSG:4326', _this4.projection)
+                geometry: new geom.Point([area.lng, area.lat]).transform('EPSG:4326', _this5.projection)
               })); // Store the id to avoid duplicates
 
               feature.setId(area.area_id);
@@ -2205,7 +2219,7 @@
                       type: area.type,
                       lng: sub_area.lng,
                       lat: sub_area.lat,
-                      geometry: new geom.Polygon(sub_area.polygon_points).transform('EPSG:4326', _this4.projection)
+                      geometry: new geom.Polygon(sub_area.polygon_points).transform('EPSG:4326', _this5.projection)
                     });
                   } else {
                     subFeature = new Feature__default['default']({
@@ -2218,7 +2232,7 @@
                       type: area.type,
                       lng: sub_area.lng,
                       lat: sub_area.lat,
-                      geometry: new geom.Circle([sub_area.lng, sub_area.lat], sub_area.radius / 100000).transform('EPSG:4326', _this4.projection)
+                      geometry: new geom.Circle([sub_area.lng, sub_area.lat], sub_area.radius / 100000).transform('EPSG:4326', _this5.projection)
                     });
                   }
 
@@ -2253,7 +2267,7 @@
           features.forEach(function (feature) {
             var level = feature.get('level');
 
-            var layer = _this4.getLayerByLevel(level);
+            var layer = _this5.getLayerByLevel(level);
 
             layer.getSource().addFeature(feature);
           });
@@ -2266,8 +2280,8 @@
 
 
         var showLoading = function showLoading(bool) {
-          if (!_this4.divControl) return;
-          if (bool) _this4.divControl.classList.add('ol-dji-geozones--isLoading');else _this4.divControl.classList.remove('ol-dji-geozones--isLoading');
+          if (!_this5.divControl) return;
+          if (bool) _this5.divControl.classList.add('ol-dji-geozones--isLoading');else _this5.divControl.classList.remove('ol-dji-geozones--isLoading');
         };
         /**
          * Clear all the elements in the Dji Geozones layers
@@ -2276,7 +2290,7 @@
 
 
         var clearFeatures = function clearFeatures() {
-          _this4.layers.forEach(function (layer) {
+          _this5.layers.forEach(function (layer) {
             layer.getSource().clear();
           });
         }; // Prevent multiples requests
@@ -2286,7 +2300,7 @@
         var request = idAreasRequest; // Original DJI map same behavior to prevent multiples requests
 
         setTimeout(function () {
-          return __awaiter(_this4, void 0, void 0, /*#__PURE__*/regenerator.mark(function _callee4() {
+          return __awaiter(_this5, void 0, void 0, /*#__PURE__*/regenerator.mark(function _callee4() {
             var center, center4326, viewLatLng, data, features;
             return regenerator.wrap(function _callee4$(_context4) {
               while (1) {
@@ -2361,7 +2375,7 @@
       key: "getApiGeoData",
       value: function getApiGeoData(typeApiRequest, latLng) {
         return __awaiter(this, void 0, void 0, /*#__PURE__*/regenerator.mark(function _callee8() {
-          var _this5 = this;
+          var _this6 = this;
 
           var apiRequest, getPointInfo, getAreas, getMapRadius, searchRadius, data;
           return regenerator.wrap(function _callee8$(_context8) {
@@ -2371,7 +2385,7 @@
                   apiRequest = function apiRequest(typeApiRequest, _ref4, searchRadius) {
                     var lng = _ref4.lng,
                         lat = _ref4.lat;
-                    return __awaiter(_this5, void 0, void 0, /*#__PURE__*/regenerator.mark(function _callee5() {
+                    return __awaiter(_this6, void 0, void 0, /*#__PURE__*/regenerator.mark(function _callee5() {
                       var api_endpoint, url, queryObj, response;
                       return regenerator.wrap(function _callee5$(_context5) {
                         while (1) {
@@ -2423,7 +2437,7 @@
                   };
 
                   getPointInfo = function getPointInfo(latLng, searchRadius) {
-                    return __awaiter(_this5, void 0, void 0, /*#__PURE__*/regenerator.mark(function _callee6() {
+                    return __awaiter(_this6, void 0, void 0, /*#__PURE__*/regenerator.mark(function _callee6() {
                       var data;
                       return regenerator.wrap(function _callee6$(_context6) {
                         while (1) {
@@ -2446,7 +2460,7 @@
                   };
 
                   getAreas = function getAreas(centerLatLng, searchRadius) {
-                    return __awaiter(_this5, void 0, void 0, /*#__PURE__*/regenerator.mark(function _callee7() {
+                    return __awaiter(_this6, void 0, void 0, /*#__PURE__*/regenerator.mark(function _callee7() {
                       var extent$1, polygon, data;
                       return regenerator.wrap(function _callee7$(_context7) {
                         while (1) {
@@ -2498,11 +2512,11 @@
                         lat = _ref5.lat;
                     var center = [lng, lat];
 
-                    var size = _this5.map.getSize();
+                    var size = _this6.map.getSize();
 
-                    var extent = _this5.view.calculateExtent(size);
+                    var extent = _this6.view.calculateExtent(size);
 
-                    extent = proj.transformExtent(extent, _this5.projection, 'EPSG:4326');
+                    extent = proj.transformExtent(extent, _this6.projection, 'EPSG:4326');
                     var posSW = [extent[0], extent[1]];
                     var centerToSW = sphere.getDistance(center, posSW);
                     return parseInt(String(centerToSW));
@@ -2686,7 +2700,7 @@
        * @param refresh If true, refresh the view and show the active levels
        */
       value: function addLevels(levels) {
-        var _this6 = this;
+        var _this7 = this;
 
         var refresh = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
         var arrLevels = !Array.isArray(levels) ? [levels] : levels;
@@ -2694,7 +2708,7 @@
 
         if (refresh) {
           arrLevels.forEach(function (lev) {
-            var layer = _this6.getLayerByLevel(lev);
+            var layer = _this7.getLayerByLevel(lev);
 
             layer.setVisible(true);
           });
@@ -2710,7 +2724,7 @@
     }, {
       key: "removeLevels",
       value: function removeLevels(levels) {
-        var _this7 = this;
+        var _this8 = this;
 
         var refresh = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
         var arrLevels = !Array.isArray(levels) ? [levels] : levels;
@@ -2720,7 +2734,7 @@
 
         if (refresh) {
           arrLevels.forEach(function (lev) {
-            var layer = _this7.getLayerByLevel(lev);
+            var layer = _this8.getLayerByLevel(lev);
 
             layer.setVisible(false);
           });
@@ -2733,14 +2747,45 @@
     }, {
       key: "destroy",
       value: function destroy() {
-        var _this8 = this;
+        var _this9 = this;
 
         this.map.removeControl(this.control);
         this.layers.forEach(function (layer) {
-          _this8.map.removeLayer(layer);
+          _this9.map.removeLayer(layer);
         });
         Observable.unByKey(this._clickEvtKey);
         Observable.unByKey(this._moveendEvtKey);
+      }
+      /**
+       * Hide the geoZones and the Control
+       */
+
+    }, {
+      key: "hide",
+      value: function hide() {
+        this._forceHidden = true;
+
+        this._setLayersVisible(false);
+
+        this.setPanelVisible(false);
+
+        this._setControlEnabled(false);
+      }
+      /**
+       * Show the geoZones nd the Control
+       */
+
+    }, {
+      key: "show",
+      value: function show() {
+        this._forceHidden = false;
+        this._isVisible = this.view.getZoom() >= MIN_ZOOM;
+        if (this._isVisible) this._setControlEnabled(true);
+        this.getInfoFromView();
+
+        this._setLayersVisible(true);
+
+        this.setPanelVisible(true);
       }
       /**
        *  **_[static]_** - Generate an RGBA color from an hexadecimal
@@ -2818,12 +2863,12 @@
     }, {
       key: "activeLevels",
       set: function set(levels) {
-        var _this9 = this;
+        var _this10 = this;
 
         this._activeLevels = levels;
 
         this._displayLevels.forEach(function (lev) {
-          var layer = _this9.getLayerByLevel(lev);
+          var layer = _this10.getLayerByLevel(lev);
 
           if (levels.includes(lev)) {
             layer.setVisible(true);

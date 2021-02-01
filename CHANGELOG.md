@@ -27,3 +27,8 @@
 ## v1.0.6
 
 * Fixed package.json
+
+## v1.0.7
+
+* Fixed some bugs
+* Added methods to show or hide geoZones and the map Control
