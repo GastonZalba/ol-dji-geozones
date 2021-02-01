@@ -23,3 +23,7 @@
 ## v1.0.5
 
 * Extent property added dynamically to prevent strange bug in some occasions.
+
+## v1.0.6
+
+* Fixed package.json
