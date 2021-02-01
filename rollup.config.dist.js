@@ -7,7 +7,6 @@ import image from '@rollup/plugin-image';
 import { terser } from "rollup-plugin-terser";
 import CleanCss from 'clean-css';
 import css from 'rollup-plugin-css-only';
-import builtins from 'rollup-plugin-node-builtins';
 import { mkdirSync, writeFileSync } from 'fs';
 
 let globals = {
@@ -45,6 +44,7 @@ module.exports = {
         }
     ],
     plugins: [    
+        json(),
         resolve(),
         commonjs(),
         babel({
