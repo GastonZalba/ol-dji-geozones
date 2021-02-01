@@ -241,7 +241,7 @@ export default class DjiGeozones {
         const createPopUpOverlay = () => {
             const popupContainer = document.createElement('div');
             popupContainer.id = 'ol-dji-geozones--popup';
-            popupContainer.className = `ol-popup ol-dji-geozones--ol-popup ol-dji-geozones--${this.theme}`;
+            popupContainer.className = `ol-dji-geozones--ol-popup ol-dji-geozones--${this.theme}`;
 
             this.popupContent = document.createElement('div');
             this.popupContent.id = 'ol-dji-geozones--popup-content';
@@ -407,7 +407,8 @@ export default class DjiGeozones {
             let className = `ol-dji-geozones ol-control ol-dji-geozones--${this.theme}`;
             if (startCollapsed) className += ' ol-dji-geozones--ctrl-collapsed';
             if (this._forceHidden) className += ' ol-dji-geozones--ctrl-hidden';
-            if (!this._isVisible) className += ' ol-dji-geozones--ctrl-disabled';
+            if (!this._isVisible)
+                className += ' ol-dji-geozones--ctrl-disabled';
 
             divControl.className = className;
 
@@ -836,7 +837,9 @@ export default class DjiGeozones {
                     opt_options
                 );
 
-                data = getInfoFromFeatures(features);
+                if (features && features.length) {
+                    data = getInfoFromFeatures(features);
+                }
             }
 
             if (data && data.length)

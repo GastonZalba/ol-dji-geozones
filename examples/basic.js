@@ -26,16 +26,11 @@
     showPanel: true,
     language: 'en',
     startCollapsed: false,
-    startActive: false,
+    startActive: true,
     theme: 'light'
   };
 
   var djiGeozones = new DjiGeozones(map, opt_options);
-
-  setTimeout(function(){
-    djiGeozones.show();
-  },4000)
-
 
   console.log(djiGeozones);
 

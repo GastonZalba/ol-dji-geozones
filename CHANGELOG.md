@@ -32,3 +32,7 @@
 
 * Fixed some bugs
 * Added methods to show or hide geoZones and the map Control
+
+## v1.0.8
+
+* Improved css

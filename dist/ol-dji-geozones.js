@@ -1540,7 +1540,7 @@
         var createPopUpOverlay = function createPopUpOverlay() {
           var popupContainer = document.createElement('div');
           popupContainer.id = 'ol-dji-geozones--popup';
-          popupContainer.className = "ol-popup ol-dji-geozones--ol-popup ol-dji-geozones--".concat(_this.theme);
+          popupContainer.className = "ol-dji-geozones--ol-popup ol-dji-geozones--".concat(_this.theme);
           _this.popupContent = document.createElement('div');
           _this.popupContent.id = 'ol-dji-geozones--popup-content';
           _this.popupContent.className = 'ol-dji-geozones--ol-popup-content';
@@ -2072,7 +2072,10 @@
 
                 case 19:
                   features = this.map.getFeaturesAtPixel(evt.pixel, opt_options);
-                  data = getInfoFromFeatures(features);
+
+                  if (features && features.length) {
+                    data = getInfoFromFeatures(features);
+                  }
 
                 case 21:
                   if (data && data.length) showGeozoneDataInPopUp(data, evt.coordinate);else this.overlay.setPosition(undefined);
