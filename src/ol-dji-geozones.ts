@@ -204,19 +204,21 @@ export default class DjiGeozones {
       };
 
       API_LEVELS.forEach((level) => {
-        const layer = new VectorLayer({
+        let props = {
+          name: 'ol-dji-geozones',
+          level: level,
           zIndex: this.getLevelParamsById(level).zIndex * 2,
           visible: this.activeLevels.includes(level) ? true : false,
           source: new VectorSource({
             attributions:
               '<a href="https://www.dji.com/flysafe/geo-map" rel="nofollow noopener noreferrer" target="_blank">DJI GeoZoneMap</a>'
           }),
-          style: styleFunction,
-          extent: this._extent
-        });
+          style: styleFunction
+        }
 
-        layer.set('name', 'ol-dji-geozones');
-        layer.set('level', level);
+        if (this._extent) props['extent'] = this._extent;
+
+        const layer = new VectorLayer(props);
 
         this.map.addLayer(layer);
         this._layers.push(layer);

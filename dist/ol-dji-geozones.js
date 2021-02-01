@@ -1512,17 +1512,18 @@
           };
 
           API_LEVELS.forEach(function (level) {
-            var layer = new VectorLayer__default['default']({
+            var props = {
+              name: 'ol-dji-geozones',
+              level: level,
               zIndex: _this.getLevelParamsById(level).zIndex * 2,
               visible: _this.activeLevels.includes(level) ? true : false,
               source: new VectorSource__default['default']({
                 attributions: '<a href="https://www.dji.com/flysafe/geo-map" rel="nofollow noopener noreferrer" target="_blank">DJI GeoZoneMap</a>'
               }),
-              style: styleFunction,
-              extent: _this._extent
-            });
-            layer.set('name', 'ol-dji-geozones');
-            layer.set('level', level);
+              style: styleFunction
+            };
+            if (_this._extent) props['extent'] = _this._extent;
+            var layer = new VectorLayer__default['default'](props);
 
             _this.map.addLayer(layer);
 

@@ -19,3 +19,7 @@
 ## v1.0.4
 
 * Fixed attribute "files" inside package.json
+
+## v1.0.5
+
+* Extent property added dynamically to prevent strange bug in some occasions.
