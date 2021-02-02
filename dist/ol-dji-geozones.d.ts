@@ -50,7 +50,16 @@ export default class DjiGeozones {
     overlay: Overlay;
     control: Control;
     constructor(map: PluggableMap, opt_options?: Options);
-    init(createPanel: boolean, startCollapsed: boolean, targetControl: string | HTMLElement): void;
+    _init(): void;
+    /**
+     * Create a control panel in the map
+     *
+     * @param createPanel
+     * @param startCollapsed
+     * @param targetPanel
+     * @private
+     */
+    _createPanel(createPanel: boolean | string, startCollapsed: boolean, targetPanel: string | HTMLElement): void;
     /**
      * @private
      */
@@ -270,6 +279,7 @@ interface i18n {
         helperZoom: string;
         expand: string;
         collapse: string;
+        showHide: string;
     };
     levels: LevelLang[];
     types: {
@@ -288,7 +298,7 @@ interface i18n {
  *   country: 'US', // See parameter in the DJI API section
  *   displayLevels: [2, 6, 1, 0, 3, 4, 7],
  *   activeLevels: [2, 6, 1, 0, 3, 4, 7],
- *   createPanel: true,
+ *   createPanel: 'full',
  *   targetPanel: null,
  *   startCollapsed: true,
  *   startActive: true,
@@ -333,9 +343,13 @@ interface Options {
      */
     extent?: Extent;
     /**
-     * Display or hide the control panel on the map
+     * Create or not a control panel on the map
+     * - 'full' displays each level as a layer, with the possibility to activate or deactivate each one,
+     * color legends and a drone switcher.
+     * - 'compact' it's a simple toggler button to enable/disable the geoZones.
+     * - use false to disable the panel
      */
-    createPanel?: boolean;
+    createPanel?: boolean | 'full' | 'compact';
     /**
      * Specify a target if you want the control to be rendered outside of the map's viewport.
      */

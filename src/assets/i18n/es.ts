@@ -15,7 +15,8 @@ export const es: i18n = {
         learnMore: 'Leer más',
         helperZoom: 'Acérquese para ver las Zonas Geo',
         expand: 'Expandir',
-        collapse: 'Colapsar'
+        collapse: 'Colapsar',
+        showHide: 'Mostrar/Ocultar'
     },
     levels: [
         {

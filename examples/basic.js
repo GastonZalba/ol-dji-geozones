@@ -13,17 +13,20 @@
       zoom: 10
     })
   });
-  
+
+
   var opt_options = {
-    // This proxy url is a public demo of CORS Anywhere, use it only for testing. 
-    // For production deploy a custom instance (visit https://github.com/Rob--W/cors-anywhere/)
-    // or use yor own proxy.
-    urlProxy: 'https://cors-anywhere.herokuapp.com/',
+    // You must use a proxy url to avoid CORS restrictions.
+    // For testing, you can run `chrome.exe --user-data-dir="C://Chrome dev session" --disable-web-security` to
+    // use a Google Chrome instance with CORS disabled.
+    // In this example, allOrigins is a free and open source javascript (use it only for testing) 
+    // For production deploy a custom instance or use yor own proxy.
+    urlProxy: 'https://api.allorigins.win/raw?url=',
     drone: 'mavic-2',
     country: 'AR',
     displayLevels: [2, 6, 1, 0, 3, 4, 7],
     activeLevels: [0, 1, 2, 3, 4, 6, 7],
-    showPanel: true,
+    createPanel: 'full',
     language: 'en',
     startCollapsed: false,
     startActive: true,

@@ -15,7 +15,8 @@ export const en: i18n = {
         learnMore: 'Learn More',
         helperZoom: 'Zoom in to see the Geo Zones',
         expand: 'Expand',
-        collapse: 'Collapse'
+        collapse: 'Collapse',
+        showHide: 'Show/Hide'
     },
     levels: [
         {

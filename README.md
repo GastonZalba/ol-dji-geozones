@@ -33,7 +33,7 @@ let opt_options = {
     levelsActive: [2, 6, 1, 0, 3, 4, 7],
     dronesToDisplay: [], // By default, an array with all the drones
     extent: null,
-    createPanel: true, // Create or not the control
+    createPanel: 'full', // Create or not the control
     targetPanel: null, // Specify a target if you want the control to be rendered outside of the map's viewport.
     startCollapsed: false,
     clickEvent: 'singleclick',
@@ -42,10 +42,11 @@ let opt_options = {
 };
 
 // SETTING A REVERSE PROXY TO AVOID CORS
-// This proxy url is a public demo of CORS Anywhere, use it only for testing.
-// For production deploy a custom instance (visit https://github.com/Rob--W/cors-anywhere/)
-// or use yor own proxy.
-opt_options.urlProxy = 'https://cors-anywhere.herokuapp.com';
+// For testing, you can run `chrome.exe --user-data-dir="C://Chrome dev session" --disable-web-security` to
+// launch a Google Chrome instance with CORS disabled.
+// This example uses allOrigins (https://github.com/gnuns/allOrigins), a free and open source javascript proxy.
+// For production, deploy a custom instance or use yor own proxy.
+opt_options.urlProxy = 'https://api.allorigins.win/raw?url=';
 
 const djiGeozones = new DjiGeozones(map, opt_options);
 
@@ -95,13 +96,13 @@ See [CHANGELOG](./CHANGELOG.md) for details of changes in each release.
 Load `ol-dji-geozones.js` after OpenLayers. Dji Geozone is available as `DjiGeozones`.
 
 ```HTML
-<script src="https://unpkg.com/ol-dji-geozones@1.0.8"></script>
+<script src="https://unpkg.com/ol-dji-geozones@1.0.9"></script>
 ```
 
 #### CSS
 
 ```HTML
-<link rel="stylesheet" href="https://unpkg.com/ol-dji-geozones@1.0.8/dist/ol-dji-geozones.css" />
+<link rel="stylesheet" href="https://unpkg.com/ol-dji-geozones@1.0.9/dist/ol-dji-geozones.css" />
 ```
 
 ### Parcel, Webpack, etc.
@@ -450,7 +451,7 @@ Default values:
   country: 'US', // See parameter in the DJI API section
   displayLevels: [2, 6, 1, 0, 3, 4, 7],
   activeLevels: [2, 6, 1, 0, 3, 4, 7],
-  createPanel: true,
+  createPanel: 'full',
   targetPanel: null,
   startCollapsed: true,
   startActive: true,
@@ -508,9 +509,14 @@ Type: Extent
 
 #### createPanel
 
-Display or hide the control panel on the map
+Create or not a control panel on the map
 
-Type: [boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
+-   'full' displays each level as a layer, with the possibility to activate or deactivate each one,
+    color legends and a drone switcher.
+-   'compact' it's a simple toggler button to enable/disable the geoZones.
+-   use false to disable the panel
+
+Type: ([boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean) \| `"full"` \| `"compact"`)
 
 #### targetPanel
 

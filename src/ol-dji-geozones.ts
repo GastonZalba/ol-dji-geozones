@@ -38,8 +38,8 @@ import './assets/css/ol-dji-geozones.css';
 /**
  * @protected
  */
-const API_AREAS_ENDPOINT = 'www-api.dji.com/api/geo/areas';
-const API_INFO_ENDPOINT = 'www-api.dji.com/api/geo/point-info';
+const API_AREAS_ENDPOINT = 'https://www-api.dji.com/api/geo/areas';
+const API_INFO_ENDPOINT = 'https://www-api.dji.com/api/geo/point-info';
 const API_LEVELS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; // request all the levels, we filter later to avoid some api problems
 const MIN_ZOOM = 9; // < 9 breaks the API
 
@@ -118,8 +118,7 @@ export default class DjiGeozones {
 
         this._extent = options.extent || null;
 
-        // Add slash on the end if not present
-        this._urlProxy = options.urlProxy.replace(/\/?$/, '/');
+        this._urlProxy = options.urlProxy || '';
 
         this._loadingElement =
             options.loadingElement ||
@@ -135,7 +134,7 @@ export default class DjiGeozones {
 
         // MAP
         const createPanel =
-            'createPanel' in options ? options.createPanel : true;
+            'createPanel' in options ? options.createPanel : 'full';
         const targetPanel = options.targetPanel || null;
         const startCollapsed =
             'startCollapsed' in options ? options.startCollapsed : false;
@@ -155,14 +154,13 @@ export default class DjiGeozones {
         this.divControl = null;
         this._areaDownloaded = null;
 
-        this.init(createPanel, startCollapsed, targetPanel);
+        this._init();
+
+        if (createPanel)
+            this._createPanel(createPanel, startCollapsed, targetPanel);
     }
 
-    init(
-        createPanel: boolean,
-        startCollapsed: boolean,
-        targetControl: string | HTMLElement
-    ): void {
+    _init(): void {
         /**
          * Create and add a Vector Layer for each level
          * @protected
@@ -272,11 +270,86 @@ export default class DjiGeozones {
         };
 
         /**
-         * Add panel controller to the viewport map.
+         * @protected
+         */
+        const addMapEvents = (): void => {
+            const handleZoomEnd = (): void => {
+                if (this._currentZoom < MIN_ZOOM) {
+                    // Hide the layer and disable the control
+                    if (this._isVisible) {
+                        this._setLayersVisible(false);
+                        this._isVisible = false;
+                        this._setControlEnabled(false);
+                    }
+                } else {
+                    // Show the layers and enable the control
+                    if (!this._isVisible) {
+                        this._setLayersVisible(true);
+                        this._isVisible = true;
+                        this._setControlEnabled(true);
+                    } else {
+                        // If the view is closer, don't do anything, we already had the features
+                        if (this._currentZoom > this._lastZoom) return;
+                    }
+
+                    this.getInfoFromView();
+                }
+            };
+
+            const handleDragEnd = (): void => {
+                if (!this._isVisible) return;
+                this.getInfoFromView();
+            };
+
+            const clickHandler = (evt: MapBrowserEvent): void => {
+                const type = this._useApiForPopUp
+                    ? 'useApiForPopUp'
+                    : 'useFeaturesForPopUp';
+
+                this.getPointInfoFromClick(evt, type);
+            };
+
+            this._moveendEvtKey = this.map.on('moveend', (): void => {
+                if (this._forceHidden) return;
+
+                this._currentZoom = this.view.getZoom();
+
+                if (this._currentZoom !== this._lastZoom) handleZoomEnd();
+                else handleDragEnd();
+
+                this._lastZoom = this._currentZoom;
+            });
+
+            this._clickEvtKey = this.map.on(this.clickEvent, clickHandler);
+        };
+
+        createVectorLayers();
+        createPopUpOverlay();
+        addMapEvents();
+    }
+
+    /**
+     * Create a control panel in the map
+     * 
+     * @param createPanel
+     * @param startCollapsed
+     * @param targetPanel
+     * @private
+     */
+    _createPanel(
+        createPanel: boolean | string,
+        startCollapsed: boolean,
+        targetPanel: string | HTMLElement
+    ): void {
+        /**
+         * Add the 'full' control panel to the viewport map or custom target.
+         * This displays each level as a layer, with the possibility to activate or deactivate each one,
+         * color legends and a drone switcher.
+         *
          * @param targetPanel If provided, the panel wil be rendered outside the viewport
          * @protected
          */
-        const addMapControl = (targetPanel: HTMLElement | string) => {
+        const addMapControlFull = () => {
             const createDroneSelector = (): HTMLDivElement => {
                 const handleChange = ({ target }) => {
                     this.drone =
@@ -402,17 +475,9 @@ export default class DjiGeozones {
                 return buttonCollapse;
             };
 
-            const divControl = document.createElement('div');
+            this.divControl.classList.add('ol-dji-geozones--ctrl-full');
 
-            let className = `ol-dji-geozones ol-control ol-dji-geozones--${this.theme}`;
-            if (startCollapsed) className += ' ol-dji-geozones--ctrl-collapsed';
-            if (this._forceHidden) className += ' ol-dji-geozones--ctrl-hidden';
-            if (!this._isVisible)
-                className += ' ol-dji-geozones--ctrl-disabled';
-
-            divControl.className = className;
-
-            divControl.innerHTML = `
+            this.divControl.innerHTML = `
             <header>
                 <h3>${this._i18n.labels.djiGeoZones}</h3>
                 <span class="ol-dji-geozones--loading">
@@ -429,98 +494,96 @@ export default class DjiGeozones {
             `;
 
             const droneSelector = createDroneSelector();
-            divControl
+            this.divControl
                 .querySelector('.ol-dji-geozones--selectors')
                 .append(droneSelector);
 
             const levelSelector = createLevelSelector();
-            divControl
+            this.divControl
                 .querySelector('.ol-dji-geozones--selectors')
                 .append(levelSelector);
 
             const buttonCollapse = createButtonCollapser();
-            divControl.querySelector('header').append(buttonCollapse);
+            this.divControl.querySelector('header').append(buttonCollapse);
 
-            const logo: HTMLDivElement = divControl.querySelector(
+            const logo: HTMLDivElement = this.divControl.querySelector(
                 '.ol-dji-geozones--logo'
             );
             logo.onclick = () => this.setPanelCollapsed(false);
-
-            this.divControl = divControl;
-
-            const options = {
-                element: divControl,
-                target: null
-            };
-
-            if (targetPanel) {
-                options.target = targetPanel;
-            }
-
-            this.control = new Control(options);
-
-            this.map.addControl(this.control);
         };
 
         /**
+         * Add the 'compact' control panel to the viewport map or custom target.
+         * This is a simple Toggler to activate/deactivate the Geozones
+         *
+         * @param targetPanel If provided, the panel wil be rendered outside the viewport
          * @protected
          */
-        const addMapEvents = (): void => {
-            const handleZoomEnd = (): void => {
-                if (this._currentZoom < MIN_ZOOM) {
-                    // Hide the layer and disable the control
-                    if (this._isVisible) {
-                        this._setLayersVisible(false);
-                        this._isVisible = false;
-                        this._setControlEnabled(false);
-                    }
-                } else {
-                    // Show the layers and enable the control
-                    if (!this._isVisible) {
-                        this._setLayersVisible(true);
-                        this._isVisible = true;
-                        this._setControlEnabled(true);
-                    } else {
-                        // If the view is closer, don't do anything, we already had the features
-                        if (this._currentZoom > this._lastZoom) return;
-                    }
+        const addMapControlCompact = () => {
+            this.divControl.classList.add('ol-dji-geozones--ctrl-compact');
 
-                    this.getInfoFromView();
+            this.divControl.innerHTML = `
+            <header>
+                <span class="ol-dji-geozones--loading">
+                    ${this._loadingElement}
+                </span>
+            </header>
+            <main>
+                <section>
+                    <div class="ol-dji-geozones--logo" title="${this._i18n.labels.showHide}"><img src="${geozoneSvg}"/></div>
+                </section>
+            </main>
+            `;
+
+            const logo: HTMLDivElement = this.divControl.querySelector(
+                '.ol-dji-geozones--logo'
+            );
+
+            logo.onclick = () => {
+                const hiddenClass = 'ol-dji-geozones--ctrl-toggle-hidden';
+                if (this.divControl.classList.contains(hiddenClass)) {
+                    this.show();
+                    this.divControl.classList.remove(hiddenClass);
+                } else {
+                    this.hide();
+                    this.divControl.classList.add(hiddenClass);
                 }
             };
-
-            const handleDragEnd = (): void => {
-                if (!this._isVisible) return;
-                this.getInfoFromView();
-            };
-
-            const clickHandler = (evt: MapBrowserEvent): void => {
-                const type = this._useApiForPopUp
-                    ? 'useApiForPopUp'
-                    : 'useFeaturesForPopUp';
-
-                this.getPointInfoFromClick(evt, type);
-            };
-
-            this._moveendEvtKey = this.map.on('moveend', (): void => {
-                if (this._forceHidden) return;
-
-                this._currentZoom = this.view.getZoom();
-
-                if (this._currentZoom !== this._lastZoom) handleZoomEnd();
-                else handleDragEnd();
-
-                this._lastZoom = this._currentZoom;
-            });
-
-            this._clickEvtKey = this.map.on(this.clickEvent, clickHandler);
         };
 
-        createVectorLayers();
-        createPopUpOverlay();
-        addMapEvents();
+        this.divControl = document.createElement('div');
 
-        if (createPanel) addMapControl(targetControl);
+        this.divControl.className = `ol-dji-geozones ol-control ol-dji-geozones--${this.theme}`;
+
+        if (startCollapsed)
+            this.divControl.classList.add('ol-dji-geozones--ctrl-collapsed');
+
+        if (this._forceHidden)
+            this.divControl.classList.add('ol-dji-geozones--ctrl-hidden');
+
+        if (!this._isVisible)
+            this.divControl.classList.add('ol-dji-geozones--ctrl-disabled');
+
+        if (createPanel === true || createPanel === 'full') {
+            addMapControlFull();
+        } else if (createPanel === 'compact') {
+            addMapControlCompact();
+        } else {
+            return;
+        }
+
+        const options = {
+            element: this.divControl,
+            target: null
+        };
+
+        if (targetPanel) {
+            options.target = targetPanel;
+        }
+
+        this.control = new Control(options);
+
+        this.map.addControl(this.control);
     }
 
     /**
@@ -1104,9 +1167,7 @@ export default class DjiGeozones {
 
             // If not proxy is passed, make a direct request
             // Maybe in the future the api will has updated CORS restrictions
-            const url = new URL(
-                this._urlProxy ? this._urlProxy + api_endpoint : api_endpoint
-            );
+            const url = new URL(api_endpoint);
 
             const queryObj: ApiReqArguments = {
                 drone: this.drone,
@@ -1122,7 +1183,7 @@ export default class DjiGeozones {
                 url.searchParams.append(key, queryObj[key])
             );
 
-            const response = await fetch(url.toString());
+            const response = await fetch(this._urlProxy + encodeURIComponent(url.toString()));
 
             if (!response.ok) throw new Error('HTTP-Error: ' + response.status);
 
@@ -1417,7 +1478,6 @@ export default class DjiGeozones {
     hide(): void {
         this._forceHidden = true;
         this._setLayersVisible(false);
-        this.setPanelVisible(false);
         this._setControlEnabled(false);
     }
 
@@ -1427,10 +1487,11 @@ export default class DjiGeozones {
     show(): void {
         this._forceHidden = false;
         this._isVisible = this.view.getZoom() >= MIN_ZOOM;
-        if (this._isVisible) this._setControlEnabled(true);
-        this.getInfoFromView();
-        this._setLayersVisible(true);
-        this.setPanelVisible(true);
+        if (this._isVisible) {
+            this._setControlEnabled(true);
+            this.getInfoFromView();
+            this._setLayersVisible(true);
+        }
     }
 
     /**
@@ -1604,6 +1665,7 @@ interface i18n {
         helperZoom: string;
         expand: string;
         collapse: string;
+        showHide: string;
     };
     levels: LevelLang[];
     types: {
@@ -1623,7 +1685,7 @@ interface i18n {
  *   country: 'US', // See parameter in the DJI API section
  *   displayLevels: [2, 6, 1, 0, 3, 4, 7],
  *   activeLevels: [2, 6, 1, 0, 3, 4, 7],
- *   createPanel: true,
+ *   createPanel: 'full',
  *   targetPanel: null,
  *   startCollapsed: true,
  *   startActive: true,
@@ -1671,9 +1733,13 @@ interface Options {
      */
     extent?: Extent;
     /**
-     * Display or hide the control panel on the map
+     * Create or not a control panel on the map
+     * - 'full' displays each level as a layer, with the possibility to activate or deactivate each one,
+     * color legends and a drone switcher.
+     * - 'compact' it's a simple toggler button to enable/disable the geoZones.
+     * - use false to disable the panel
      */
-    createPanel?: boolean;
+    createPanel?: boolean | 'full' | 'compact';
     /**
      * Specify a target if you want the control to be rendered outside of the map's viewport.
      */

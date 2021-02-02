@@ -4,10 +4,18 @@
     padding: 8px;
     box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.278);
 }
+.ol-dji-geozones.ol-control.ol-dji-geozones--ctrl-compact,
 .ol-dji-geozones.ol-control.ol-dji-geozones--ctrl-collapsed {
     width: 42px;
+    height: 42px;
     box-sizing: border-box;
     padding: 4px;
+}
+.ol-dji-geozones.ol-control header {
+    position: relative;
+}
+.ol-dji-geozones.ol-control.ol-dji-geozones--isLoading header {
+    height: 100%;
 }
 /** THEMES */
 /* Light */
@@ -119,7 +127,7 @@
 /* END THEMES */
 
 .ol-dji-geozones h3 {
-    margin: 0.2em 0;
+    margin: 0.2em 0.5em 0.2em 0;
     text-transform: uppercase;
     font-weight: 400;
     display: inline-block;
@@ -154,7 +162,8 @@
     display: none;
 }
 
-.ol-dji-geozones--ctrl-collapsed header,
+.ol-dji-geozones--ctrl-collapsed h3,
+.ol-dji-geozones--ctrl-collapsed button,
 .ol-dji-geozones--ctrl-collapsed .ol-dji-geozones--selectors,
 .ol-dji-geozones--ctrl-collapsed .ol-dji-geozones--advice {
     display: none;
@@ -170,6 +179,9 @@
 
 .ol-dji-geozones--isLoading .ol-dji-geozones--loading {
     display: inline-block;
+    top: 50%;
+    position: absolute;
+    margin-top: -10px;
 }
 
 .ol-dji-geozones--loading {
@@ -189,22 +201,43 @@
     width: 15px;
     height: 15px;
     position: absolute;
-    right: 2px;
-    top: 2px;
+    right: 0px;
+    top: 0px;
     cursor: pointer;
 }
 .ol-control button.ol-dji-geozones--collapse:focus {
     outline: 0;
 }
-
 .ol-dji-geozones--collapse:after {
     content: '−';
 }
 .ol-dji-geozones--logo {
     cursor: pointer;
+}
+.ol-dji-geozones--ctrl-full .ol-dji-geozones--logo {
     display: none;
 }
-.ol-dji-geozones--ctrl-collapsed .ol-dji-geozones--logo {
+.ol-dji-geozones--logo:active {
+    transform: translateY(1px);
+}
+/* Compact */
+.ol-dji-geozones--ctrl-compact.ol-dji-geozones--isLoading
+    .ol-dji-geozones--logo,
+.ol-dji-geozones--ctrl-collapsed.ol-dji-geozones--isLoading
+    .ol-dji-geozones--logo {
+    display: none !important;
+}
+.ol-dji-geozones--ctrl-compact.ol-dji-geozones--ctrl-toggle-hidden
+    .ol-dji-geozones--logo {
+    filter: grayscale(100%);
+}
+.ol-dji-geozones--ctrl-compact.ol-dji-geozones--ctrl-toggle-hidden
+    .ol-dji-geozones--logo:hover {
+    filter: grayscale(50%);
+}
+/* End Compact */
+.ol-dji-geozones--ctrl-full.ol-dji-geozones--ctrl-collapsed
+    .ol-dji-geozones--logo {
     display: block;
 }
 .ol-dji-geozones--logo img {

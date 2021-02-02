@@ -23,10 +23,7 @@ const map = new Map({
 });
 
 const opt_options = {
-    // This proxy url is a public demo of CORS Anywhere, use it only for testing. 
-    // For production deploy a custom instance (visit https://github.com/Rob--W/cors-anywhere/)
-    // or use yor own proxy.
-    urlProxy: 'https://cors-anywhere.herokuapp.com/',
+    // urlProxy: 'https://myserver.com/proxyendpoint/',
     drone: 'mavic-2',
     country: 'AR',
     displayLevels: [2, 6, 1, 0, 3, 4, 7],

@@ -36,3 +36,10 @@
 ## v1.0.8
 
 * Improved css
+
+## v1.0.9
+
+* Updated proxyUrl on examples and README
+* Added 'https://' to API url's to facilitate uses of proxys
+* Added 'full' and 'compact' panels versions.
+* Show the loading indicator also in collapsed mode.
