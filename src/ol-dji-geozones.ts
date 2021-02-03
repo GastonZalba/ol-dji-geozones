@@ -31,6 +31,7 @@ import * as languages from './assets/i18n/index';
 // Images
 import geozoneSvg from './assets/images/geozone.svg';
 import infoSvg from './assets/images/info.svg';
+import visibilitySvg from './assets/images/visibility.svg';
 
 // Css
 import './assets/css/ol-dji-geozones.css';
@@ -42,6 +43,8 @@ const API_AREAS_ENDPOINT = 'https://www-api.dji.com/api/geo/areas';
 const API_INFO_ENDPOINT = 'https://www-api.dji.com/api/geo/point-info';
 const API_LEVELS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; // request all the levels, we filter later to avoid some api problems
 const MIN_ZOOM = 9; // < 9 breaks the API
+
+const HIDDEN_CLASS = 'ol-dji-geozones--ctrl-toggle-hidden';
 
 /**
  * OpenLayers DJI Geozone, creates multiples VectorLayers to
@@ -72,7 +75,7 @@ export default class DjiGeozones {
     protected _useApiForPopUp: boolean;
 
     protected _isVisible: boolean;
-    protected _forceHidden: boolean;
+    protected _hideGeozones: boolean;
     protected _currentZoom: number;
     protected _lastZoom: number;
 
@@ -144,9 +147,9 @@ export default class DjiGeozones {
         this.view = map.getView();
         this.projection = this.view.getProjection();
 
-        this._forceHidden =
+        this._hideGeozones =
             'startActive' in options ? !options.startActive : false;
-        this._isVisible = this._forceHidden
+        this._isVisible = this._hideGeozones
             ? false
             : this.view.getZoom() >= MIN_ZOOM;
 
@@ -211,11 +214,11 @@ export default class DjiGeozones {
                     name: 'ol-dji-geozones',
                     level: level,
                     zIndex: this.getLevelParamsById(level).zIndex * 2,
-                    visible: this._forceHidden
+                    visible: this._hideGeozones
                         ? false
                         : this.activeLevels.includes(level)
-                        ? true
-                        : false,
+                            ? true
+                            : false,
                     source: new VectorSource({
                         attributions:
                             '<a href="https://www.dji.com/flysafe/geo-map" rel="nofollow noopener noreferrer" target="_blank">DJI GeoZoneMap</a>'
@@ -310,7 +313,7 @@ export default class DjiGeozones {
             };
 
             this._moveendEvtKey = this.map.on('moveend', (): void => {
-                if (this._forceHidden) return;
+                if (this._hideGeozones) return;
 
                 this._currentZoom = this.view.getZoom();
 
@@ -468,11 +471,22 @@ export default class DjiGeozones {
             };
 
             const createButtonCollapser = (): HTMLButtonElement => {
-                const buttonCollapse = document.createElement('button');
-                buttonCollapse.className = 'ol-dji-geozones--collapse';
-                buttonCollapse.title = this._i18n.labels.collapse;
-                buttonCollapse.onclick = () => this.setPanelCollapsed(true);
-                return buttonCollapse;
+                const button = document.createElement('button');
+                button.className = 'ol-dji-geozones--collapse ol-dji-geozones--btn-sm';
+                button.title = this._i18n.labels.collapse;
+                button.onclick = () => this.setPanelCollapsed(true);
+                return button;
+            };
+
+            const createButtonVisibility = (): HTMLButtonElement => {
+                const button = document.createElement('button');
+                button.className = 'ol-dji-geozones--visibility ol-dji-geozones--btn-sm';
+                button.title = this._i18n.labels.hideGeozones;
+                button.innerHTML = `<img src="${visibilitySvg}"/>`;
+                button.onclick = () => {
+                    this.hide();
+                }
+                return button;
             };
 
             this.divControl.classList.add('ol-dji-geozones--ctrl-full');
@@ -506,10 +520,18 @@ export default class DjiGeozones {
             const buttonCollapse = createButtonCollapser();
             this.divControl.querySelector('header').append(buttonCollapse);
 
+            const buttonVisibility = createButtonVisibility();
+            this.divControl.querySelector('header').append(buttonVisibility);
+
             const logo: HTMLDivElement = this.divControl.querySelector(
                 '.ol-dji-geozones--logo'
             );
-            logo.onclick = () => this.setPanelCollapsed(false);
+            logo.onclick = () => {
+                if (this.divControl.classList.contains(HIDDEN_CLASS)) {
+                    this.show();
+                }
+                this.setPanelCollapsed(false);
+            }
         };
 
         /**
@@ -543,10 +565,8 @@ export default class DjiGeozones {
                 const hiddenClass = 'ol-dji-geozones--ctrl-toggle-hidden';
                 if (this.divControl.classList.contains(hiddenClass)) {
                     this.show();
-                    this.divControl.classList.remove(hiddenClass);
                 } else {
                     this.hide();
-                    this.divControl.classList.add(hiddenClass);
                 }
             };
         };
@@ -555,14 +575,18 @@ export default class DjiGeozones {
 
         this.divControl.className = `ol-dji-geozones ol-control ol-dji-geozones--${this.theme}`;
 
-        if (startCollapsed)
+        if (this._hideGeozones) {
+            this.divControl.classList.add('ol-dji-geozones--ctrl-toggle-hidden');
             this.divControl.classList.add('ol-dji-geozones--ctrl-collapsed');
+        } else {
+            if (!this._isVisible) {
+                this.divControl.classList.add('ol-dji-geozones--ctrl-disabled');
+            }
+            if (startCollapsed) {
+                this.divControl.classList.add('ol-dji-geozones--ctrl-collapsed');
+            }
+        }
 
-        if (this._forceHidden)
-            this.divControl.classList.add('ol-dji-geozones--ctrl-hidden');
-
-        if (!this._isVisible)
-            this.divControl.classList.add('ol-dji-geozones--ctrl-disabled');
 
         if (createPanel === true || createPanel === 'full') {
             addMapControlFull();
@@ -801,42 +825,34 @@ export default class DjiGeozones {
                     </div>
                     <div class="ol-dji-geozones--main">
                         <h3 class="ol-dji-geozones--title">${name}</h3>
-                        <p class="ol-dji-geozones--level">${lbl.level}: ${
-                    levelValues.name
-                } </p>
-                        <p class="ol-dji-geozones--type">${lbl.type}: ${
-                    this.getGeozoneTypeById(type).name
-                }</p>
-                        ${
-                            begin_at
-                                ? `<p class="ol-dji-geozones--start_time">${lbl.startTime}: ${begin_at}</p>`
-                                : ''
-                        }
-                        ${
-                            end_at
-                                ? `<p class="ol-dji-geozones--end_time">${lbl.endTime}: ${end_at}</p><p class="ol-dji-geozones--time_tips">${lbl.timeTips}</p>`
-                                : ''
-                        }         
-                        ${
-                            height
-                                ? `<p class="ol-dji-geozones--height">${lbl.maxAltitude} (m): ${height}</p>`
-                                : ''
-                        } 
-                        ${
-                            address
-                                ? `<p class="ol-dji-geozones--address">${lbl.address}: ${address}</p>`
-                                : ''
-                        }
-                        ${
-                            description
-                                ? `<p class="ol-dji-geozones--desc">${lbl.tips}: ${description}</p>`
-                                : ''
-                        }
-                        ${
-                            url
-                                ? `<p class="ol-dji-geozones--url">${lbl.link}: <a href="${url}">${lbl.learnMore}</a></p>`
-                                : ''
-                        }
+                        <p class="ol-dji-geozones--level">${lbl.level}: ${levelValues.name
+                    } </p>
+                        <p class="ol-dji-geozones--type">${lbl.type}: ${this.getGeozoneTypeById(type).name
+                    }</p>
+                        ${begin_at
+                        ? `<p class="ol-dji-geozones--start_time">${lbl.startTime}: ${begin_at}</p>`
+                        : ''
+                    }
+                        ${end_at
+                        ? `<p class="ol-dji-geozones--end_time">${lbl.endTime}: ${end_at}</p><p class="ol-dji-geozones--time_tips">${lbl.timeTips}</p>`
+                        : ''
+                    }         
+                        ${height
+                        ? `<p class="ol-dji-geozones--height">${lbl.maxAltitude} (m): ${height}</p>`
+                        : ''
+                    } 
+                        ${address
+                        ? `<p class="ol-dji-geozones--address">${lbl.address}: ${address}</p>`
+                        : ''
+                    }
+                        ${description
+                        ? `<p class="ol-dji-geozones--desc">${lbl.tips}: ${description}</p>`
+                        : ''
+                    }
+                        ${url
+                        ? `<p class="ol-dji-geozones--url">${lbl.link}: <a href="${url}">${lbl.learnMore}</a></p>`
+                        : ''
+                    }
                 </div>`;
 
                 const item = document.createElement('div');
@@ -1476,21 +1492,29 @@ export default class DjiGeozones {
      * Hide the geoZones and the Control
      */
     hide(): void {
-        this._forceHidden = true;
+        this._hideGeozones = true;
         this._setLayersVisible(false);
         this._setControlEnabled(false);
+
+        if (this.divControl) {
+            this.divControl.classList.add(HIDDEN_CLASS);
+        }
     }
 
     /**
      * Show the geoZones nd the Control
      */
     show(): void {
-        this._forceHidden = false;
+        this._hideGeozones = false;
         this._isVisible = this.view.getZoom() >= MIN_ZOOM;
         if (this._isVisible) {
             this._setControlEnabled(true);
             this.getInfoFromView();
             this._setLayersVisible(true);
+        }
+
+        if (this.divControl) {
+            this.divControl.classList.remove(HIDDEN_CLASS);
         }
     }
 
@@ -1644,7 +1668,7 @@ interface LevelLang {
  * **_[interface]_** - DjiGeozones levels parameters and trasnlations specified when creating a DjiGeozones
  * @protected
  */
-interface Level extends LevelParams, LevelLang {}
+interface Level extends LevelParams, LevelLang { }
 
 /**
  * **_[interface]_** - Custom Language specified when creating a DjiGeozones
@@ -1665,6 +1689,7 @@ interface i18n {
         helperZoom: string;
         expand: string;
         collapse: string;
+        hideGeozones: string;
         showHide: string;
     };
     levels: LevelLang[];

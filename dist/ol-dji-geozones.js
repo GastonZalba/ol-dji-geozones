@@ -1080,6 +1080,7 @@
       helperZoom: 'Acérquese para ver las Zonas Geo',
       expand: 'Expandir',
       collapse: 'Colapsar',
+      hideGeozones: 'Ocultar Geozonas',
       showHide: 'Mostrar/Ocultar'
     },
     levels: [{
@@ -1223,6 +1224,7 @@
       helperZoom: 'Zoom in to see the Geo Zones',
       expand: 'Expand',
       collapse: 'Collapse',
+      hideGeozones: 'Hide Geozones',
       showHide: 'Show/Hide'
     },
     levels: [{
@@ -1360,6 +1362,8 @@
 
   const img$1 = "data:image/svg+xml,%3csvg version='1.1' xmlns='http://www.w3.org/2000/svg' width='768' height='768' viewBox='0 0 768 768'%3e%3ctitle%3e%3c/title%3e%3cpath d='M352.5 288v-64.5h63v64.5h-63zM384 640.5q105 0 180.75-75.75t75.75-180.75-75.75-180.75-180.75-75.75-180.75 75.75-75.75 180.75 75.75 180.75 180.75 75.75zM384 64.5q132 0 225.75 93.75t93.75 225.75-93.75 225.75-225.75 93.75-225.75-93.75-93.75-225.75 93.75-225.75 225.75-93.75zM352.5 544.5v-192h63v192h-63z'%3e%3c/path%3e%3c/svg%3e";
 
+  const img$2 = "data:image/svg+xml,%3csvg version='1.1' xmlns='http://www.w3.org/2000/svg' width='768' height='768' viewBox='0 0 768 768'%3e%3cpath d='M384 288q39 0 67.5 28.5t28.5 67.5-28.5 67.5-67.5 28.5-67.5-28.5-28.5-67.5 28.5-67.5 67.5-28.5zM384 544.5q66 0 113.25-47.25t47.25-113.25-47.25-113.25-113.25-47.25-113.25 47.25-47.25 113.25 47.25 113.25 113.25 47.25zM384 144q118.5 0 214.5 66t138 174q-42 108-138 174t-214.5 66-214.5-66-138-174q42-108 138-174t214.5-66z'%3e%3c/path%3e%3c/svg%3e";
+
   function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$1(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
 
   function _unsupportedIterableToArray$1(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray$1(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$1(o, minLen); }
@@ -1407,6 +1411,7 @@
 
   var MIN_ZOOM = 9; // < 9 breaks the API
 
+  var HIDDEN_CLASS = 'ol-dji-geozones--ctrl-toggle-hidden';
   /**
    * OpenLayers DJI Geozone, creates multiples VectorLayers to
    * display interactives DJI Geo Zones on the map, requesting the
@@ -1454,8 +1459,8 @@
       this.map = map;
       this.view = map.getView();
       this.projection = this.view.getProjection();
-      this._forceHidden = 'startActive' in options ? !options.startActive : false;
-      this._isVisible = this._forceHidden ? false : this.view.getZoom() >= MIN_ZOOM;
+      this._hideGeozones = 'startActive' in options ? !options.startActive : false;
+      this._isVisible = this._hideGeozones ? false : this.view.getZoom() >= MIN_ZOOM;
       this._layers = [];
       this.divControl = null;
       this._areaDownloaded = null;
@@ -1521,7 +1526,7 @@
               name: 'ol-dji-geozones',
               level: level,
               zIndex: _this.getLevelParamsById(level).zIndex * 2,
-              visible: _this._forceHidden ? false : _this.activeLevels.includes(level) ? true : false,
+              visible: _this._hideGeozones ? false : _this.activeLevels.includes(level) ? true : false,
               source: new VectorSource__default['default']({
                 attributions: '<a href="https://www.dji.com/flysafe/geo-map" rel="nofollow noopener noreferrer" target="_blank">DJI GeoZoneMap</a>'
               }),
@@ -1618,7 +1623,7 @@
           };
 
           _this._moveendEvtKey = _this.map.on('moveend', function () {
-            if (_this._forceHidden) return;
+            if (_this._hideGeozones) return;
             _this._currentZoom = _this.view.getZoom();
             if (_this._currentZoom !== _this._lastZoom) handleZoomEnd();else handleDragEnd();
             _this._lastZoom = _this._currentZoom;
@@ -1749,15 +1754,28 @@
           };
 
           var createButtonCollapser = function createButtonCollapser() {
-            var buttonCollapse = document.createElement('button');
-            buttonCollapse.className = 'ol-dji-geozones--collapse';
-            buttonCollapse.title = _this2._i18n.labels.collapse;
+            var button = document.createElement('button');
+            button.className = 'ol-dji-geozones--collapse ol-dji-geozones--btn-sm';
+            button.title = _this2._i18n.labels.collapse;
 
-            buttonCollapse.onclick = function () {
+            button.onclick = function () {
               return _this2.setPanelCollapsed(true);
             };
 
-            return buttonCollapse;
+            return button;
+          };
+
+          var createButtonVisibility = function createButtonVisibility() {
+            var button = document.createElement('button');
+            button.className = 'ol-dji-geozones--visibility ol-dji-geozones--btn-sm';
+            button.title = _this2._i18n.labels.hideGeozones;
+            button.innerHTML = "<img src=\"".concat(img$2, "\"/>");
+
+            button.onclick = function () {
+              _this2.hide();
+            };
+
+            return button;
           };
 
           _this2.divControl.classList.add('ol-dji-geozones--ctrl-full');
@@ -1775,10 +1793,18 @@
 
           _this2.divControl.querySelector('header').append(buttonCollapse);
 
+          var buttonVisibility = createButtonVisibility();
+
+          _this2.divControl.querySelector('header').append(buttonVisibility);
+
           var logo = _this2.divControl.querySelector('.ol-dji-geozones--logo');
 
           logo.onclick = function () {
-            return _this2.setPanelCollapsed(false);
+            if (_this2.divControl.classList.contains(HIDDEN_CLASS)) {
+              _this2.show();
+            }
+
+            _this2.setPanelCollapsed(false);
           };
         };
         /**
@@ -1802,21 +1828,27 @@
 
             if (_this2.divControl.classList.contains(hiddenClass)) {
               _this2.show();
-
-              _this2.divControl.classList.remove(hiddenClass);
             } else {
               _this2.hide();
-
-              _this2.divControl.classList.add(hiddenClass);
             }
           };
         };
 
         this.divControl = document.createElement('div');
         this.divControl.className = "ol-dji-geozones ol-control ol-dji-geozones--".concat(this.theme);
-        if (startCollapsed) this.divControl.classList.add('ol-dji-geozones--ctrl-collapsed');
-        if (this._forceHidden) this.divControl.classList.add('ol-dji-geozones--ctrl-hidden');
-        if (!this._isVisible) this.divControl.classList.add('ol-dji-geozones--ctrl-disabled');
+
+        if (this._hideGeozones) {
+          this.divControl.classList.add('ol-dji-geozones--ctrl-toggle-hidden');
+          this.divControl.classList.add('ol-dji-geozones--ctrl-collapsed');
+        } else {
+          if (!this._isVisible) {
+            this.divControl.classList.add('ol-dji-geozones--ctrl-disabled');
+          }
+
+          if (startCollapsed) {
+            this.divControl.classList.add('ol-dji-geozones--ctrl-collapsed');
+          }
+        }
 
         if (createPanel === true || createPanel === 'full') {
           addMapControlFull();
@@ -2829,11 +2861,15 @@
     }, {
       key: "hide",
       value: function hide() {
-        this._forceHidden = true;
+        this._hideGeozones = true;
 
         this._setLayersVisible(false);
 
         this._setControlEnabled(false);
+
+        if (this.divControl) {
+          this.divControl.classList.add(HIDDEN_CLASS);
+        }
       }
       /**
        * Show the geoZones nd the Control
@@ -2842,7 +2878,7 @@
     }, {
       key: "show",
       value: function show() {
-        this._forceHidden = false;
+        this._hideGeozones = false;
         this._isVisible = this.view.getZoom() >= MIN_ZOOM;
 
         if (this._isVisible) {
@@ -2851,6 +2887,10 @@
           this.getInfoFromView();
 
           this._setLayersVisible(true);
+        }
+
+        if (this.divControl) {
+          this.divControl.classList.remove(HIDDEN_CLASS);
         }
       }
       /**

@@ -16,6 +16,7 @@ export const es: i18n = {
         helperZoom: 'Acérquese para ver las Zonas Geo',
         expand: 'Expandir',
         collapse: 'Colapsar',
+        hideGeozones: 'Ocultar Geozonas',
         showHide: 'Mostrar/Ocultar'
     },
     levels: [

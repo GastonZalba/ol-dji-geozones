@@ -31,7 +31,7 @@ export default class DjiGeozones {
     protected _urlProxy: string;
     protected _useApiForPopUp: boolean;
     protected _isVisible: boolean;
-    protected _forceHidden: boolean;
+    protected _hideGeozones: boolean;
     protected _currentZoom: number;
     protected _lastZoom: number;
     protected _moveendEvtKey: EventsKey;
@@ -279,6 +279,7 @@ interface i18n {
         helperZoom: string;
         expand: string;
         collapse: string;
+        hideGeozones: string;
         showHide: string;
     };
     levels: LevelLang[];

@@ -43,3 +43,6 @@
 * Added 'https://' to API url's to facilitate uses of proxys
 * Added 'full' and 'compact' panels versions.
 * Show the loading indicator also in collapsed mode.
+
+## v1.0.10
+* Added Visibility toggle
