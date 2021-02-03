@@ -1115,19 +1115,6 @@ export default class DjiGeozones {
         };
 
         /**
-         * Show/hide the loading in the control
-         * @param {Boolean} bool
-         * @protected
-         */
-        const showLoading = (bool) => {
-            if (!this.divControl) return;
-
-            if (bool)
-                this.divControl.classList.add('ol-dji-geozones--isLoading');
-            else this.divControl.classList.remove('ol-dji-geozones--isLoading');
-        };
-
-        /**
          * Clear all the elements in the Dji Geozones layers
          * @protected
          */
@@ -1146,7 +1133,7 @@ export default class DjiGeozones {
             if (request !== idAreasRequest) return;
 
             try {
-                showLoading(true);
+                this._showLoading(true);
 
                 const center = this.view.getCenter();
                 const center4326 = transform(
@@ -1174,12 +1161,12 @@ export default class DjiGeozones {
 
                 addFeaturesToEachLevel(features);
 
-                showLoading(false);
+                this._showLoading(false);
 
                 // console.log(data);
             } catch (err) {
                 if (err.message) console.error(err);
-                showLoading(false);
+                this._showLoading(false);
             }
         }, 300);
     }
@@ -1302,6 +1289,18 @@ export default class DjiGeozones {
         }
 
         return data;
+    }
+
+    /**
+     * Show/hide the loading in the control
+     * @param {Boolean} bool
+     * @protected
+     */
+    _showLoading(bool: boolean): void {
+        if (!this.divControl) return;
+
+        if (bool) this.divControl.classList.add('ol-dji-geozones--isLoading');
+        else this.divControl.classList.remove('ol-dji-geozones--isLoading');
     }
 
     /**
@@ -1536,6 +1535,8 @@ export default class DjiGeozones {
         if (!this._isInitialized) {
             this._initialize();
         }
+
+        this._showLoading(true);
 
         if (this._isVisible) {
             this._setControlEnabled(true);

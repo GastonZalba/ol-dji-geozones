@@ -51,3 +51,6 @@
 * Initialize layers and events only if it's visible. Otherwise, the initialization is deferred
 * Show alert when geoZones are forced to be displayed but the view is to large
 * Improved css in loading spinner
+
+## v1.0.12
+* Fixed loading spinner showing late

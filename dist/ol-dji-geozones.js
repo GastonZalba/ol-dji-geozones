@@ -2380,17 +2380,6 @@
           });
         };
         /**
-         * Show/hide the loading in the control
-         * @param {Boolean} bool
-         * @protected
-         */
-
-
-        var showLoading = function showLoading(bool) {
-          if (!_this6.divControl) return;
-          if (bool) _this6.divControl.classList.add('ol-dji-geozones--isLoading');else _this6.divControl.classList.remove('ol-dji-geozones--isLoading');
-        };
-        /**
          * Clear all the elements in the Dji Geozones layers
          * @protected
          */
@@ -2422,7 +2411,9 @@
 
                   case 2:
                     _context4.prev = 2;
-                    showLoading(true);
+
+                    this._showLoading(true);
+
                     center = this.view.getCenter();
                     center4326 = proj.transform(center, this.projection, 'EPSG:4326');
                     viewLatLng = {
@@ -2451,7 +2442,9 @@
                     if (clear) clearFeatures();
                     features = apiResponseToFeatures(data);
                     addFeaturesToEachLevel(features);
-                    showLoading(false); // console.log(data);
+
+                    this._showLoading(false); // console.log(data);
+
 
                     _context4.next = 23;
                     break;
@@ -2460,7 +2453,8 @@
                     _context4.prev = 19;
                     _context4.t0 = _context4["catch"](2);
                     if (_context4.t0.message) console.error(_context4.t0);
-                    showLoading(false);
+
+                    this._showLoading(false);
 
                   case 23:
                   case "end":
@@ -2671,12 +2665,24 @@
         }));
       }
       /**
-       * Show or hides the control panel
-       * @param visible
+       * Show/hide the loading in the control
+       * @param {Boolean} bool
+       * @protected
        */
 
     }, {
+      key: "_showLoading",
+      value: function _showLoading(bool) {
+        if (!this.divControl) return;
+        if (bool) this.divControl.classList.add('ol-dji-geozones--isLoading');else this.divControl.classList.remove('ol-dji-geozones--isLoading');
+      }
+    }, {
       key: "setPanelVisible",
+
+      /**
+       * Show or hides the control panel
+       * @param visible
+       */
       value: function setPanelVisible(visible) {
         if (!this.divControl) {
           return;
@@ -2893,6 +2899,8 @@
         if (!this._isInitialized) {
           this._initialize();
         }
+
+        this._showLoading(true);
 
         if (this._isVisible) {
           this._setControlEnabled(true);

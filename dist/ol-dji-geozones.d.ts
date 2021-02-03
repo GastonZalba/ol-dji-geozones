@@ -94,6 +94,12 @@ export default class DjiGeozones {
         lng: number;
     }): Promise<DjiApiResponse>;
     /**
+     * Show/hide the loading in the control
+     * @param {Boolean} bool
+     * @protected
+     */
+    _showLoading(bool: boolean): void;
+    /**
      * Show or hides the control panel
      * @param visible
      */

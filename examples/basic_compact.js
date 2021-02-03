@@ -28,7 +28,7 @@
     activeLevels: [0, 1, 2, 3, 4, 6, 7],
     createPanel: 'compact',
     language: 'en',
-    startActive: true,
+    startActive: false,
     theme: 'light'
   };
 
