@@ -217,8 +217,8 @@ export default class DjiGeozones {
                     visible: this._hideGeozones
                         ? false
                         : this.activeLevels.includes(level)
-                            ? true
-                            : false,
+                        ? true
+                        : false,
                     source: new VectorSource({
                         attributions:
                             '<a href="https://www.dji.com/flysafe/geo-map" rel="nofollow noopener noreferrer" target="_blank">DJI GeoZoneMap</a>'
@@ -333,7 +333,7 @@ export default class DjiGeozones {
 
     /**
      * Create a control panel in the map
-     * 
+     *
      * @param createPanel
      * @param startCollapsed
      * @param targetPanel
@@ -472,7 +472,8 @@ export default class DjiGeozones {
 
             const createButtonCollapser = (): HTMLButtonElement => {
                 const button = document.createElement('button');
-                button.className = 'ol-dji-geozones--collapse ol-dji-geozones--btn-sm';
+                button.className =
+                    'ol-dji-geozones--collapse ol-dji-geozones--btn-sm';
                 button.title = this._i18n.labels.collapse;
                 button.onclick = () => this.setPanelCollapsed(true);
                 return button;
@@ -480,12 +481,13 @@ export default class DjiGeozones {
 
             const createButtonVisibility = (): HTMLButtonElement => {
                 const button = document.createElement('button');
-                button.className = 'ol-dji-geozones--visibility ol-dji-geozones--btn-sm';
+                button.className =
+                    'ol-dji-geozones--visibility ol-dji-geozones--btn-sm';
                 button.title = this._i18n.labels.hideGeozones;
                 button.innerHTML = `<img src="${visibilitySvg}"/>`;
                 button.onclick = () => {
                     this.hide();
-                }
+                };
                 return button;
             };
 
@@ -531,7 +533,7 @@ export default class DjiGeozones {
                     this.show();
                 }
                 this.setPanelCollapsed(false);
-            }
+            };
         };
 
         /**
@@ -576,17 +578,20 @@ export default class DjiGeozones {
         this.divControl.className = `ol-dji-geozones ol-control ol-dji-geozones--${this.theme}`;
 
         if (this._hideGeozones) {
-            this.divControl.classList.add('ol-dji-geozones--ctrl-toggle-hidden');
+            this.divControl.classList.add(
+                'ol-dji-geozones--ctrl-toggle-hidden'
+            );
             this.divControl.classList.add('ol-dji-geozones--ctrl-collapsed');
         } else {
             if (!this._isVisible) {
                 this.divControl.classList.add('ol-dji-geozones--ctrl-disabled');
             }
             if (startCollapsed) {
-                this.divControl.classList.add('ol-dji-geozones--ctrl-collapsed');
+                this.divControl.classList.add(
+                    'ol-dji-geozones--ctrl-collapsed'
+                );
             }
         }
-
 
         if (createPanel === true || createPanel === 'full') {
             addMapControlFull();
@@ -825,34 +830,42 @@ export default class DjiGeozones {
                     </div>
                     <div class="ol-dji-geozones--main">
                         <h3 class="ol-dji-geozones--title">${name}</h3>
-                        <p class="ol-dji-geozones--level">${lbl.level}: ${levelValues.name
-                    } </p>
-                        <p class="ol-dji-geozones--type">${lbl.type}: ${this.getGeozoneTypeById(type).name
-                    }</p>
-                        ${begin_at
-                        ? `<p class="ol-dji-geozones--start_time">${lbl.startTime}: ${begin_at}</p>`
-                        : ''
-                    }
-                        ${end_at
-                        ? `<p class="ol-dji-geozones--end_time">${lbl.endTime}: ${end_at}</p><p class="ol-dji-geozones--time_tips">${lbl.timeTips}</p>`
-                        : ''
-                    }         
-                        ${height
-                        ? `<p class="ol-dji-geozones--height">${lbl.maxAltitude} (m): ${height}</p>`
-                        : ''
-                    } 
-                        ${address
-                        ? `<p class="ol-dji-geozones--address">${lbl.address}: ${address}</p>`
-                        : ''
-                    }
-                        ${description
-                        ? `<p class="ol-dji-geozones--desc">${lbl.tips}: ${description}</p>`
-                        : ''
-                    }
-                        ${url
-                        ? `<p class="ol-dji-geozones--url">${lbl.link}: <a href="${url}">${lbl.learnMore}</a></p>`
-                        : ''
-                    }
+                        <p class="ol-dji-geozones--level">${lbl.level}: ${
+                    levelValues.name
+                } </p>
+                        <p class="ol-dji-geozones--type">${lbl.type}: ${
+                    this.getGeozoneTypeById(type).name
+                }</p>
+                        ${
+                            begin_at
+                                ? `<p class="ol-dji-geozones--start_time">${lbl.startTime}: ${begin_at}</p>`
+                                : ''
+                        }
+                        ${
+                            end_at
+                                ? `<p class="ol-dji-geozones--end_time">${lbl.endTime}: ${end_at}</p><p class="ol-dji-geozones--time_tips">${lbl.timeTips}</p>`
+                                : ''
+                        }         
+                        ${
+                            height
+                                ? `<p class="ol-dji-geozones--height">${lbl.maxAltitude} (m): ${height}</p>`
+                                : ''
+                        } 
+                        ${
+                            address
+                                ? `<p class="ol-dji-geozones--address">${lbl.address}: ${address}</p>`
+                                : ''
+                        }
+                        ${
+                            description
+                                ? `<p class="ol-dji-geozones--desc">${lbl.tips}: ${description}</p>`
+                                : ''
+                        }
+                        ${
+                            url
+                                ? `<p class="ol-dji-geozones--url">${lbl.link}: <a href="${url}">${lbl.learnMore}</a></p>`
+                                : ''
+                        }
                 </div>`;
 
                 const item = document.createElement('div');
@@ -1199,7 +1212,9 @@ export default class DjiGeozones {
                 url.searchParams.append(key, queryObj[key])
             );
 
-            const response = await fetch(this._urlProxy + encodeURIComponent(url.toString()));
+            const response = await fetch(
+                this._urlProxy + encodeURIComponent(url.toString())
+            );
 
             if (!response.ok) throw new Error('HTTP-Error: ' + response.status);
 
@@ -1668,7 +1683,7 @@ interface LevelLang {
  * **_[interface]_** - DjiGeozones levels parameters and trasnlations specified when creating a DjiGeozones
  * @protected
  */
-interface Level extends LevelParams, LevelLang { }
+interface Level extends LevelParams, LevelLang {}
 
 /**
  * **_[interface]_** - Custom Language specified when creating a DjiGeozones

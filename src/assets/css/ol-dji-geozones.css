@@ -244,12 +244,10 @@
     .ol-dji-geozones--logo {
     display: none !important;
 }
-.ol-dji-geozones--ctrl-toggle-hidden
-    .ol-dji-geozones--logo {
+.ol-dji-geozones--ctrl-toggle-hidden .ol-dji-geozones--logo {
     filter: grayscale(100%);
 }
-.ol-dji-geozones--ctrl-toggle-hidden
-    .ol-dji-geozones--logo:hover {
+.ol-dji-geozones--ctrl-toggle-hidden .ol-dji-geozones--logo:hover {
     filter: grayscale(50%);
 }
 
