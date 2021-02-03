@@ -78,6 +78,7 @@ export default class DjiGeozones {
     protected _hideGeozones: boolean;
     protected _currentZoom: number;
     protected _lastZoom: number;
+    protected _isInitialized: boolean;
 
     protected _moveendEvtKey: EventsKey;
     protected _clickEvtKey: EventsKey | Array<EventsKey>;
@@ -157,13 +158,16 @@ export default class DjiGeozones {
         this.divControl = null;
         this._areaDownloaded = null;
 
-        this._init();
-
-        if (createPanel)
+        // Only initialize if is active on load
+        if (!this._hideGeozones) {
+            this._initialize();
+        }
+        if (createPanel) {
             this._createPanel(createPanel, startCollapsed, targetPanel);
+        }
     }
 
-    _init(): void {
+    _initialize(): void {
         /**
          * Create and add a Vector Layer for each level
          * @protected
@@ -290,6 +294,10 @@ export default class DjiGeozones {
                         this._setLayersVisible(true);
                         this._isVisible = true;
                         this._setControlEnabled(true);
+
+                        if (this.divControl) {
+                            this.divControl.classList.remove(HIDDEN_CLASS);
+                        }
                     } else {
                         // If the view is closer, don't do anything, we already had the features
                         if (this._currentZoom > this._lastZoom) return;
@@ -325,6 +333,8 @@ export default class DjiGeozones {
 
             this._clickEvtKey = this.map.on(this.clickEvent, clickHandler);
         };
+
+        this._isInitialized = true;
 
         createVectorLayers();
         createPopUpOverlay();
@@ -1522,14 +1532,21 @@ export default class DjiGeozones {
     show(): void {
         this._hideGeozones = false;
         this._isVisible = this.view.getZoom() >= MIN_ZOOM;
+
+        if (!this._isInitialized) {
+            this._initialize();
+        }
+
         if (this._isVisible) {
             this._setControlEnabled(true);
             this.getInfoFromView();
             this._setLayersVisible(true);
-        }
 
-        if (this.divControl) {
-            this.divControl.classList.remove(HIDDEN_CLASS);
+            if (this.divControl) {
+                this.divControl.classList.remove(HIDDEN_CLASS);
+            }
+        } else {
+            alert(this._i18n.labels.helperZoom);
         }
     }
 

@@ -1077,11 +1077,11 @@
       tips: 'Consejos',
       link: 'Enlace',
       learnMore: 'Leer más',
-      helperZoom: 'Acérquese para ver las Zonas Geo',
+      helperZoom: 'Acerque la vista para ver las Zonas Geo',
       expand: 'Expandir',
       collapse: 'Colapsar',
-      hideGeozones: 'Ocultar Geozonas',
-      showHide: 'Mostrar/Ocultar'
+      hideGeozones: 'Ocultar Zonas Geo',
+      showHide: 'Mostrar/Ocultar Zonas Geo'
     },
     levels: [{
       id: 0,
@@ -1224,8 +1224,8 @@
       helperZoom: 'Zoom in to see the Geo Zones',
       expand: 'Expand',
       collapse: 'Collapse',
-      hideGeozones: 'Hide Geozones',
-      showHide: 'Show/Hide'
+      hideGeozones: 'Hide Geo Zones',
+      showHide: 'Show/Hide Geo Zones'
     },
     levels: [{
       id: 0,
@@ -1463,16 +1463,20 @@
       this._isVisible = this._hideGeozones ? false : this.view.getZoom() >= MIN_ZOOM;
       this._layers = [];
       this.divControl = null;
-      this._areaDownloaded = null;
+      this._areaDownloaded = null; // Only initialize if is active on load
 
-      this._init();
+      if (!this._hideGeozones) {
+        this._initialize();
+      }
 
-      if (createPanel) this._createPanel(createPanel, startCollapsed, targetPanel);
+      if (createPanel) {
+        this._createPanel(createPanel, startCollapsed, targetPanel);
+      }
     }
 
     createClass(DjiGeozones, [{
-      key: "_init",
-      value: function _init() {
+      key: "_initialize",
+      value: function _initialize() {
         var _this = this;
 
         /**
@@ -1601,6 +1605,10 @@
                 _this._isVisible = true;
 
                 _this._setControlEnabled(true);
+
+                if (_this.divControl) {
+                  _this.divControl.classList.remove(HIDDEN_CLASS);
+                }
               } else {
                 // If the view is closer, don't do anything, we already had the features
                 if (_this._currentZoom > _this._lastZoom) return;
@@ -1631,6 +1639,7 @@
           _this._clickEvtKey = _this.map.on(_this.clickEvent, clickHandler);
         };
 
+        this._isInitialized = true;
         createVectorLayers();
         createPopUpOverlay();
         addMapEvents();
@@ -2881,16 +2890,22 @@
         this._hideGeozones = false;
         this._isVisible = this.view.getZoom() >= MIN_ZOOM;
 
+        if (!this._isInitialized) {
+          this._initialize();
+        }
+
         if (this._isVisible) {
           this._setControlEnabled(true);
 
           this.getInfoFromView();
 
           this._setLayersVisible(true);
-        }
 
-        if (this.divControl) {
-          this.divControl.classList.remove(HIDDEN_CLASS);
+          if (this.divControl) {
+            this.divControl.classList.remove(HIDDEN_CLASS);
+          }
+        } else {
+          alert(this._i18n.labels.helperZoom);
         }
       }
       /**

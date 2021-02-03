@@ -13,11 +13,11 @@ export const es: i18n = {
         tips: 'Consejos',
         link: 'Enlace',
         learnMore: 'Leer más',
-        helperZoom: 'Acérquese para ver las Zonas Geo',
+        helperZoom: 'Acerque la vista para ver las Zonas Geo',
         expand: 'Expandir',
         collapse: 'Colapsar',
-        hideGeozones: 'Ocultar Geozonas',
-        showHide: 'Mostrar/Ocultar'
+        hideGeozones: 'Ocultar Zonas Geo',
+        showHide: 'Mostrar/Ocultar Zonas Geo'
     },
     levels: [
         {

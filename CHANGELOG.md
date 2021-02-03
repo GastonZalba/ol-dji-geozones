@@ -46,3 +46,8 @@
 
 ## v1.0.10
 * Added Visibility toggle
+
+## v1.0.11
+* Initialize layers and events only if it's visible. Otherwise, the initialization is deferred
+* Show alert when geoZones are forced to be displayed but the view is to large
+* Improved css in loading spinner

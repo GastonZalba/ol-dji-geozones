@@ -34,6 +34,7 @@ export default class DjiGeozones {
     protected _hideGeozones: boolean;
     protected _currentZoom: number;
     protected _lastZoom: number;
+    protected _isInitialized: boolean;
     protected _moveendEvtKey: EventsKey;
     protected _clickEvtKey: EventsKey | Array<EventsKey>;
     protected _layers: Array<VectorLayer>;
@@ -50,7 +51,7 @@ export default class DjiGeozones {
     overlay: Overlay;
     control: Control;
     constructor(map: PluggableMap, opt_options?: Options);
-    _init(): void;
+    _initialize(): void;
     /**
      * Create a control panel in the map
      *
