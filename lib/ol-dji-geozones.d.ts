@@ -20,15 +20,9 @@ import './assets/css/ol-dji-geozones.css';
  * @param opt_options DjiGeozones options, see [DjiGeozones Options](#options) for more details.
  */
 export default class DjiGeozones {
-    protected _drone: string;
-    protected _zonesMode: string;
-    protected _country: string;
-    protected _paramsLevels: Array<LevelParams>;
-    protected _displayLevels: Array<number>;
-    protected _activeLevels: Array<number>;
+    protected options: Options;
     protected _i18n: i18n;
-    protected _extent: Extent;
-    protected _urlProxy: string;
+    protected _paramsLevels: Array<LevelParams>;
     protected _useApiForPopUp: boolean;
     protected _isVisible: boolean;
     protected _hideGeozones: boolean;
@@ -38,11 +32,7 @@ export default class DjiGeozones {
     protected _moveendEvtKey: EventsKey;
     protected _clickEvtKey: EventsKey | Array<EventsKey>;
     protected _layers: Array<VectorLayer>;
-    protected _dronesToDisplay: Array<Drone>;
     protected _areaDownloaded: MultiPolygon;
-    protected _loadingElement: string;
-    protected theme: string;
-    clickEvent: 'singleclick' | 'dblclick';
     divControl: HTMLElement;
     popupContent: HTMLElement;
     map: PluggableMap;
@@ -199,6 +189,13 @@ export default class DjiGeozones {
      */
     show(): void;
     /**
+     * Fucntion to display messages to the user
+     *
+     * @param msg
+     * @private
+     */
+    _alert(msg: string): void;
+    /**
      *  **_[static]_** - Generate an RGBA color from an hexadecimal
      *
      * Adapted from https://stackoverflow.com/questions/28004153
@@ -301,6 +298,7 @@ interface i18n {
  * Default values:
  * ```javascript
  * {
+ *   urlProxy: '',
  *   drone: 'spark', // See parameter in the DJI API section
  *   zonesMode: 'total', // See parameter in the DJI API section
  *   country: 'US', // See parameter in the DJI API section
@@ -310,11 +308,14 @@ interface i18n {
  *   targetPanel: null,
  *   startCollapsed: true,
  *   startActive: true,
+ *   dronesToDisplay: null,
  *   extent: null,
  *   loadingElement: '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>',
  *   clickEvent: 'singleclick',
+ *   theme: 'light',
  *   language: 'en',
- *   i18n: null
+ *   i18n: null,
+ *   alert: null
  * }
  * ```
  */
@@ -341,7 +342,7 @@ interface Options {
      */
     activeLevels?: Array<number>;
     /**
-     * Use a custom drone list to show in the select.
+     * Use a custom drone list to show in the select. If not provided, we use all the available drones
      * See [drone](#drone-2) for the complete list.
      */
     dronesToDisplay?: Array<Drone>;
@@ -363,9 +364,9 @@ interface Options {
      */
     targetPanel?: HTMLElement | string;
     /**
-     * Whether panel is minimized when created. Defaults to false.
+     * Whether panel is minimized when created.
      */
-    startCollapsed?: false;
+    startCollapsed?: boolean;
     /**
      * Show GeoZones on initialize
      */
@@ -391,5 +392,9 @@ interface Options {
      * Add custom translations. If this is provided, language will be ignored.
      */
     i18n?: i18n;
+    /**
+     * Custom alert function to display messages
+     */
+    alert?(msg: string): void;
 }
 export { Options, Drone, i18n };

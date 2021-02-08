@@ -2,70 +2,70 @@
     {
         "id": 0,
         "color": "#FFCC00",
-        "zIndex": 1,
+        "zIndex": 11,
         "markerIcon": "https://www1.djicdn.com/dps/6734f5340f66c7be37db48c8889392bf.png",
         "markerCircle": "https://www2.djicdn.com/assets/images/flysafe/geo-system/warning-98a8a2c8d6768e22957488ce962d77c3.png?from=cdnMap"
     },
     {
         "id": 1,
         "color": "#1088F2",
-        "zIndex": 3,
+        "zIndex": 13,
         "markerIcon": "https://www1.djicdn.com/dps/fbbea9e33581907cac182adb4bcd0c94.png",
         "markerCircle": "https://www4.djicdn.com/assets/images/flysafe/geo-system/authorization-878e879982c9555bcaab7bb6bce3c6ca.png?from=cdnMap"
     },
     {
         "id": 2,
         "color": "#DE4329",
-        "zIndex": 5,
+        "zIndex": 15,
         "markerIcon": "https://www1.djicdn.com/dps/d47dfe9f089f259631fbed99610b8b5a.png",
         "markerCircle": "https://www5.djicdn.com/assets/images/flysafe/geo-system/restricted-e0ce1467a8df2d07ec6a33cf11f4279e.png?from=cdnMap"
     },
     {
         "id": 3,
         "color": "#EE8815",
-        "zIndex": 2,
+        "zIndex": 12,
         "markerIcon": "https://www1.djicdn.com/dps/df822149e1e6e9e804e177813e044238.png",
         "markerCircle": "https://www4.djicdn.com/assets/images/flysafe/geo-system/enhanced_warning-623fea05bff2f83f3c0ff5a65a41a1df.png?from=cdnMap"
     },
     {
         "id": 4,
         "color": "#37C4DB",
-        "zIndex": 1,
+        "zIndex": 11,
         "markerIcon": "https://www1.djicdn.com/dps/53b33783709b6ed06bc3afdd21ac2a81.png",
         "markerCircle": "https://www4.djicdn.com/assets/images/flysafe/geo-system/recommended-e92f991d039ae145c9b1c72ad62b26b2.png?from=cdnMap"
     },
     {
         "id": 5,
         "color": "#00BE00",
-        "zIndex": 1,
+        "zIndex": 11,
         "markerIcon": "https://www1.djicdn.com/dps/53b33783709b6ed06bc3afdd21ac2a81.png",
         "markerCircle": "https://www4.djicdn.com/assets/images/flysafe/geo-system/recommended-e92f991d039ae145c9b1c72ad62b26b2.png?from=cdnMap"
     },
     {
         "id": 6,
         "color": "#979797",
-        "zIndex": 0,
+        "zIndex": 10,
         "markerIcon": "https://www1.djicdn.com/dps/f5961991d664e130fcf9ad01b1f28043.png",
         "markerCircle": "https://www1.djicdn.com/assets/images/flysafe/geo-system/Oval-34907c1071d63a3f1fffdc739b0943d9.png?from=cdnMap"
     },
     {
         "id": 7,
         "color": "#00BE00",
-        "zIndex": 1,
+        "zIndex": 11,
         "markerIcon": "https://www1.djicdn.com/dps/9d922ae5fbd80d3166a844a9e249ceb3.png",
         "markerCircle": "https://www1.djicdn.com/assets/images/flysafe/geo-system/regulations-2dfeef5b11017811dcaa720c86c49406.png?from=cdnMap"
     },
     {
         "id": 8,
         "color": "#00BE00",
-        "zIndex": 1,
+        "zIndex": 11,
         "markerIcon": "https://www1.djicdn.com/dps/53b33783709b6ed06bc3afdd21ac2a81.png",
         "markerCircle": "https://www1.djicdn.com/dps/a968914208241c3f6a5a3c64c221b8ff.png"
     },
     {
         "id": 9,
         "color": "#DE4329",
-        "zIndex": 5,
+        "zIndex": 15,
         "markerIcon": "https://www1.djicdn.com/dps/d47dfe9f089f259631fbed99610b8b5a.png",
         "markerCircle": "https://www5.djicdn.com/assets/images/flysafe/geo-system/restricted-e0ce1467a8df2d07ec6a33cf11f4279e.png?from=cdnMap"
     }

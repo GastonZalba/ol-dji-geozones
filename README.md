@@ -17,30 +17,33 @@ Nowadays, DJI doesn't offer any API documentation, so future support and access 
 
 All the examples are configured using a free Proxy. If you notice some lag or slow performance, try one of your own.
 
-- Basic usage: create an OpenLayers map instance, and pass that map and options to the DjiGeozones constructor.
-    -   [Full Panel](https://raw.githack.com/GastonZalba/ol-dji-geozones/v1.0.12/examples/basic.html)
-    -   [Compact Panel](https://raw.githack.com/GastonZalba/ol-dji-geozones/v1.0.12/examples/basic_compact.html)
-
+-   Basic usage: create an OpenLayers map instance, and pass that map and options to the DjiGeozones constructor.
+    -   [Full Panel](https://raw.githack.com/GastonZalba/ol-dji-geozones/v1.0.13/examples/basic.html)
+    -   [Compact Panel](https://raw.githack.com/GastonZalba/ol-dji-geozones/v1.0.13/examples/basic_compact.html)
 
 ## Usage
 
 ```js
-// Default values
+// Default options
 let opt_options = {
     urlProxy: null,
     drone: 'spark', // See drone parameter in the DJI API section
     zonesMode: 'total', // See drone parameter in the DJI API section
     country: 'US', // See country parameter in the DJI API section
-    levelsToDisplay: [2, 6, 1, 0, 3, 4, 7], // Order is kept in the Control Panel
-    levelsActive: [2, 6, 1, 0, 3, 4, 7],
-    dronesToDisplay: [], // By default, an array with all the drones
-    extent: null,
+    displayLevels: [2, 6, 1, 0, 3, 4, 7], // Order is kept in the Control Panel
+    activeLevels: [2, 6, 1, 0, 3, 4, 7],
     createPanel: 'full', // Create or not the control
     targetPanel: null, // Specify a target if you want the control to be rendered outside of the map's viewport.
     startCollapsed: false,
+    startActive: true,
+    dronesToDisplay: [], // By default, an array with all the drones
+    extent: null,
+    loadingElement:
+        '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>',
     clickEvent: 'singleclick',
     language: 'en',
-    i18n: {} // Create customized languages/texts. See assets/i18n folder
+    i18n: {}, // Create customized languages/texts. See assets/i18n folder
+    alert: null
 };
 
 // SETTING A REVERSE PROXY TO AVOID CORS
@@ -98,13 +101,13 @@ See [CHANGELOG](./CHANGELOG.md) for details of changes in each release.
 Load `ol-dji-geozones.js` after OpenLayers. Dji Geozone is available as `DjiGeozones`.
 
 ```HTML
-<script src="https://unpkg.com/ol-dji-geozones@1.0.12"></script>
+<script src="https://unpkg.com/ol-dji-geozones@1.0.13"></script>
 ```
 
 #### CSS
 
 ```HTML
-<link rel="stylesheet" href="https://unpkg.com/ol-dji-geozones@1.0.12/dist/ol-dji-geozones.css" />
+<link rel="stylesheet" href="https://unpkg.com/ol-dji-geozones@1.0.13/dist/ol-dji-geozones.css" />
 ```
 
 ### Parcel, Webpack, etc.
@@ -186,6 +189,8 @@ TypeScript types are shipped with the project in the dist directory and should b
     -   [theme](#theme)
     -   [language](#language)
     -   [i18n](#i18n-1)
+    -   [alert](#alert)
+        -   [Parameters](#parameters-11)
 
 ### DjiGeozones
 
@@ -448,6 +453,7 @@ Default values:
 
 ```javascript
 {
+  urlProxy: '',
   drone: 'spark', // See parameter in the DJI API section
   zonesMode: 'total', // See parameter in the DJI API section
   country: 'US', // See parameter in the DJI API section
@@ -457,11 +463,14 @@ Default values:
   targetPanel: null,
   startCollapsed: true,
   startActive: true,
+  dronesToDisplay: null,
   extent: null,
   loadingElement: '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>',
   clickEvent: 'singleclick',
+  theme: 'light',
   language: 'en',
-  i18n: null
+  i18n: null,
+  alert: null
 }
 ```
 
@@ -497,7 +506,7 @@ Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global
 
 #### dronesToDisplay
 
-Use a custom drone list to show in the select.
+Use a custom drone list to show in the select. If not provided, we use all the available drones
 See [drone](#drone-2) for the complete list.
 
 Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;Drone>
@@ -528,9 +537,9 @@ Type: ([HTMLElement](https://developer.mozilla.org/docs/Web/HTML/Element) \| [st
 
 #### startCollapsed
 
-Whether panel is minimized when created. Defaults to false.
+Whether panel is minimized when created.
 
-Type: `false`
+Type: [boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
 
 #### startActive
 
@@ -568,6 +577,16 @@ Type: (`"en"` \| `"es"`)
 Add custom translations. If this is provided, language will be ignored.
 
 Type: [i18n](#i18n)
+
+#### alert
+
+Custom alert function to display messages
+
+##### Parameters
+
+-   `msg` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)**
+
+Returns **void**
 
 ## TODO
 

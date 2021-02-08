@@ -54,3 +54,7 @@
 
 ## v1.0.12
 * Fixed loading spinner showing late
+
+## v1.0.13
+* Now a custom alert function can be used
+* Some refactoring to improve default values readibility

@@ -892,70 +892,70 @@
   	{
   		id: 0,
   		color: "#FFCC00",
-  		zIndex: 1,
+  		zIndex: 11,
   		markerIcon: "https://www1.djicdn.com/dps/6734f5340f66c7be37db48c8889392bf.png",
   		markerCircle: "https://www2.djicdn.com/assets/images/flysafe/geo-system/warning-98a8a2c8d6768e22957488ce962d77c3.png?from=cdnMap"
   	},
   	{
   		id: 1,
   		color: "#1088F2",
-  		zIndex: 3,
+  		zIndex: 13,
   		markerIcon: "https://www1.djicdn.com/dps/fbbea9e33581907cac182adb4bcd0c94.png",
   		markerCircle: "https://www4.djicdn.com/assets/images/flysafe/geo-system/authorization-878e879982c9555bcaab7bb6bce3c6ca.png?from=cdnMap"
   	},
   	{
   		id: 2,
   		color: "#DE4329",
-  		zIndex: 5,
+  		zIndex: 15,
   		markerIcon: "https://www1.djicdn.com/dps/d47dfe9f089f259631fbed99610b8b5a.png",
   		markerCircle: "https://www5.djicdn.com/assets/images/flysafe/geo-system/restricted-e0ce1467a8df2d07ec6a33cf11f4279e.png?from=cdnMap"
   	},
   	{
   		id: 3,
   		color: "#EE8815",
-  		zIndex: 2,
+  		zIndex: 12,
   		markerIcon: "https://www1.djicdn.com/dps/df822149e1e6e9e804e177813e044238.png",
   		markerCircle: "https://www4.djicdn.com/assets/images/flysafe/geo-system/enhanced_warning-623fea05bff2f83f3c0ff5a65a41a1df.png?from=cdnMap"
   	},
   	{
   		id: 4,
   		color: "#37C4DB",
-  		zIndex: 1,
+  		zIndex: 11,
   		markerIcon: "https://www1.djicdn.com/dps/53b33783709b6ed06bc3afdd21ac2a81.png",
   		markerCircle: "https://www4.djicdn.com/assets/images/flysafe/geo-system/recommended-e92f991d039ae145c9b1c72ad62b26b2.png?from=cdnMap"
   	},
   	{
   		id: 5,
   		color: "#00BE00",
-  		zIndex: 1,
+  		zIndex: 11,
   		markerIcon: "https://www1.djicdn.com/dps/53b33783709b6ed06bc3afdd21ac2a81.png",
   		markerCircle: "https://www4.djicdn.com/assets/images/flysafe/geo-system/recommended-e92f991d039ae145c9b1c72ad62b26b2.png?from=cdnMap"
   	},
   	{
   		id: 6,
   		color: "#979797",
-  		zIndex: 0,
+  		zIndex: 10,
   		markerIcon: "https://www1.djicdn.com/dps/f5961991d664e130fcf9ad01b1f28043.png",
   		markerCircle: "https://www1.djicdn.com/assets/images/flysafe/geo-system/Oval-34907c1071d63a3f1fffdc739b0943d9.png?from=cdnMap"
   	},
   	{
   		id: 7,
   		color: "#00BE00",
-  		zIndex: 1,
+  		zIndex: 11,
   		markerIcon: "https://www1.djicdn.com/dps/9d922ae5fbd80d3166a844a9e249ceb3.png",
   		markerCircle: "https://www1.djicdn.com/assets/images/flysafe/geo-system/regulations-2dfeef5b11017811dcaa720c86c49406.png?from=cdnMap"
   	},
   	{
   		id: 8,
   		color: "#00BE00",
-  		zIndex: 1,
+  		zIndex: 11,
   		markerIcon: "https://www1.djicdn.com/dps/53b33783709b6ed06bc3afdd21ac2a81.png",
   		markerCircle: "https://www1.djicdn.com/dps/a968914208241c3f6a5a3c64c221b8ff.png"
   	},
   	{
   		id: 9,
   		color: "#DE4329",
-  		zIndex: 5,
+  		zIndex: 15,
   		markerIcon: "https://www1.djicdn.com/dps/d47dfe9f089f259631fbed99610b8b5a.png",
   		markerCircle: "https://www5.djicdn.com/assets/images/flysafe/geo-system/restricted-e0ce1467a8df2d07ec6a33cf11f4279e.png?from=cdnMap"
   	}
@@ -1429,37 +1429,37 @@
     function DjiGeozones(map, opt_options) {
       classCallCheck(this, DjiGeozones);
 
-      var options = Object.assign({}, opt_options); // LANGUAGE SUPPORT
-
-      this._i18n = options.i18n || languages[options.language || 'en']; // API PARAMETERS
-
-      this._drone = options.drone || 'spark';
-      this._zonesMode = options.zonesMode || 'total';
-      this._country = options.country || 'US';
-      this._displayLevels = options.displayLevels || [2, 6, 1, 0, 3, 4, 7];
-      this._activeLevels = options.activeLevels || [2, 6, 1, 0, 3, 4, 7];
-      this._paramsLevels = levelsParams; // If not provided, we use all the available drones
-      // This can be passed to use translations.
-
-      this._dronesToDisplay = options.dronesToDisplay || dronesList;
-      this._extent = options.extent || null;
-      this._urlProxy = options.urlProxy || '';
-      this._loadingElement = options.loadingElement || '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>';
-      this.clickEvent = options.clickEvent || 'singleclick'; // By default, we use the properties features to show in the popup.
+      // Default options
+      this.options = {
+        urlProxy: null,
+        drone: 'spark',
+        zonesMode: 'total',
+        country: 'US',
+        displayLevels: [2, 6, 1, 0, 3, 4, 7],
+        activeLevels: [2, 6, 1, 0, 3, 4, 7],
+        createPanel: 'full',
+        targetPanel: null,
+        startCollapsed: false,
+        startActive: true,
+        dronesToDisplay: dronesList,
+        extent: null,
+        loadingElement: '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>',
+        clickEvent: 'singleclick',
+        language: 'en',
+        i18n: languages[opt_options.language || this.options.language],
+        alert: null
+      };
+      this.options = Object.assign(Object.assign({}, this.options), opt_options);
+      this._paramsLevels = levelsParams; // By default, we use the properties features to show in the popup.
       // The official DJI map, makes an extra request to another API to get the data. I don't understand why.
       // It's more slow and requieres extra requests to an already downloaded data...
       // Either way, this extra API calls are supported if you want.
 
-      this._useApiForPopUp = false; // MAP
-
-      var createPanel = 'createPanel' in options ? options.createPanel : 'full';
-      var targetPanel = options.targetPanel || null;
-      var startCollapsed = 'startCollapsed' in options ? options.startCollapsed : false;
-      this.theme = options.theme || 'light';
+      this._useApiForPopUp = false;
       this.map = map;
       this.view = map.getView();
       this.projection = this.view.getProjection();
-      this._hideGeozones = 'startActive' in options ? !options.startActive : false;
+      this._hideGeozones = !this.options.startActive;
       this._isVisible = this._hideGeozones ? false : this.view.getZoom() >= MIN_ZOOM;
       this._layers = [];
       this.divControl = null;
@@ -1469,8 +1469,8 @@
         this._initialize();
       }
 
-      if (createPanel) {
-        this._createPanel(createPanel, startCollapsed, targetPanel);
+      if (this.options.createPanel) {
+        this._createPanel(this.options.createPanel, this.options.startCollapsed, this.options.targetPanel);
       }
     }
 
@@ -1536,7 +1536,7 @@
               }),
               style: styleFunction
             };
-            if (_this._extent) props['extent'] = _this._extent;
+            if (_this.options.extent) props['extent'] = _this.options.extent;
             var layer = new VectorLayer__default['default'](props);
 
             _this.map.addLayer(layer);
@@ -1553,7 +1553,7 @@
         var createPopUpOverlay = function createPopUpOverlay() {
           var popupContainer = document.createElement('div');
           popupContainer.id = 'ol-dji-geozones--popup';
-          popupContainer.className = "ol-dji-geozones--ol-popup ol-dji-geozones--".concat(_this.theme);
+          popupContainer.className = "ol-dji-geozones--ol-popup ol-dji-geozones--".concat(_this.options.theme);
           _this.popupContent = document.createElement('div');
           _this.popupContent.id = 'ol-dji-geozones--popup-content';
           _this.popupContent.className = 'ol-dji-geozones--ol-popup-content';
@@ -1636,7 +1636,7 @@
             if (_this._currentZoom !== _this._lastZoom) handleZoomEnd();else handleDragEnd();
             _this._lastZoom = _this._currentZoom;
           });
-          _this._clickEvtKey = _this.map.on(_this.clickEvent, clickHandler);
+          _this._clickEvtKey = _this.map.on(_this.options.clickEvent, clickHandler);
         };
 
         this._isInitialized = true;
@@ -1754,7 +1754,7 @@
             var levelSelector = document.createElement('div');
             levelSelector.className = 'ol-dji-geozones--level-selector';
 
-            _this2._displayLevels.forEach(function (lev) {
+            _this2.options.displayLevels.forEach(function (lev) {
               var level = createLevelItem(lev, _this2.getLevelById(lev));
               levelSelector.append(level);
             });
@@ -1765,7 +1765,7 @@
           var createButtonCollapser = function createButtonCollapser() {
             var button = document.createElement('button');
             button.className = 'ol-dji-geozones--collapse ol-dji-geozones--btn-sm';
-            button.title = _this2._i18n.labels.collapse;
+            button.title = _this2.options.i18n.labels.collapse;
 
             button.onclick = function () {
               return _this2.setPanelCollapsed(true);
@@ -1777,7 +1777,7 @@
           var createButtonVisibility = function createButtonVisibility() {
             var button = document.createElement('button');
             button.className = 'ol-dji-geozones--visibility ol-dji-geozones--btn-sm';
-            button.title = _this2._i18n.labels.hideGeozones;
+            button.title = _this2.options.i18n.labels.hideGeozones;
             button.innerHTML = "<img src=\"".concat(img$2, "\"/>");
 
             button.onclick = function () {
@@ -1789,7 +1789,7 @@
 
           _this2.divControl.classList.add('ol-dji-geozones--ctrl-full');
 
-          _this2.divControl.innerHTML = "\n            <header>\n                <h3>".concat(_this2._i18n.labels.djiGeoZones, "</h3>\n                <span class=\"ol-dji-geozones--loading\">\n                    ").concat(_this2._loadingElement, "\n                </span>\n            </header>\n            <main>\n                <section class=\"ol-dji-geozones--selectors\"></section>\n                <section>\n                    <div class=\"ol-dji-geozones--logo\" title=\"").concat(_this2._i18n.labels.expand, "\"><img src=\"").concat(img, "\"/></div>\n                    <span class=\"ol-dji-geozones--advice\">").concat(_this2._i18n.labels.helperZoom, "</span>\n                </section>\n            </main>\n            ");
+          _this2.divControl.innerHTML = "\n            <header>\n                <h3>".concat(_this2.options.i18n.labels.djiGeoZones, "</h3>\n                <span class=\"ol-dji-geozones--loading\">\n                    ").concat(_this2.options.loadingElement, "\n                </span>\n            </header>\n            <main>\n                <section class=\"ol-dji-geozones--selectors\"></section>\n                <section>\n                    <div class=\"ol-dji-geozones--logo\" title=\"").concat(_this2.options.i18n.labels.expand, "\"><img src=\"").concat(img, "\"/></div>\n                    <span class=\"ol-dji-geozones--advice\">").concat(_this2.options.i18n.labels.helperZoom, "</span>\n                </section>\n            </main>\n            ");
           var droneSelector = createDroneSelector();
 
           _this2.divControl.querySelector('.ol-dji-geozones--selectors').append(droneSelector);
@@ -1828,7 +1828,7 @@
         var addMapControlCompact = function addMapControlCompact() {
           _this2.divControl.classList.add('ol-dji-geozones--ctrl-compact');
 
-          _this2.divControl.innerHTML = "\n            <header>\n                <span class=\"ol-dji-geozones--loading\">\n                    ".concat(_this2._loadingElement, "\n                </span>\n            </header>\n            <main>\n                <section>\n                    <div class=\"ol-dji-geozones--logo\" title=\"").concat(_this2._i18n.labels.showHide, "\"><img src=\"").concat(img, "\"/></div>\n                </section>\n            </main>\n            ");
+          _this2.divControl.innerHTML = "\n            <header>\n                <span class=\"ol-dji-geozones--loading\">\n                    ".concat(_this2.options.loadingElement, "\n                </span>\n            </header>\n            <main>\n                <section>\n                    <div class=\"ol-dji-geozones--logo\" title=\"").concat(_this2.options.i18n.labels.showHide, "\"><img src=\"").concat(img, "\"/></div>\n                </section>\n            </main>\n            ");
 
           var logo = _this2.divControl.querySelector('.ol-dji-geozones--logo');
 
@@ -1844,7 +1844,7 @@
         };
 
         this.divControl = document.createElement('div');
-        this.divControl.className = "ol-dji-geozones ol-control ol-dji-geozones--".concat(this.theme);
+        this.divControl.className = "ol-dji-geozones ol-control ol-dji-geozones--".concat(this.options.theme);
 
         if (this._hideGeozones) {
           this.divControl.classList.add('ol-dji-geozones--ctrl-toggle-hidden');
@@ -2069,7 +2069,7 @@
                       };
 
                       var infoTooltip = document.createElement('span');
-                      infoTooltip.className = "ol-dji-geozones--info ol-dji-geozones--".concat(_this4.theme);
+                      infoTooltip.className = "ol-dji-geozones--info ol-dji-geozones--".concat(_this4.options.theme);
                       infoTooltip.innerHTML = "<span class=\"ol-dji-geozones--info-text\">".concat(level.desc, "</span><span class=\"ol-dji-geozones--info-back\"></span>");
                       infoTooltip.setAttribute('style', "--level-color: ".concat(level.color));
                       var iconTooltip = document.createElement('span');
@@ -2108,7 +2108,7 @@
 
                       var levelValues = _this4.getLevelById(level);
 
-                      var lbl = _this4._i18n.labels;
+                      var lbl = _this4.options.i18n.labels;
                       var html = "\n                    <div class=\"ol-dji-geozones--marker\">\n                        <img src=\"".concat(levelValues.markerCircle, "\">\n                    </div>\n                    <div class=\"ol-dji-geozones--main\">\n                        <h3 class=\"ol-dji-geozones--title\">").concat(name, "</h3>\n                        <p class=\"ol-dji-geozones--level\">").concat(lbl.level, ": ").concat(levelValues.name, " </p>\n                        <p class=\"ol-dji-geozones--type\">").concat(lbl.type, ": ").concat(_this4.getGeozoneTypeById(type).name, "</p>\n                        ").concat(begin_at ? "<p class=\"ol-dji-geozones--start_time\">".concat(lbl.startTime, ": ").concat(begin_at, "</p>") : '', "\n                        ").concat(end_at ? "<p class=\"ol-dji-geozones--end_time\">".concat(lbl.endTime, ": ").concat(end_at, "</p><p class=\"ol-dji-geozones--time_tips\">").concat(lbl.timeTips, "</p>") : '', "         \n                        ").concat(height ? "<p class=\"ol-dji-geozones--height\">".concat(lbl.maxAltitude, " (m): ").concat(height, "</p>") : '', " \n                        ").concat(address ? "<p class=\"ol-dji-geozones--address\">".concat(lbl.address, ": ").concat(address, "</p>") : '', "\n                        ").concat(description ? "<p class=\"ol-dji-geozones--desc\">".concat(lbl.tips, ": ").concat(description, "</p>") : '', "\n                        ").concat(url ? "<p class=\"ol-dji-geozones--url\">".concat(lbl.link, ": <a href=\"").concat(url, "\">").concat(lbl.learnMore, "</a></p>") : '', "\n                </div>");
                       var item = document.createElement('div');
                       item.className = 'ol-dji-geozones--item';
@@ -2162,7 +2162,7 @@
                     break;
                   }
 
-                  this.popupContent.innerHTML = this._loadingElement.toString();
+                  this.popupContent.innerHTML = this.options.loadingElement.toString();
                   this.overlay.setPosition(evt.coordinate);
                   _context3.next = 16;
                   return getInfoFromApiLatLng(evt.coordinate);
@@ -2509,7 +2509,7 @@
                                 return url.searchParams.append(key, queryObj[key]);
                               });
                               _context5.next = 6;
-                              return fetch(this._urlProxy + encodeURIComponent(url.toString()));
+                              return fetch(this.options.urlProxy + encodeURIComponent(url.toString()));
 
                             case 6:
                               response = _context5.sent;
@@ -2676,13 +2676,13 @@
         if (!this.divControl) return;
         if (bool) this.divControl.classList.add('ol-dji-geozones--isLoading');else this.divControl.classList.remove('ol-dji-geozones--isLoading');
       }
-    }, {
-      key: "setPanelVisible",
-
       /**
        * Show or hides the control panel
        * @param visible
        */
+
+    }, {
+      key: "setPanelVisible",
       value: function setPanelVisible(visible) {
         if (!this.divControl) {
           return;
@@ -2756,7 +2756,7 @@
       key: "getGeozoneTypeById",
       value: function getGeozoneTypeById() {
         var id = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-        return this._i18n.types.find(function (el) {
+        return this.options.i18n.types.find(function (el) {
           return el.id == id;
         });
       }
@@ -2793,10 +2793,9 @@
           return lev.id == id;
         });
 
-        var texts = this._i18n.levels.find(function (lev) {
+        var texts = this.options.i18n.levels.find(function (lev) {
           return lev.id == id;
         });
-
         return Object.assign(Object.assign({}, params), texts);
       }
       /**
@@ -2913,7 +2912,24 @@
             this.divControl.classList.remove(HIDDEN_CLASS);
           }
         } else {
-          alert(this._i18n.labels.helperZoom);
+          this._alert(this.options.i18n.labels.helperZoom);
+        }
+      }
+      /**
+       * Fucntion to display messages to the user
+       *
+       * @param msg
+       * @private
+       */
+
+    }, {
+      key: "_alert",
+      value: function _alert(msg) {
+        if (typeof this.options.alert === 'function') {
+          this.options.alert(msg);
+        } else {
+          // Default and ugly alert message
+          alert(msg);
         }
       }
       /**
@@ -2933,7 +2949,7 @@
     }, {
       key: "dronesToDisplay",
       get: function get() {
-        return this._dronesToDisplay;
+        return this.options.dronesToDisplay;
       }
       /**
        * Setter for API parameter `drone`. Triggers an API request
@@ -2943,7 +2959,7 @@
     }, {
       key: "drone",
       set: function set(drone) {
-        this._drone = drone;
+        this.options.drone = drone;
         this.getInfoFromView();
       }
       /**
@@ -2951,7 +2967,7 @@
        */
       ,
       get: function get() {
-        return this._drone;
+        return this.options.drone;
       }
       /**
        * Setter for API parameter `zonesMode`. Triggers an API request
@@ -2961,7 +2977,7 @@
     }, {
       key: "zonesMode",
       set: function set(zonesMode) {
-        this._zonesMode = zonesMode;
+        this.options.zonesMode = zonesMode;
         this.getInfoFromView();
       }
       /**
@@ -2969,7 +2985,7 @@
        */
       ,
       get: function get() {
-        return this._zonesMode;
+        return this.options.zonesMode;
       }
       /**
        * Setter for API parameter `country`. Triggers an API request
@@ -2979,7 +2995,7 @@
     }, {
       key: "country",
       set: function set(country) {
-        this._country = country;
+        this.options.country = country;
         this.getInfoFromView();
       }
       /**
@@ -2987,16 +3003,15 @@
        */
       ,
       get: function get() {
-        return this._country;
+        return this.options.country;
       }
     }, {
       key: "activeLevels",
       set: function set(levels) {
         var _this11 = this;
 
-        this._activeLevels = levels;
-
-        this._displayLevels.forEach(function (lev) {
+        this.options.activeLevels = levels;
+        this.options.displayLevels.forEach(function (lev) {
           var layer = _this11.getLayerByLevel(lev);
 
           if (levels.includes(lev)) {
@@ -3007,7 +3022,7 @@
         });
       },
       get: function get() {
-        return this._activeLevels;
+        return this.options.activeLevels;
       }
     }], [{
       key: "colorWithAlpha",
