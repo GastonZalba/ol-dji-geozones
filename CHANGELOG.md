@@ -58,3 +58,6 @@
 ## v1.0.13
 * Now a custom alert function can be used
 * Some refactoring to improve default values readibility
+
+## v1.0.14
+* Fixed minor bug within loading indicator
