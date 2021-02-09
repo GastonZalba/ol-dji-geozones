@@ -2913,6 +2913,8 @@
           }
         } else {
           this._alert(this.options.i18n.labels.helperZoom);
+
+          this._showLoading(false);
         }
       }
       /**
