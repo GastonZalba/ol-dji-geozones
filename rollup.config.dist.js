@@ -30,13 +30,13 @@ module.exports = {
     input: 'tmp-dist/ol-dji-geozones.js',
     output: [
         {
-            file: pkg.browser,
+            file: pkg.main,
             format: 'umd',
             name: 'DjiGeozones',
             globals: globals
         },
         {
-            file: 'dist/ol-dji-geozones.min.js',
+            file: pkg.browser,
             format: 'umd',
             plugins: [terser()],
             name: 'DjiGeozones',

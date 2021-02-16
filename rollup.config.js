@@ -1,3 +1,4 @@
+import pkg from './package.json';
 import babel from '@rollup/plugin-babel';
 import json from "@rollup/plugin-json";
 import image from '@rollup/plugin-image';
@@ -25,7 +26,7 @@ module.exports = {
     input: 'tmp-lib/ol-dji-geozones.js',
     output: [
         {
-            file: 'lib/ol-dji-geozones.js',
+            file: pkg.module,
             format: 'es',
             name: 'DjiGeozones',
             globals: globals
