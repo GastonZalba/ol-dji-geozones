@@ -47,7 +47,7 @@ const MIN_ZOOM = 9; // < 9 breaks the API
 const HIDDEN_CLASS = 'ol-dji-geozones--ctrl-toggle-hidden';
 
 /**
- * OpenLayers DJI Geozone, creates multiples VectorLayers to
+ * OpenLayers Dji Geozones, creates multiples VectorLayers to
  * display interactives DJI Geo Zones on the map, requesting the
  * data on the fly to an DJI API.
  *
@@ -107,9 +107,33 @@ export default class DjiGeozones {
                 '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>',
             clickEvent: 'singleclick',
             language: 'en',
-            i18n: languages[opt_options.language || this.options.language],
             alert: null
         };
+
+        // If language selector is provided and translation exists...
+        this._i18n = {
+            ...languages[
+                opt_options.language && opt_options.language in languages
+                    ? opt_options.language
+                    : this.options.language
+            ]
+        };
+
+        // Merge custom translations
+        this._i18n.labels = Object.assign(
+            this._i18n.labels,
+            opt_options.i18n.labels || {}
+        );
+
+        this._i18n.levels = Object.assign(
+            this._i18n.levels,
+            opt_options.i18n.levels || {}
+        );
+
+        this._i18n.types = Object.assign(
+            this._i18n.types,
+            opt_options.i18n.types || {}
+        );
 
         this.options = { ...this.options, ...opt_options };
 
@@ -186,7 +210,8 @@ export default class DjiGeozones {
                         image: new Icon({
                             src: levelParams.markerIcon,
                             scale: 0.35,
-                            anchor: [0.5, 0.9]
+                            anchor: [0.5, 0.9],
+                            crossOrigin: 'anonymous'
                         }),
                         zIndex: levelParams.zIndex * 2
                     });
@@ -469,7 +494,7 @@ export default class DjiGeozones {
                 const button = document.createElement('button');
                 button.className =
                     'ol-dji-geozones--collapse ol-dji-geozones--btn-sm';
-                button.title = this.options.i18n.labels.collapse;
+                button.title = this._i18n.labels.collapse;
                 button.onclick = () => this.setPanelCollapsed(true);
                 return button;
             };
@@ -478,7 +503,7 @@ export default class DjiGeozones {
                 const button = document.createElement('button');
                 button.className =
                     'ol-dji-geozones--visibility ol-dji-geozones--btn-sm';
-                button.title = this.options.i18n.labels.hideGeozones;
+                button.title = this._i18n.labels.hideGeozones;
                 button.innerHTML = `<img src="${visibilitySvg}"/>`;
                 button.onclick = () => {
                     this.hide();
@@ -490,7 +515,7 @@ export default class DjiGeozones {
 
             this.divControl.innerHTML = `
             <header>
-                <h3>${this.options.i18n.labels.djiGeoZones}</h3>
+                <h3>${this._i18n.labels.djiGeoZones}</h3>
                 <span class="ol-dji-geozones--loading">
                     ${this.options.loadingElement}
                 </span>
@@ -498,8 +523,8 @@ export default class DjiGeozones {
             <main>
                 <section class="ol-dji-geozones--selectors"></section>
                 <section>
-                    <div class="ol-dji-geozones--logo" title="${this.options.i18n.labels.expand}"><img src="${geozoneSvg}"/></div>
-                    <span class="ol-dji-geozones--advice">${this.options.i18n.labels.helperZoom}</span>
+                    <div class="ol-dji-geozones--logo" title="${this._i18n.labels.expand}"><img src="${geozoneSvg}"/></div>
+                    <span class="ol-dji-geozones--advice">${this._i18n.labels.helperZoom}</span>
                 </section>
             </main>
             `;
@@ -549,7 +574,7 @@ export default class DjiGeozones {
             </header>
             <main>
                 <section>
-                    <div class="ol-dji-geozones--logo" title="${this.options.i18n.labels.showHide}"><img src="${geozoneSvg}"/></div>
+                    <div class="ol-dji-geozones--logo" title="${this._i18n.labels.showHide}"><img src="${geozoneSvg}"/></div>
                 </section>
             </main>
             `;
@@ -817,7 +842,7 @@ export default class DjiGeozones {
                 } = responseApiArea;
 
                 const levelValues = this.getLevelById(level);
-                const lbl = this.options.i18n.labels;
+                const lbl = this._i18n.labels;
 
                 const html = `
                     <div class="ol-dji-geozones--marker">
@@ -1348,7 +1373,7 @@ export default class DjiGeozones {
      * @protected
      */
     getGeozoneTypeById(id: number = null): i18n['types'][0] {
-        return this.options.i18n.types.find((el) => el.id == id);
+        return this._i18n.types.find((el) => el.id == id);
     }
 
     /**
@@ -1422,7 +1447,7 @@ export default class DjiGeozones {
         const params = this._paramsLevels.find(
             (lev: LevelParams) => lev.id == id
         );
-        const texts: i18n['levels'][0] = this.options.i18n.levels.find(
+        const texts: i18n['levels'][0] = this._i18n.levels.find(
             (lev) => lev.id == id
         );
         return { ...params, ...texts };
@@ -1532,7 +1557,7 @@ export default class DjiGeozones {
                 this.divControl.classList.remove(HIDDEN_CLASS);
             }
         } else {
-            this._alert(this.options.i18n.labels.helperZoom);
+            this._alert(this._i18n.labels.helperZoom);
             this._showLoading(false);
         }
     }
@@ -1833,7 +1858,7 @@ interface Options {
      */
     language?: 'en' | 'es';
     /**
-     * Add custom translations. If this is provided, language will be ignored.
+     * Add custom translations
      */
     i18n?: i18n;
     /**

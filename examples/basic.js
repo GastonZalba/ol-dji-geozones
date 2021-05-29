@@ -30,7 +30,12 @@
     language: 'en',
     startCollapsed: false,
     startActive: true,
-    theme: 'light'
+    theme: 'light',
+    i18n: {
+      labels: {
+        djiGeoZones: 'My Geozones'
+      }
+    }
   };
 
   var djiGeozones = new DjiGeozones(map, opt_options);

@@ -18,7 +18,7 @@
     "format": "eslint --fix src/*.ts && prettier --write src",
     "lint": "eslint src/*.ts && prettier --check src",
     "copy-assets": "ncp src/assets/ tmp-dist/assets/ && ncp src/assets/ tmp-lib/assets/",
-    "build": "npm run precleanstart && tsc --pretty --project ./tsconfig.json && tsc --pretty --project ./tsconfig-dist.json && npm run copy-assets && rollup --config rollup.config.dist.js && rollup --config rollup.config.js",
+    "build": "npm run lint && npm run precleanstart && tsc --pretty --project ./tsconfig.json && tsc --pretty --project ./tsconfig-dist.json && npm run copy-assets && rollup --config rollup.config.dist.js && rollup --config rollup.config.js",
     "postbuild": "ncp tmp-lib/ol-dji-geozones.d.ts dist/ol-dji-geozones.d.ts && ncp tmp-lib/ol-dji-geozones.d.ts lib/ol-dji-geozones.d.ts && del-cli tmp-dist tmp-lib"
   },
   "keywords": [

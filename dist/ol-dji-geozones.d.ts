@@ -8,7 +8,7 @@ import Projection from 'ol/proj/Projection';
 import { EventsKey } from 'ol/events';
 import './assets/css/ol-dji-geozones.css';
 /**
- * OpenLayers DJI Geozone, creates multiples VectorLayers to
+ * OpenLayers Dji Geozones, creates multiples VectorLayers to
  * display interactives DJI Geo Zones on the map, requesting the
  * data on the fly to an DJI API.
  *
@@ -389,7 +389,7 @@ interface Options {
      */
     language?: 'en' | 'es';
     /**
-     * Add custom translations. If this is provided, language will be ignored.
+     * Add custom translations
      */
     i18n?: i18n;
     /**

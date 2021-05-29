@@ -1,44 +1,34 @@
 # Changelog
 
 ## v1.0.0
-
 * Module created
 
 ## v1.0.1
-
 * Added a js minified version, fixed some typos in readme and corrected definition file.
 
 ## v1.0.2
-
 * Added a css minified version and fixed some examples.
 
 ## v1.0.3
-
 * Added ES module version.
 
 ## v1.0.4
-
 * Fixed attribute "files" inside package.json
 
 ## v1.0.5
-
 * Extent property added dynamically to prevent strange bug in some occasions.
 
 ## v1.0.6
-
 * Fixed package.json
 
 ## v1.0.7
-
 * Fixed some bugs
 * Added methods to show or hide geoZones and the map Control
 
 ## v1.0.8
-
 * Improved css
 
 ## v1.0.9
-
 * Updated proxyUrl on examples and README
 * Added 'https://' to API url's to facilitate uses of proxys
 * Added 'full' and 'compact' panels versions.
@@ -61,3 +51,8 @@
 
 ## v1.0.14-15
 * Fixed minor bug within loading indicator
+
+## v1.0.16
+* Added new drones
+* Improved language support
+* Icon property crossOrigin setted to 'anonymous'

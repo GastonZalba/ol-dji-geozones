@@ -1,5 +1,17 @@
 [
     {
+        "id": "dji-air-2s",
+        "label": "Air 2s"
+    },
+    {
+        "id": "dji-fpv",
+        "label": "FPV"
+    },
+    {
+        "id": "mavic-mini-2",
+        "label": "Mavic Mini 2"
+    },
+    {
         "id": "mavic-mini",
         "label": "Mavic Mini"
     },
