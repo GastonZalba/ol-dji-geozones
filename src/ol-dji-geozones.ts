@@ -107,17 +107,17 @@ export default class DjiGeozones {
                 '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>',
             clickEvent: 'singleclick',
             language: 'en',
-            alert: null
+            alert: null,
+            ...opt_options // Merge user options
         };
 
         // If language selector is provided and translation exists...
-        this._i18n = {
-            ...languages[
-                opt_options.language && opt_options.language in languages
-                    ? opt_options.language
-                    : this.options.language
-            ]
-        };
+        this._i18n =
+            languages[
+                this.options.language in languages
+                    ? this.options.language
+                    : 'en'
+            ];
 
         // Merge custom translations
         this._i18n.labels = Object.assign(
@@ -134,8 +134,6 @@ export default class DjiGeozones {
             this._i18n.types,
             opt_options.i18n.types || {}
         );
-
-        this.options = { ...this.options, ...opt_options };
 
         this._paramsLevels = levelsParams;
 
@@ -1780,8 +1778,8 @@ interface i18n {
  *   clickEvent: 'singleclick',
  *   theme: 'light',
  *   language: 'en',
- *   i18n: null,
- *   alert: null
+ *   i18n: {...} // Translations according to selected language
+ *   alert: alert // Default browser alert function
  * }
  * ```
  */

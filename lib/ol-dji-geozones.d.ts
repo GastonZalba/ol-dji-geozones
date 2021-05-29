@@ -314,8 +314,8 @@ interface i18n {
  *   clickEvent: 'singleclick',
  *   theme: 'light',
  *   language: 'en',
- *   i18n: null,
- *   alert: null
+ *   i18n: {...} // Translations according to selected language
+ *   alert: alert // Default browser alert function
  * }
  * ```
  */

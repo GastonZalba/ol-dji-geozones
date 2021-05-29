@@ -56,3 +56,6 @@
 * Added new drones
 * Improved language support
 * Icon property crossOrigin setted to 'anonymous'
+
+## v1.0.17
+* Minor fixes, improved some comments
