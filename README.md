@@ -18,8 +18,8 @@ Nowadays, DJI doesn't offer any API documentation, so future support and access 
 All the examples are configured using a free Proxy. If you notice some lag or slow performance, try one of your own.
 
 -   Basic usage: create an OpenLayers map instance, and pass that map and options to the DjiGeozones constructor.
-    -   [Full Panel](https://raw.githack.com/GastonZalba/ol-dji-geozones/v1.0.17/examples/basic.html)
-    -   [Compact Panel](https://raw.githack.com/GastonZalba/ol-dji-geozones/v1.0.17/examples/basic_compact.html)
+    -   [Full Panel](https://raw.githack.com/GastonZalba/ol-dji-geozones/master/examples/basic.html)
+    -   [Compact Panel](https://raw.githack.com/GastonZalba/ol-dji-geozones/master/examples/basic_compact.html)
 
 ## Usage
 
@@ -101,28 +101,34 @@ See [CHANGELOG](./CHANGELOG.md) for details of changes in each release.
 Load `ol-dji-geozones.js` after OpenLayers. Dji Geozones is available as `DjiGeozones`.
 
 ```HTML
-<script src="https://unpkg.com/ol-dji-geozones@1.0.17"></script>
+<script src="https://unpkg.com/ol-dji-geozones"></script>
 ```
 
 #### CSS
 
 ```HTML
-<link rel="stylesheet" href="https://unpkg.com/ol-dji-geozones@1.0.17/dist/ol-dji-geozones.css" />
+<link rel="stylesheet" href="https://unpkg.com/ol-dji-geozones/dist/ol-dji-geozones.css" />
 ```
 
 ### Parcel, Webpack, etc.
 
 NPM package: [ol-dji-geozones](https://www.npmjs.com/package/ol-dji-geozones).
 
-#### JS
-
 Install the package via `npm`
 
     npm install ol-dji-geozones --save-dev
 
+#### JS
+
+```js
+import DjiGeozones from 'ol-dji-geozones';
+```
+
 #### CSS
 
-The CSS file `ol-dji-geozones.css` can be found in `./node_modules/ol-dji-geozones/dist/css`
+```js
+import 'ol-dji-geozones/dist/ol-dji-geozones.min.css';
+```
 
 ##### TypeScript type definition
 
