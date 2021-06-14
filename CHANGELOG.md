@@ -59,3 +59,7 @@
 
 ## v1.0.17
 * Minor fixes, improved some comments
+
+## v1.0.18
+* Fixed bug when no opt_options are present
+* npm audt fix

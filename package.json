@@ -1,6 +1,6 @@
 {
   "name": "ol-dji-geozones",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "description": "Displays DJI Geo Zones on an OpenLayers map.",
   "browser": "dist/ol-dji-geozones.min.js",
   "main": "dist/ol-dji-geozones.js",
@@ -66,7 +66,7 @@
     "@typescript-eslint/parser": "^4.8.2",
     "clean-css": "^4.2.3",
     "del-cli": "^3.0.1",
-    "documentation": "^13.1.0",
+    "documentation": "^13.2.5",
     "eslint-config-openlayers": "^14.0.0",
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-prettier": "^3.1.4",

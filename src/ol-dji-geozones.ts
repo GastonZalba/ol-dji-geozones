@@ -122,17 +122,17 @@ export default class DjiGeozones {
         // Merge custom translations
         this._i18n.labels = Object.assign(
             this._i18n.labels,
-            opt_options.i18n.labels || {}
+            opt_options?.i18n?.labels || {}
         );
 
         this._i18n.levels = Object.assign(
             this._i18n.levels,
-            opt_options.i18n.levels || {}
+            opt_options?.i18n?.levels || {}
         );
 
         this._i18n.types = Object.assign(
             this._i18n.types,
-            opt_options.i18n.types || {}
+            opt_options?.i18n?.types || {}
         );
 
         this._paramsLevels = levelsParams;
