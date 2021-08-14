@@ -1,38 +1,28 @@
-import pkg from './package.json';
 import babel from '@rollup/plugin-babel';
 import json from "@rollup/plugin-json";
 import image from '@rollup/plugin-image';
-import { mkdirSync, writeFileSync } from 'fs';
+import { writeFileSync } from 'fs';
 import css from 'rollup-plugin-css-only';
-
-let globals = {
-    'ol/Map': 'ol.Map',
-    'ol/source/Vector': 'ol.source.Vector',
-    'ol/layer/Vector': 'ol.layer.Vector',
-    'ol/geom': 'ol.geom',
-    'ol/geom/Polygon': 'ol.geom.Polygon',
-    'ol/Feature': 'ol.Feature',
-    'ol/Overlay': 'ol.Overlay',
-    'ol/style': 'ol.style',
-    'ol/control': 'ol.control',
-    'ol/proj': 'ol.proj',
-    'ol/sphere': 'ol.sphere',
-    'ol/color': 'ol.color',
-    'ol/extent' : 'ol.extent',
-    'ol/Observable': 'ol.Observable'
-};
+import typescript from '@rollup/plugin-typescript';
+import del from 'rollup-plugin-delete'
+import path from 'path';
 
 module.exports = {
-    input: 'tmp-lib/ol-dji-geozones.js',
+    input: 'src/ol-dji-geozones.ts',
     output: [
         {
-            file: pkg.module,
+            dir: 'lib',
             format: 'es',
-            name: 'DjiGeozones',
-            globals: globals
+            sourcemap: true
         }
     ],
     plugins: [
+        del({ targets: 'lib/*' }),
+        typescript({
+            outDir: './lib',
+            declarationDir: './lib',
+            outputToFilesystem: true
+        }),
         json(),
         image(),
         babel({            
@@ -51,13 +41,9 @@ module.exports = {
         }),
         css({
             output: function (styles, styleNodes) {
-                mkdirSync('lib', { recursive: true });
                 writeFileSync('lib/ol-dji-geozones.css', styles)
             }
         })
     ],
-    external: function (id) {
-        console.log('id', id);
-        return /ol\//.test(id);
-    }
+    external: id => !(path.isAbsolute(id) || id.startsWith("."))
 };

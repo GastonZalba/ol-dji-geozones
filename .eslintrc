@@ -6,6 +6,7 @@
     "extends": [
          // "openlayers",
         "eslint:recommended",
+        "plugin:import/typescript",
         "plugin:@typescript-eslint/recommended"
     ],
     "rules": {

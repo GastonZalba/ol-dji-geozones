@@ -1,6 +1,7 @@
 import VectorLayer from 'ol/layer/Vector';
+import VectorSource from 'ol/source/Vector';
 import Overlay from 'ol/Overlay';
-import { MultiPolygon } from 'ol/geom';
+import { MultiPolygon, Geometry } from 'ol/geom';
 import { Control } from 'ol/control';
 import { Extent } from 'ol/extent';
 import { MapBrowserEvent, PluggableMap, View } from 'ol';
@@ -29,9 +30,9 @@ export default class DjiGeozones {
     protected _currentZoom: number;
     protected _lastZoom: number;
     protected _isInitialized: boolean;
-    protected _moveendEvtKey: EventsKey;
+    protected _moveendEvtKey: EventsKey | Array<EventsKey>;
     protected _clickEvtKey: EventsKey | Array<EventsKey>;
-    protected _layers: Array<VectorLayer>;
+    protected _layers: Array<VectorLayer<VectorSource<Geometry>>>;
     protected _areaDownloaded: MultiPolygon;
     divControl: HTMLElement;
     popupContent: HTMLElement;
@@ -66,7 +67,7 @@ export default class DjiGeozones {
      * @param type
      * @protected
      */
-    getPointInfoFromClick(evt: MapBrowserEvent, type: 'useApiForPopUp' | 'useFeaturesForPopUp'): Promise<void>;
+    getPointInfoFromClick(evt: MapBrowserEvent<UIEvent>, type: 'useApiForPopUp' | 'useFeaturesForPopUp'): Promise<void>;
     /**
      *
      * @param clear
@@ -102,12 +103,12 @@ export default class DjiGeozones {
     /**
      * Get all the layers
      */
-    get layers(): Array<VectorLayer>;
+    get layers(): Array<VectorLayer<VectorSource<Geometry>>>;
     /**
      * Get the layer acordding the level
      * @param level
      */
-    getLayerByLevel(level: number): VectorLayer;
+    getLayerByLevel(level: number): VectorLayer<VectorSource<Geometry>>;
     /**
      * Get the geozone type (airport, heliport, etc) by id
      * @param id
@@ -233,7 +234,7 @@ interface DjiApiResponse {
  * **_[interface]_** - Drone
  * @protected
  */
-interface Drone {
+export interface Drone {
     id: string;
     label: string;
 }
@@ -267,7 +268,7 @@ interface Level extends LevelParams, LevelLang {
 /**
  * **_[interface]_** - Custom Language specified when creating a DjiGeozones
  */
-interface i18n {
+export interface i18n {
     labels: {
         djiGeoZones: string;
         level: string;
@@ -319,7 +320,7 @@ interface i18n {
  * }
  * ```
  */
-interface Options {
+export interface Options {
     /**
      * Url/endpoint from a Reverse Proxy to avoid CORS restrictions
      */
@@ -397,4 +398,5 @@ interface Options {
      */
     alert?(msg: string): void;
 }
-export { Options, Drone, i18n };
+export {};
+//# sourceMappingURL=ol-dji-geozones.d.ts.map

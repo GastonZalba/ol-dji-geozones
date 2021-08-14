@@ -63,3 +63,9 @@
 ## v1.0.18
 * Fixed bug when no opt_options are present
 * npm audt fix
+
+## v1.0.19
+* Improved typescript and rollup configuration
+* Added "watch" script
+* Updated dependencies
+* Added Source Maps

@@ -42,7 +42,7 @@ let opt_options = {
         '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>',
     clickEvent: 'singleclick',
     language: 'en',
-    i18n: {}, // Create customized languages/texts. See assets/i18n folder
+    i18n: {}, // Create customized languages/texts. See i18n folder
     alert: null
 };
 
@@ -79,7 +79,7 @@ let layer = djiGeozones.getLayerByLevel(7); // returns an ol/layer/Vector~Vector
 
 ### Some considerations
 
--   The API doesn't accepts requests in large zoom levels (&lt;9) aka search_radius, so the Geozones in the map are disabled in these zoom scales to manage this beahaivor.
+-   The API doesn't accepts requests in large zoom levels (<9) aka search_radius, so the Geozones in the map are disabled in these zoom scales to manage this beahaivor.
 
 -   The data returned by the API has some problems/strange behaviors:
 
@@ -208,7 +208,7 @@ Also, add a Control to select levels of interest and drone to filter the results
 
 #### Parameters
 
--   `map` **[PluggableMap](https://openlayers.org/en/latest/apidoc/module-ol_PluggableMap-PluggableMap.html)** Instance of the created map
+-   `map` **PluggableMap** Instance of the created map
 -   `opt_options` **[Options](#options)?** DjiGeozones options, see [DjiGeozones Options](#options) for more details.
 -   `url_proxy` Proxy's url to avoid CORS protection in the API.
 
@@ -236,9 +236,9 @@ Returns **void**
 
 Get all the layers
 
-Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;VectorLayer>
+Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)\<VectorLayer\<VectorSource\<Geometry>>>
 
-Returns **[Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;VectorLayer>**
+Returns **[Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)\<VectorLayer\<VectorSource\<Geometry>>>**
 
 #### getLayerByLevel
 
@@ -248,7 +248,7 @@ Get the layer acordding the level
 
 -   `level` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)**
 
-Returns **VectorLayer**
+Returns **VectorLayer\<VectorSource\<Geometry>>**
 
 #### drone
 
@@ -318,11 +318,11 @@ Returns **Level**
 
 Replace the active levels with this values and refresh the view
 
-Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)>
+Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)<[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)>
 
 ##### Parameters
 
--   `levels` **[Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)>**
+-   `levels` **[Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)<[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)>**
 
 #### addLevels
 
@@ -330,7 +330,7 @@ Add the level/s to the view
 
 ##### Parameters
 
--   `levels` **([Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)> | [number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number))**
+-   `levels` **([Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)<[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)> | [number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number))**
 -   `refresh` If true, refresh the view and show the active levels (optional, default `true`)
 
 Returns **void**
@@ -341,7 +341,7 @@ Remove the level/s from the view
 
 ##### Parameters
 
--   `levels` **([Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)> | [number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number))**
+-   `levels` **([Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)<[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)> | [number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number))**
 -   `refresh` If true, refresh the view and show the actived levels (optional, default `true`)
 
 Returns **void**
@@ -366,7 +366,7 @@ Returns **void**
 
 ### ApiReqArguments
 
-**_[interface]_** - Dji Api Parameters for requests
+**_\[interface]_** - Dji Api Parameters for requests
 
 #### level
 
@@ -381,7 +381,7 @@ Returns **void**
 -   `8` - Approved Zones for Light UAVs(China) **Only valid for China**
 -   `9` - Densely Populated Area **NOT SUPPORTED - This level exists in the oficial Geo Zone Map, but this data is not provided by the api. On the other hand, now days this level is apparently valid only for Japan and China**
 
-Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)>
+Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)<[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)>
 
 #### drone
 
@@ -449,11 +449,11 @@ Type: [number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Globa
 
 ### i18n
 
-**_[interface]_** - Custom Language specified when creating a DjiGeozones
+**_\[interface]_** - Custom Language specified when creating a DjiGeozones
 
 ### Options
 
-**_[interface]_** - DjiGeozones Options specified when creating a DjiGeozones instance
+**_\[interface]_** - DjiGeozones Options specified when creating a DjiGeozones instance
 
 Default values:
 
@@ -502,20 +502,20 @@ Type: [string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Globa
 
 Geozone Levels to be shown in the control panel
 
-Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)>
+Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)<[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)>
 
 #### activeLevels
 
 Geozone Levels to be actived by default in the Control and API request
 
-Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)>
+Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)<[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)>
 
 #### dronesToDisplay
 
 Use a custom drone list to show in the select. If not provided, we use all the available drones
 See [drone](#drone-2) for the complete list.
 
-Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;Drone>
+Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)\<Drone>
 
 #### extent
 
@@ -529,17 +529,19 @@ Type: Extent
 Create or not a control panel on the map
 
 -   'full' displays each level as a layer, with the possibility to activate or deactivate each one,
-    color legends and a drone switcher.
+
+color legends and a drone switcher.
+
 -   'compact' it's a simple toggler button to enable/disable the geoZones.
 -   use false to disable the panel
 
-Type: ([boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean) \| `"full"` \| `"compact"`)
+Type: ([boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean) | `"full"` | `"compact"`)
 
 #### targetPanel
 
 Specify a target if you want the control to be rendered outside of the map's viewport.
 
-Type: ([HTMLElement](https://developer.mozilla.org/docs/Web/HTML/Element) \| [string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String))
+Type: ([HTMLElement](https://developer.mozilla.org/docs/Web/HTML/Element) | [string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String))
 
 #### startCollapsed
 
@@ -563,20 +565,20 @@ Type: [string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Globa
 
 Type of Click event to activate the PopUp
 
-Type: (`"singleclick"` \| `"dblclick"`)
+Type: (`"singleclick"` | `"dblclick"`)
 
 #### theme
 
 Color theme of the Control Panel
 
-Type: (`"light"` \| `"dark"`)
+Type: (`"light"` | `"dark"`)
 
 #### language
 
 Language to be used in the Controller panel and PopUp. This doesn't affects the API requests.
 If i18n is set, this will be ignored.
 
-Type: (`"en"` \| `"es"`)
+Type: (`"en"` | `"es"`)
 
 #### i18n
 
@@ -597,6 +599,7 @@ Returns **void**
 ## TODO
 
 -   Add test to check inexpected changes on the API response.
+-   Add customizable proxy function
 
 ## License
 

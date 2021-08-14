@@ -1,15 +1,23 @@
 {
-    "compilerOptions": {
-      "declaration": true,
-      "allowJs": true,
-      "baseUrl": "./",
-      "outDir": "./tmp-lib",
-      "target": "es6",
-      "module": "es6",
-      "lib": ["esnext", "dom"],
-      "resolveJsonModule": true,
-      "esModuleInterop": true,
-      "moduleResolution": "node"
-    },
-    "include": ["./src"],
-  }
+  "compilerOptions": {
+    "declaration": true,
+    "allowJs": true,
+    "baseUrl": "./",
+    "outDir": "./tmp-dist",
+    "target": "es6",
+    "module": "es6",
+    "lib": [
+      "esnext",
+      "dom"
+    ],
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "declarationMap": true,
+    "incremental": true
+  },
+  "include": [
+    "./src"
+  ]
+}

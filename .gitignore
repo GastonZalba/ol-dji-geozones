@@ -1,6 +1,5 @@
 node_modules
 .cache
 package-lock.json
-tmp
-tmp-dist
-tmp-lib
+*/tsconfig.tsbuildinfo
+.rollup.cache

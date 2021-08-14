@@ -4,7 +4,7 @@ import Feature, { FeatureLike } from 'ol/Feature';
 import Overlay from 'ol/Overlay';
 import { transform, transformExtent } from 'ol/proj';
 import { getDistance } from 'ol/sphere';
-import { Polygon, MultiPolygon, Point, Circle } from 'ol/geom';
+import { Polygon, MultiPolygon, Point, Circle, Geometry } from 'ol/geom';
 import { Style, Fill, Stroke, Icon } from 'ol/style';
 import { Control } from 'ol/control';
 import { asArray, asString } from 'ol/color';
@@ -24,9 +24,10 @@ import { EventsKey } from 'ol/events';
 import { unByKey } from 'ol/Observable';
 
 // Import configuration values
-import levelsParams from './_levels-params.json';
-import dronesList from './_drones.json';
-import * as languages from './assets/i18n/index';
+import levelsParams from './assets/_levels-params.json';
+import dronesList from './assets/_drones.json';
+
+import * as languages from './components/i18n/index.js';
 
 // Images
 import geozoneSvg from './assets/images/geozone.svg';
@@ -72,10 +73,10 @@ export default class DjiGeozones {
     protected _lastZoom: number;
     protected _isInitialized: boolean;
 
-    protected _moveendEvtKey: EventsKey;
+    protected _moveendEvtKey: EventsKey | Array<EventsKey>;
     protected _clickEvtKey: EventsKey | Array<EventsKey>;
 
-    protected _layers: Array<VectorLayer>;
+    protected _layers: Array<VectorLayer<VectorSource<Geometry>>>;
     protected _areaDownloaded: MultiPolygon;
 
     public divControl: HTMLElement;
@@ -91,7 +92,7 @@ export default class DjiGeozones {
     constructor(map: PluggableMap, opt_options?: Options) {
         // Default options
         this.options = {
-            urlProxy: null,
+            urlProxy: '',
             drone: 'spark',
             zonesMode: 'total',
             country: 'US',
@@ -184,7 +185,7 @@ export default class DjiGeozones {
              * @param feature
              * @protected
              */
-            const styleFunction = (feature: Feature) => {
+            const styleFunction = (feature: Feature<Geometry>) => {
                 const geomType = feature.getGeometry().getType();
                 const level = feature.get('level');
                 const levelParams = this.getLevelParamsById(level);
@@ -317,7 +318,7 @@ export default class DjiGeozones {
                 this.getInfoFromView();
             };
 
-            const clickHandler = (evt: MapBrowserEvent): void => {
+            const clickHandler = (evt: MapBrowserEvent<UIEvent>): void => {
                 const type = this._useApiForPopUp
                     ? 'useApiForPopUp'
                     : 'useFeaturesForPopUp';
@@ -326,8 +327,6 @@ export default class DjiGeozones {
             };
 
             this._moveendEvtKey = this.map.on('moveend', (): void => {
-                if (this._hideGeozones) return;
-
                 this._currentZoom = this.view.getZoom();
 
                 if (this._currentZoom !== this._lastZoom) handleZoomEnd();
@@ -671,14 +670,12 @@ export default class DjiGeozones {
             this.divControl.classList.add('ol-dji-geozones--ctrl-disabled');
         }
 
-        const inputs: NodeListOf<HTMLInputElement> = this.divControl.querySelectorAll(
-            'input'
-        );
+        const inputs: NodeListOf<HTMLInputElement> =
+            this.divControl.querySelectorAll('input');
         changeState(inputs);
 
-        const selects: NodeListOf<HTMLSelectElement> = this.divControl.querySelectorAll(
-            'select'
-        );
+        const selects: NodeListOf<HTMLSelectElement> =
+            this.divControl.querySelectorAll('select');
         changeState(selects);
     }
 
@@ -689,7 +686,7 @@ export default class DjiGeozones {
      * @protected
      */
     async getPointInfoFromClick(
-        evt: MapBrowserEvent,
+        evt: MapBrowserEvent<UIEvent>,
         type: 'useApiForPopUp' | 'useFeaturesForPopUp'
     ): Promise<void> {
         const infoKeys = [
@@ -778,7 +775,7 @@ export default class DjiGeozones {
                     return el.getBoundingClientRect();
                 };
 
-                let evtKey: EventsKey;
+                let evtKey: EventsKey | EventsKey[];
 
                 const showPopUp = () => {
                     infoTooltip.style.position = 'fixed';
@@ -925,7 +922,7 @@ export default class DjiGeozones {
             }
 
             const opt_options = {
-                layerFilter: (layer: VectorLayer) =>
+                layerFilter: (layer: VectorLayer<VectorSource<Geometry>>) =>
                     layer.get('name') === 'ol-dji-geozones'
             };
 
@@ -934,7 +931,8 @@ export default class DjiGeozones {
             // Call the API  to download the information
             if (type === 'useApiForPopUp') {
                 if (this.map.hasFeatureAtPixel(evt.pixel, opt_options)) {
-                    this.popupContent.innerHTML = this.options.loadingElement.toString();
+                    this.popupContent.innerHTML =
+                        this.options.loadingElement.toString();
                     this.overlay.setPosition(evt.coordinate);
 
                     data = await getInfoFromApiLatLng(evt.coordinate);
@@ -973,7 +971,7 @@ export default class DjiGeozones {
          * @param feature
          * @protected
          */
-        const fixLevelValue = (feature: Feature) => {
+        const fixLevelValue = (feature: Feature<Geometry>) => {
             const color = feature.get('color');
             const level = Object.keys(this._paramsLevels).find(
                 (key) => this._paramsLevels[key].color === color
@@ -993,8 +991,8 @@ export default class DjiGeozones {
              * @param id
              * @protected
              */
-            const getFeatureById = (id: string): Feature => {
-                let feature: Feature;
+            const getFeatureById = (id: string): Feature<Geometry> => {
+                let feature: Feature<Geometry>;
                 for (const layer of this.layers) {
                     feature = layer.getSource().getFeatureById(id);
                     if (feature) break;
@@ -1343,7 +1341,7 @@ export default class DjiGeozones {
     /**
      * Get all the layers
      */
-    get layers(): Array<VectorLayer> {
+    get layers(): Array<VectorLayer<VectorSource<Geometry>>> {
         return this._layers;
     }
 
@@ -1351,8 +1349,8 @@ export default class DjiGeozones {
      * Get the layer acordding the level
      * @param level
      */
-    getLayerByLevel(level: number): VectorLayer {
-        let find: VectorLayer;
+    getLayerByLevel(level: number): VectorLayer<VectorSource<Geometry>> {
+        let find: VectorLayer<VectorSource<Geometry>>;
         for (const layer of this.layers) {
             if (
                 layer.get('level') != undefined &&
@@ -1588,6 +1586,7 @@ export default class DjiGeozones {
         return asString([r, g, b, alpha]);
     }
 }
+
 /**
  * **_[interface]_** - Dji Api Response
  * @protected
@@ -1693,7 +1692,7 @@ interface ApiReqArguments {
  * **_[interface]_** - Drone
  * @protected
  */
-interface Drone {
+export interface Drone {
     id: string;
     label: string;
 }
@@ -1730,7 +1729,7 @@ interface Level extends LevelParams, LevelLang {}
 /**
  * **_[interface]_** - Custom Language specified when creating a DjiGeozones
  */
-interface i18n {
+export interface i18n {
     labels: {
         djiGeoZones: string;
         level: string;
@@ -1783,7 +1782,7 @@ interface i18n {
  * }
  * ```
  */
-interface Options {
+export interface Options {
     /**
      * Url/endpoint from a Reverse Proxy to avoid CORS restrictions
      */
@@ -1864,5 +1863,3 @@ interface Options {
      */
     alert?(msg: string): void;
 }
-
-export { Options, Drone, i18n };
