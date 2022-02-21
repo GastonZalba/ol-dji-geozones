@@ -1,11 +1,11 @@
 import babel from '@rollup/plugin-babel';
 import json from "@rollup/plugin-json";
 import image from '@rollup/plugin-image';
-import { writeFileSync } from 'fs';
-import css from 'rollup-plugin-css-only';
 import typescript from '@rollup/plugin-typescript';
 import del from 'rollup-plugin-delete'
 import path from 'path';
+import postcss from 'rollup-plugin-postcss';
+import copy from 'rollup-plugin-copy';
 
 module.exports = {
     input: 'src/ol-dji-geozones.ts',
@@ -39,10 +39,20 @@ module.exports = {
             babelHelpers: 'bundled',
             exclude: ["node_modules/**", "src/assets/**"]
         }),
-        css({
-            output: function (styles, styleNodes) {
-                writeFileSync('lib/ol-dji-geozones.css', styles)
+        postcss({
+            extensions: ['.css', '.sass', '.scss'],
+            extract: path.resolve('lib/style/css/ol-dji-geozones.css'),
+            config: {
+                path: './postcss.config.js',
+                ctx: {
+                    isDev: false
+                }
             }
+        }),
+        copy({
+            targets: [
+                { src: 'src/assets/scss', dest: 'lib/style' }
+            ]
         })
     ],
     external: id => !(path.isAbsolute(id) || id.startsWith("."))

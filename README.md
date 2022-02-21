@@ -2,7 +2,7 @@
 
 Displays DJI Geo Zones on an OpenLayers map. Also, you can add a Control Panel with map legends and selectors to change the drone and the levels to be shown.
 
-The data is obtained directly from an undocumented DJI [API](https://www-api.dji.com/api/geo/areas). The official DJI Fly Safe Geo Zone Map that use the same data can be found [here](https://www.dji.com/flysafe/geo-map).
+The data is obtained directly from an undocumented DJI [API](https://www-api.dji.com/api/geo/areas). The official DJI Fly Safe Geo Zone Map that use the same data can be found [here](https://www.dji.com/flysafe/geo-map), and more information [here](https://www.dji.com/flysafe/introduction).
 
 Tested with OpenLayers version 5 and 6.
 
@@ -26,7 +26,7 @@ All the examples are configured using a free Proxy. If you notice some lag or sl
 ```js
 // Default options
 let opt_options = {
-    urlProxy: null,
+    urlProxy: '',
     drone: 'spark', // See drone parameter in the DJI API section
     zonesMode: 'total', // See drone parameter in the DJI API section
     country: 'US', // See country parameter in the DJI API section
@@ -53,7 +53,9 @@ let opt_options = {
 // For production, deploy a custom instance or use yor own proxy.
 opt_options.urlProxy = 'https://api.allorigins.win/raw?url=';
 
-const djiGeozones = new DjiGeozones(map, opt_options);
+const djiGeozones = new DjiGeozones(opt_options);
+
+map.addControl(djiGeozones);
 
 // Instance methods
 // This methods clean the loaded features and fires a new API request.
@@ -101,13 +103,13 @@ See [CHANGELOG](./CHANGELOG.md) for details of changes in each release.
 Load `ol-dji-geozones.js` after OpenLayers. Dji Geozones is available as `DjiGeozones`.
 
 ```HTML
-<script src="https://unpkg.com/ol-dji-geozones@1.0.18"></script>
+<script src="https://unpkg.com/ol-dji-geozones@2.0.0"></script>
 ```
 
 #### CSS
 
 ```HTML
-<link rel="stylesheet" href="https://unpkg.com/ol-dji-geozones@1.0.18/dist/ol-dji-geozones.css" />
+<link rel="stylesheet" href="https://unpkg.com/ol-dji-geozones@2.0.0/dist/ol-dji-geozones.min.css" />
 ```
 
 ### Parcel, Webpack, etc.
@@ -116,7 +118,7 @@ NPM package: [ol-dji-geozones](https://www.npmjs.com/package/ol-dji-geozones).
 
 Install the package via `npm`
 
-    npm install ol-dji-geozones --save-dev
+    npm install ol-dji-geozones
 
 #### JS
 
@@ -127,7 +129,10 @@ import DjiGeozones from 'ol-dji-geozones';
 #### CSS
 
 ```js
-import 'ol-dji-geozones/dist/ol-dji-geozones.min.css';
+// css
+import 'ol-dji-geozones/lib/css/ol-dji-geozones.css';
+// or scss
+import 'ol-dji-geozones/lib/scss/ol-dji-geozones.scss';
 ```
 
 ##### TypeScript type definition
@@ -169,6 +174,8 @@ TypeScript types are shipped with the project in the dist directory and should b
     -   [destroy](#destroy)
     -   [hide](#hide)
     -   [show](#show)
+-   [deepObjectAssign](#deepobjectassign)
+    -   [Parameters](#parameters-11)
 -   [ApiReqArguments](#apireqarguments)
     -   [level](#level)
     -   [drone](#drone-2)
@@ -187,7 +194,7 @@ TypeScript types are shipped with the project in the dist directory and should b
     -   [dronesToDisplay](#dronestodisplay)
     -   [extent](#extent)
     -   [createPanel](#createpanel)
-    -   [targetPanel](#targetpanel)
+    -   [target](#target)
     -   [startCollapsed](#startcollapsed)
     -   [startActive](#startactive)
     -   [loadingElement](#loadingelement)
@@ -196,9 +203,11 @@ TypeScript types are shipped with the project in the dist directory and should b
     -   [language](#language)
     -   [i18n](#i18n-1)
     -   [alert](#alert)
-        -   [Parameters](#parameters-11)
+        -   [Parameters](#parameters-12)
 
 ### DjiGeozones
+
+**Extends ol/control/Control~Control**
 
 OpenLayers Dji Geozones, creates multiples VectorLayers to
 display interactives DJI Geo Zones on the map, requesting the
@@ -208,9 +217,7 @@ Also, add a Control to select levels of interest and drone to filter the results
 
 #### Parameters
 
--   `map` **PluggableMap** Instance of the created map
 -   `opt_options` **[Options](#options)?** DjiGeozones options, see [DjiGeozones Options](#options) for more details.
--   `url_proxy` Proxy's url to avoid CORS protection in the API.
 
 #### setPanelVisible
 
@@ -360,9 +367,16 @@ Returns **void**
 
 #### show
 
-Show the geoZones nd the Control
+Show the geoZones and the Control
 
 Returns **void**
+
+### deepObjectAssign
+
+#### Parameters
+
+-   `target`
+-   `sources` **...any**
 
 ### ApiReqArguments
 
@@ -385,6 +399,11 @@ Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global
 
 #### drone
 
+-   `dji-mavic-3` (Mavic 3)
+-   `dji-mini-se` (Mavic Mini SE)
+-   `dji-air-2s` (Air 2s)
+-   `dji-fpv` (FPV)
+-   `mavic-mini-2` (Mavic Mini 2)
 -   `mavic-mini` (Mavic Mini)
 -   `mavic-2-enterprise` (Mavic 2 Enterprise)
 -   `mavic-2` (Mavic 2)
@@ -537,7 +556,7 @@ color legends and a drone switcher.
 
 Type: ([boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean) | `"full"` | `"compact"`)
 
-#### targetPanel
+#### target
 
 Specify a target if you want the control to be rendered outside of the map's viewport.
 
@@ -600,6 +619,8 @@ Returns **void**
 
 -   Add test to check inexpected changes on the API response.
 -   Add customizable proxy function
+-   Improve scss (add variables)
+-   Add events
 
 ## License
 

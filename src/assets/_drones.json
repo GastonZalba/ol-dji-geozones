@@ -1,5 +1,13 @@
 [
     {
+        "id": "dji-mavic-3",
+        "label": "Mavic 3"
+    },
+    {
+        "id": "dji-mini-se",
+        "label": "Mavic Mini SE"
+    },
+    {
         "id": "dji-air-2s",
         "label": "Air 2s"
     },

@@ -7,21 +7,20 @@ import { Extent } from 'ol/extent';
 import { MapBrowserEvent, PluggableMap, View } from 'ol';
 import Projection from 'ol/proj/Projection';
 import { EventsKey } from 'ol/events';
-import './assets/css/ol-dji-geozones.css';
+import './assets/scss/ol-dji-geozones.scss';
 /**
  * OpenLayers Dji Geozones, creates multiples VectorLayers to
  * display interactives DJI Geo Zones on the map, requesting the
  * data on the fly to an DJI API.
  *
  * Also, add a Control to select levels of interest and drone to filter the results.
- *
+ * @fires init
  * @constructor
- * @param map Instance of the created map
- * @param url_proxy Proxy's url to avoid CORS protection in the API.
+ * @extends {ol/control/Control~Control}
  * @param opt_options DjiGeozones options, see [DjiGeozones Options](#options) for more details.
  */
-export default class DjiGeozones {
-    protected options: Options;
+export default class DjiGeozones extends Control {
+    protected _options: Options;
     protected _i18n: i18n;
     protected _paramsLevels: Array<LevelParams>;
     protected _useApiForPopUp: boolean;
@@ -29,29 +28,31 @@ export default class DjiGeozones {
     protected _hideGeozones: boolean;
     protected _currentZoom: number;
     protected _lastZoom: number;
-    protected _isInitialized: boolean;
+    protected _initialized: boolean;
     protected _moveendEvtKey: EventsKey | Array<EventsKey>;
     protected _clickEvtKey: EventsKey | Array<EventsKey>;
     protected _layers: Array<VectorLayer<VectorSource<Geometry>>>;
     protected _areaDownloaded: MultiPolygon;
     divControl: HTMLElement;
     popupContent: HTMLElement;
-    map: PluggableMap;
-    view: View;
-    projection: Projection;
+    _map: PluggableMap;
+    _view: View;
+    _projection: Projection;
     overlay: Overlay;
-    control: Control;
-    constructor(map: PluggableMap, opt_options?: Options);
+    constructor(opt_options?: Options);
+    /**
+     * @fires init
+     * @private
+     */
     _initialize(): void;
     /**
      * Create a control panel in the map
      *
      * @param createPanel
      * @param startCollapsed
-     * @param targetPanel
      * @private
      */
-    _createPanel(createPanel: boolean | string, startCollapsed: boolean, targetPanel: string | HTMLElement): void;
+    _createPanel(createPanel: boolean | string, startCollapsed: boolean): void;
     /**
      * @private
      */
@@ -67,20 +68,20 @@ export default class DjiGeozones {
      * @param type
      * @protected
      */
-    getPointInfoFromClick(evt: MapBrowserEvent<UIEvent>, type: 'useApiForPopUp' | 'useFeaturesForPopUp'): Promise<void>;
+    _getPointInfoFromClick(evt: MapBrowserEvent<UIEvent>, type: 'useApiForPopUp' | 'useFeaturesForPopUp'): Promise<void>;
     /**
      *
      * @param clear
      * @protected
      */
-    getInfoFromView(clear?: boolean): void;
+    _getInfoFromView(clear?: boolean): void;
     /**
      * Controller for the API rquests.
      * @param typeApiRequest
      * @param latLng
      * @protected
      */
-    getApiGeoData(typeApiRequest: 'areas' | 'info', latLng: {
+    _getApiGeoData(typeApiRequest: 'areas' | 'info', latLng: {
         lat: number;
         lng: number;
     }): Promise<DjiApiResponse>;
@@ -93,20 +94,24 @@ export default class DjiGeozones {
     /**
      * Show or hides the control panel
      * @param visible
+     * @public
      */
     setPanelVisible(visible: boolean): void;
     /**
      * Collapse/expand the control panel
      * @param collapsed
+     * @public
      */
     setPanelCollapsed(collapsed: boolean): void;
     /**
      * Get all the layers
+     * @public
      */
     get layers(): Array<VectorLayer<VectorSource<Geometry>>>;
     /**
      * Get the layer acordding the level
      * @param level
+     * @public
      */
     getLayerByLevel(level: number): VectorLayer<VectorSource<Geometry>>;
     /**
@@ -114,7 +119,7 @@ export default class DjiGeozones {
      * @param id
      * @protected
      */
-    getGeozoneTypeById(id?: number): i18n['types'][0];
+    _getGeozoneTypeById(id?: number): i18n['types'][0];
     /**
      * Getter for the list with all the supported Drones
      * @protected
@@ -127,24 +132,29 @@ export default class DjiGeozones {
     set drone(drone: string);
     /**
      * Getter for Api parameter drone
+     * @public
      */
     get drone(): string;
     /**
      * Setter for API parameter `zonesMode`. Triggers an API request
      * @param zonesMode
+     * @public
      */
     set zonesMode(zonesMode: string);
     /**
      * Getter for API parameter `zonesMode`
+     * @public
      */
     get zonesMode(): string;
     /**
      * Setter for API parameter `country`. Triggers an API request
      * @param country
+     * @public
      */
     set country(country: string);
     /**
      * Getter for API parameter `country`
+     * @public
      */
     get country(): string;
     /**
@@ -152,15 +162,17 @@ export default class DjiGeozones {
      * @param id
      * @protected
      */
-    getLevelParamsById(id?: number): LevelParams;
+    _getLevelParamsById(id?: number): LevelParams;
     /**
      * Get all the parameters from a level and the i18n texts
      * @param id
+     * @public
      */
     getLevelById(id?: number): Level;
     /**
      * Replace the active levels with this values and refresh the view
      * @param levels
+     * @public
      */
     set activeLevels(levels: Array<number>);
     get activeLevels(): Array<number>;
@@ -168,6 +180,7 @@ export default class DjiGeozones {
      * Add the level/s to the view
      * @param levels
      * @param refresh If true, refresh the view and show the active levels
+     * @public
      */
     addLevels(levels: Array<number> | number, refresh?: boolean): void;
     /**
@@ -175,18 +188,22 @@ export default class DjiGeozones {
      *
      * @param levels
      * @param refresh If true, refresh the view and show the actived levels
+     * @public
      */
     removeLevels(levels: Array<number> | number, refresh?: boolean): void;
     /**
      * Removes the control, layers and events from the map
+     * @public
      */
     destroy(): void;
     /**
      * Hide the geoZones and the Control
+     * @public
      */
     hide(): void;
     /**
-     * Show the geoZones nd the Control
+     * Show the geoZones and the Control
+     * @public
      */
     show(): void;
     /**
@@ -363,7 +380,7 @@ export interface Options {
     /**
      * Specify a target if you want the control to be rendered outside of the map's viewport.
      */
-    targetPanel?: HTMLElement | string;
+    target?: HTMLElement | string;
     /**
      * Whether panel is minimized when created.
      */

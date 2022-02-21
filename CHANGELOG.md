@@ -69,3 +69,10 @@
 * Added "watch" script
 * Updated dependencies
 * Added Source Maps
+
+## v2.0.0
+* Refactored code: class extends ol.control.Control (breaking changes)
+* Updated dependencies
+* Added new dji models
+* Converted css to scss
+* Removed unnecesary examples

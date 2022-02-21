@@ -5,13 +5,12 @@ import commonjs from '@rollup/plugin-commonjs';
 import json from "@rollup/plugin-json";
 import image from '@rollup/plugin-image';
 import { terser } from "rollup-plugin-terser";
-import CleanCss from 'clean-css';
-import css from 'rollup-plugin-css-only';
-import { writeFileSync } from 'fs';
 import typescript from '@rollup/plugin-typescript';
 import del from 'rollup-plugin-delete'
 import serve from 'rollup-plugin-serve';
 import livereload from 'rollup-plugin-livereload';
+import postcss from 'rollup-plugin-postcss';
+import path from 'path';
 
 let globals = {
     'ol/Map': 'ol.Map',
@@ -31,7 +30,8 @@ let globals = {
 };
 
 export default function (commandOptions) {
-    return {
+
+    const outputs = [{
         input: 'src/ol-dji-geozones.ts',
         output: [
             {
@@ -87,13 +87,14 @@ export default function (commandOptions) {
             }),
             commonjs(),
             image(),
-            css({
-                output: function (styles, styleNodes) {
-                    //mkdirSync('dist', { recursive: true });
-                    writeFileSync('dist/ol-dji-geozones.css', styles)
-                    if (!commandOptions.dev) {
-                        const compressed = new CleanCss().minify(styles).styles;
-                        writeFileSync('dist/ol-dji-geozones.min.css', compressed)
+            postcss({
+                extensions: ['.css', '.sass', '.scss'],
+                inject: commandOptions.dev,
+                extract: commandOptions.dev ? false : path.resolve('dist/ol-dji-geozones.css'),
+                config: {
+                    path: './postcss.config.js',
+                    ctx: {
+                        isDev: commandOptions.dev ? true : false
                     }
                 }
             }),
@@ -121,5 +122,32 @@ export default function (commandOptions) {
             // console.log('id', id);
             return /ol\//.test(id);
         }
-    }
+    }];
+
+    // Minified css
+    if (!commandOptions.dev)
+        outputs.push({
+            input: path.resolve('dist/ol-dji-geozones.css'),
+            plugins: [
+                postcss({
+                    extract: true,
+                    minimize: true,
+                    config: {
+                        path: './postcss.config.js',
+                        ctx: {
+                            isDev: commandOptions.dev ? true : false
+                        }
+                    }
+                }),
+            ],
+            output: {
+                file: path.resolve('dist/ol-dji-geozones.min.css'),
+            },
+            onwarn(warning, warn) {
+                if (warning.code === 'FILE_NAME_CONFLICT') return
+                warn(warning)
+            }
+        });
+
+    return outputs;
 }

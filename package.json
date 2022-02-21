@@ -1,6 +1,6 @@
 {
   "name": "ol-dji-geozones",
-  "version": "1.0.19",
+  "version": "2.0.0",
   "description": "Displays DJI Geo Zones on an OpenLayers map.",
   "browser": "dist/ol-dji-geozones.min.js",
   "main": "dist/ol-dji-geozones.js",
@@ -17,8 +17,7 @@
     "doc": "documentation readme src/ol-dji-geozones.ts --shallow --quiet=true --access=public --access=undefined --section=API --parse-extension ts && node scripts/external-links.js README.md && prettier --write README.md",
     "format": "eslint --fix src/*.ts && prettier --write src",
     "lint": "eslint src/*.ts && prettier --check src",
-    "build": "npm run lint && rollup --config rollup.config.dist.js && rollup --config rollup.config.js",
-    "postbuild": "del-cli lib/components dist/components"
+    "build": "npm run lint && rollup --config rollup.config.dist.js && rollup --config rollup.config.js"
   },
   "keywords": [
     "ol",
@@ -53,7 +52,7 @@
   "devDependencies": {
     "@babel/core": "^7.12.3",
     "@babel/plugin-transform-runtime": "^7.12.10",
-    "@babel/preset-env": "^7.12.1",
+    "@babel/preset-env": "^7.16.11",
     "@rollup/plugin-babel": "^5.2.1",
     "@rollup/plugin-commonjs": "^17.0.0",
     "@rollup/plugin-image": "^2.0.5",
@@ -61,23 +60,25 @@
     "@rollup/plugin-node-resolve": "^11.1.0",
     "@rollup/plugin-typescript": "^8.2.5",
     "@types/node": "^14.14.10",
-    "@typescript-eslint/eslint-plugin": "^4.29.1",
-    "@typescript-eslint/parser": "^4.29.1",
-    "clean-css": "^4.2.3",
-    "del-cli": "^4.0.1",
+    "@typescript-eslint/eslint-plugin": "^5.11.0",
+    "@typescript-eslint/parser": "^5.11.0",
+    "autoprefixer": "^10.4.2",
     "documentation": "^13.2.5",
-    "eslint-config-openlayers": "^14.0.0",
+    "eslint": "^8.9.0",
     "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-prettier": "^3.4.0",
     "ol": "^6.6.1",
+    "postcss-preset-env": "^7.3.2",
     "prettier": "^2.3.2",
     "rollup": "^2.33.3",
-    "rollup-plugin-css-only": "^3.1.0",
+    "rollup-plugin-copy": "^3.4.0",
     "rollup-plugin-delete": "^2.0.0",
     "rollup-plugin-livereload": "^2.0.5",
-    "rollup-plugin-node-builtins": "^2.1.2",
+    "rollup-plugin-postcss": "^4.0.2",
     "rollup-plugin-serve": "^1.1.0",
     "rollup-plugin-terser": "^7.0.2",
+    "sass": "^1.49.7",
     "typescript": "^4.3.5"
   }
 }

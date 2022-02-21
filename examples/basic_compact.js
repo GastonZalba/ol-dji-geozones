@@ -28,12 +28,11 @@
     activeLevels: [0, 1, 2, 3, 4, 6, 7],
     createPanel: 'compact',
     language: 'en',
-    startActive: true,
+    startCollapsed: false,
     theme: 'light'
   };
 
-  var djiGeozones = new DjiGeozones(map, opt_options);
-
-  console.log(djiGeozones);
+  var djiGeozones = new DjiGeozones(opt_options);
+  map.addControl(djiGeozones);
 
 })();

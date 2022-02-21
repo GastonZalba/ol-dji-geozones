@@ -29,7 +29,6 @@
     createPanel: 'full',
     language: 'en',
     startCollapsed: false,
-    startActive: true,
     theme: 'light',
     i18n: {
       labels: {
@@ -38,8 +37,7 @@
     }
   };
 
-  var djiGeozones = new DjiGeozones(map, opt_options);
-
-  console.log(djiGeozones);
+  var djiGeozones = new DjiGeozones(opt_options);
+  map.addControl(djiGeozones);
 
 })();
