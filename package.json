@@ -1,6 +1,6 @@
 {
   "name": "ol-dji-geozones",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Displays DJI Geo Zones on an OpenLayers map.",
   "browser": "dist/ol-dji-geozones.min.js",
   "main": "dist/ol-dji-geozones.js",
@@ -80,5 +80,10 @@
     "rollup-plugin-terser": "^7.0.2",
     "sass": "^1.55.0",
     "typescript": "^4.8.4"
+  },
+  "overrides": {
+    "rollup-plugin-terser": {
+      "terser": "^5.15.0"
+    }
   }
 }

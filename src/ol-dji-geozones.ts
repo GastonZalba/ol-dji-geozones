@@ -314,7 +314,7 @@ export default class DjiGeozones extends Control {
             };
 
             const handleDragEnd = (): void => {
-                if (!this._isVisible) return;
+                if (!this._isVisible || this._hideGeozones) return;
                 this._getInfoFromView();
             };
 

@@ -81,3 +81,7 @@
 * Ol7 compatibility
 * Updated CDNs in examples
 * Added new drones
+
+## v2.0.2
+* Fixed unnecesary request when the geozones are hidden and the map is dragged
+* Fix outdated terser with "overrides"
