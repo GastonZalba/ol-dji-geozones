@@ -17,7 +17,7 @@ import {
     getBottomLeft,
     Extent
 } from 'ol/extent';
-import { MapBrowserEvent, PluggableMap, View } from 'ol';
+import { MapBrowserEvent, Map, View } from 'ol';
 import { Coordinate } from 'ol/coordinate';
 import Projection from 'ol/proj/Projection';
 import { EventsKey } from 'ol/events';
@@ -86,7 +86,7 @@ export default class DjiGeozones extends Control {
     public popupContent: HTMLElement;
 
     // Ol
-    public _map: PluggableMap;
+    public _map: Map;
     public _view: View;
     public _projection: Projection;
     public overlay: Overlay;
@@ -129,7 +129,7 @@ export default class DjiGeozones extends Control {
             ];
 
         // Merge custom translations
-        this._i18n = deepObjectAssign(this._i18n, opt_options.i18n);
+        this._i18n = deepObjectAssign(this._i18n, opt_options.i18n || {});
 
         this._paramsLevels = levelsParams;
 
@@ -272,9 +272,10 @@ export default class DjiGeozones extends Control {
 
             this.overlay = new Overlay({
                 element: popupContainer,
-                autoPan: true,
-                autoPanAnimation: {
-                    duration: 250
+                autoPan: {
+                    animation: {
+                        duration: 250
+                    }
                 }
             });
 
@@ -362,7 +363,6 @@ export default class DjiGeozones extends Control {
          * This displays each level as a layer, with the possibility to activate or deactivate each one,
          * color legends and a drone switcher.
          *
-         * @param targetPanel If provided, the panel wil be rendered outside the viewport
          * @protected
          */
         const addMapControlFull = () => {

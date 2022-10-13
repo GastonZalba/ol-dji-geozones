@@ -1,10 +1,22 @@
 # OpenLayers DjiGeozones
 
+<p align="center">
+    <a href="https://www.npmjs.com/package/ol-dji-geozones">
+        <img src="https://img.shields.io/npm/v/ol-dji-geozones.svg" alt="npm version">
+    </a>
+    <a href="https://img.shields.io/npm/dm/ol-dji-geozones">
+        <img alt="npm" src="https://img.shields.io/npm/dm/ol-dji-geozones">
+    </a>
+    <a href="https://github.com/gastonzalba/ol-dji-geozones/blob/master/LICENSE">
+        <img src="https://img.shields.io/npm/l/ol-dji-geozones.svg" alt="license">
+    </a>
+</p>
+
 Displays DJI Geo Zones on an OpenLayers map. Also, you can add a Control Panel with map legends and selectors to change the drone and the levels to be shown.
 
 The data is obtained directly from an undocumented DJI [API](https://www-api.dji.com/api/geo/areas). The official DJI Fly Safe Geo Zone Map that use the same data can be found [here](https://www.dji.com/flysafe/geo-map), and more information [here](https://www.dji.com/flysafe/introduction).
 
-Tested with OpenLayers version 5 and 6.
+Tested with OpenLayers version 5, 6 and 7.
 
 ### DISCLAIMER
 
@@ -103,13 +115,13 @@ See [CHANGELOG](./CHANGELOG.md) for details of changes in each release.
 Load `ol-dji-geozones.js` after OpenLayers. Dji Geozones is available as `DjiGeozones`.
 
 ```HTML
-<script src="https://unpkg.com/ol-dji-geozones@2.0.0"></script>
+<script src="https://unpkg.com/ol-dji-geozones@2.0.1"></script>
 ```
 
 #### CSS
 
 ```HTML
-<link rel="stylesheet" href="https://unpkg.com/ol-dji-geozones@2.0.0/dist/ol-dji-geozones.min.css" />
+<link rel="stylesheet" href="https://unpkg.com/ol-dji-geozones@2.0.1/dist/ol-dji-geozones.min.css" />
 ```
 
 ### Parcel, Webpack, etc.
@@ -225,9 +237,9 @@ Show or hides the control panel
 
 ##### Parameters
 
--   `visible` **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)**
+-   `visible` **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)**&#x20;
 
-Returns **void**
+Returns **void**&#x20;
 
 #### setPanelCollapsed
 
@@ -235,9 +247,9 @@ Collapse/expand the control panel
 
 ##### Parameters
 
--   `collapsed` **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)**
+-   `collapsed` **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)**&#x20;
 
-Returns **void**
+Returns **void**&#x20;
 
 #### layers
 
@@ -245,7 +257,7 @@ Get all the layers
 
 Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)\<VectorLayer\<VectorSource\<Geometry>>>
 
-Returns **[Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)\<VectorLayer\<VectorSource\<Geometry>>>**
+Returns **[Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)\<VectorLayer\<VectorSource\<Geometry>>>**&#x20;
 
 #### getLayerByLevel
 
@@ -253,9 +265,9 @@ Get the layer acordding the level
 
 ##### Parameters
 
--   `level` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)**
+-   `level` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)**&#x20;
 
-Returns **VectorLayer\<VectorSource\<Geometry>>**
+Returns **VectorLayer\<VectorSource\<Geometry>>**&#x20;
 
 #### drone
 
@@ -265,7 +277,7 @@ Type: [string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Globa
 
 ##### Parameters
 
--   `drone` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)**
+-   `drone` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)**&#x20;
 
 #### drone
 
@@ -273,7 +285,7 @@ Getter for Api parameter drone
 
 Type: [string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)
 
-Returns **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)**
+Returns **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)**&#x20;
 
 #### zonesMode
 
@@ -283,7 +295,7 @@ Type: [string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Globa
 
 ##### Parameters
 
--   `zonesMode` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)**
+-   `zonesMode` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)**&#x20;
 
 #### zonesMode
 
@@ -291,7 +303,7 @@ Getter for API parameter `zonesMode`
 
 Type: [string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)
 
-Returns **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)**
+Returns **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)**&#x20;
 
 #### country
 
@@ -301,7 +313,7 @@ Type: [string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Globa
 
 ##### Parameters
 
--   `country` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)**
+-   `country` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)**&#x20;
 
 #### country
 
@@ -309,7 +321,7 @@ Getter for API parameter `country`
 
 Type: [string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)
 
-Returns **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)**
+Returns **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)**&#x20;
 
 #### getLevelById
 
@@ -319,7 +331,7 @@ Get all the parameters from a level and the i18n texts
 
 -   `id` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** (optional, default `null`)
 
-Returns **Level**
+Returns **Level**&#x20;
 
 #### activeLevels
 
@@ -329,7 +341,7 @@ Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global
 
 ##### Parameters
 
--   `levels` **[Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)<[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)>**
+-   `levels` **[Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)<[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)>**&#x20;
 
 #### addLevels
 
@@ -337,10 +349,10 @@ Add the level/s to the view
 
 ##### Parameters
 
--   `levels` **([Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)<[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)> | [number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number))**
+-   `levels` **([Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)<[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)> | [number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number))**&#x20;
 -   `refresh` If true, refresh the view and show the active levels (optional, default `true`)
 
-Returns **void**
+Returns **void**&#x20;
 
 #### removeLevels
 
@@ -348,35 +360,35 @@ Remove the level/s from the view
 
 ##### Parameters
 
--   `levels` **([Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)<[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)> | [number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number))**
+-   `levels` **([Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)<[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)> | [number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number))**&#x20;
 -   `refresh` If true, refresh the view and show the actived levels (optional, default `true`)
 
-Returns **void**
+Returns **void**&#x20;
 
 #### destroy
 
 Removes the control, layers and events from the map
 
-Returns **void**
+Returns **void**&#x20;
 
 #### hide
 
 Hide the geoZones and the Control
 
-Returns **void**
+Returns **void**&#x20;
 
 #### show
 
 Show the geoZones and the Control
 
-Returns **void**
+Returns **void**&#x20;
 
 ### deepObjectAssign
 
 #### Parameters
 
--   `target`
--   `sources` **...any**
+-   `target` &#x20;
+-   `sources` **...any**&#x20;
 
 ### ApiReqArguments
 
@@ -548,9 +560,7 @@ Type: Extent
 Create or not a control panel on the map
 
 -   'full' displays each level as a layer, with the possibility to activate or deactivate each one,
-
-color legends and a drone switcher.
-
+    color legends and a drone switcher.
 -   'compact' it's a simple toggler button to enable/disable the geoZones.
 -   use false to disable the panel
 
@@ -611,9 +621,9 @@ Custom alert function to display messages
 
 ##### Parameters
 
--   `msg` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)**
+-   `msg` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)**&#x20;
 
-Returns **void**
+Returns **void**&#x20;
 
 ## TODO
 

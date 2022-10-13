@@ -1,5 +1,17 @@
 [
     {
+        "id": "industry-260",
+        "label": "Mavic 3E/3T"
+    },
+    {
+        "id": "dji-avata",
+        "label": "Avata"
+    },
+    {
+        "id": "dji-mini-3-pro",
+        "label": "Mini 3 Pro"
+    },
+    {
         "id": "dji-mavic-3",
         "label": "Mavic 3"
     },

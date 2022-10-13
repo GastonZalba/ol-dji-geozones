@@ -76,3 +76,8 @@
 * Added new dji models
 * Converted css to scss
 * Removed unnecesary examples
+
+## v2.0.1
+* Ol7 compatibility
+* Updated CDNs in examples
+* Added new drones
