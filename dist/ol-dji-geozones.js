@@ -834,7 +834,7 @@
                     }
                 };
                 const handleDragEnd = () => {
-                    if (!this._isVisible)
+                    if (!this._isVisible || this._hideGeozones)
                         return;
                     this._getInfoFromView();
                 };
