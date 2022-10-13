@@ -4,7 +4,7 @@ import Overlay from 'ol/Overlay';
 import { MultiPolygon, Geometry } from 'ol/geom';
 import { Control } from 'ol/control';
 import { Extent } from 'ol/extent';
-import { MapBrowserEvent, PluggableMap, View } from 'ol';
+import { MapBrowserEvent, Map, View } from 'ol';
 import Projection from 'ol/proj/Projection';
 import { EventsKey } from 'ol/events';
 import './assets/scss/ol-dji-geozones.scss';
@@ -35,7 +35,7 @@ export default class DjiGeozones extends Control {
     protected _areaDownloaded: MultiPolygon;
     divControl: HTMLElement;
     popupContent: HTMLElement;
-    _map: PluggableMap;
+    _map: Map;
     _view: View;
     _projection: Projection;
     overlay: Overlay;

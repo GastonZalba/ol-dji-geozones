@@ -2,7 +2,7 @@
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('ol/layer/Vector'), require('ol/source/Vector'), require('ol/Feature'), require('ol/Overlay'), require('ol/proj'), require('ol/sphere'), require('ol/geom'), require('ol/style'), require('ol/control'), require('ol/color'), require('ol/geom/Polygon'), require('ol/extent'), require('ol/Observable')) :
     typeof define === 'function' && define.amd ? define(['ol/layer/Vector', 'ol/source/Vector', 'ol/Feature', 'ol/Overlay', 'ol/proj', 'ol/sphere', 'ol/geom', 'ol/style', 'ol/control', 'ol/color', 'ol/geom/Polygon', 'ol/extent', 'ol/Observable'], factory) :
     (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.DjiGeozones = factory(global.ol.layer.Vector, global.ol.source.Vector, global.ol.Feature, global.ol.Overlay, global.ol.proj, global.ol.sphere, global.ol.geom, global.ol.style, global.ol.control, global.ol.color, global.ol.geom.Polygon, global.ol.extent, global.ol.Observable));
-}(this, (function (VectorLayer, VectorSource, Feature, Overlay, proj, sphere, geom, style, control, color, Polygon, extent, Observable) { 'use strict';
+})(this, (function (VectorLayer, VectorSource, Feature, Overlay, proj, sphere, geom, style, control, color, Polygon, extent, Observable) { 'use strict';
 
     function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 
@@ -110,6 +110,18 @@
     ];
 
     var dronesList = [
+    	{
+    		id: "industry-260",
+    		label: "Mavic 3E/3T"
+    	},
+    	{
+    		id: "dji-avata",
+    		label: "Avata"
+    	},
+    	{
+    		id: "dji-mini-3-pro",
+    		label: "Mini 3 Pro"
+    	},
     	{
     		id: "dji-mavic-3",
     		label: "Mavic 3"
@@ -604,11 +616,11 @@
         en: en
     });
 
-    const img = "data:image/svg+xml,%3csvg id='Layer_1' data-name='Layer 1' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 280.18 280.18'%3e%3cdefs%3e%3cstyle%3e.cls-1%7bfill:%23ffce00%3bfill-opacity:0.68%3bstroke:%23ffce00%3b%7d.cls-1%2c.cls-3%2c.cls-5%2c.cls-6%7bstroke-miterlimit:10%3bstroke-width:0.75px%3b%7d.cls-2%7bfill:%23ff7900%3bfill-opacity:0.46%3b%7d.cls-3%7bfill:%231072d6%3bfill-opacity:0.57%3bstroke:%231072d6%3b%7d.cls-4%7bopacity:0.63%3b%7d.cls-5%7bfill:%23bcbcbc%3bstroke:%23666%3b%7d.cls-6%7bfill:%23fc3424%3bfill-opacity:0.4%3bstroke:%23fc3424%3b%7d%3c/style%3e%3c/defs%3e%3cpath class='cls-1' d='M109.79%2c109.23c-44.68%2c44.68-40.36%2c121.45%2c9.66%2c171.47S246.24%2c335%2c290.92%2c290.36s40.36-121.46-9.65-171.48S154.48%2c64.54%2c109.79%2c109.23ZM270.56%2c270c-34.64%2c34.64-94.15%2c31.29-132.92-7.48s-42.12-98.28-7.48-132.92%2c94.14-31.29%2c132.92%2c7.48S305.2%2c235.36%2c270.56%2c270Z' transform='translate(-59.88 -59.29)'/%3e%3cpath class='cls-2' d='M130.16%2c129.59c-34.64%2c34.64-31.29%2c94.15%2c7.48%2c132.92s98.28%2c42.12%2c132.92%2c7.48%2c31.29-94.14-7.48-132.92S164.79%2c95%2c130.16%2c129.59Zm118%2c118c-24%2c24-64.91%2c22.14-91.29-4.23S128.56%2c176.07%2c152.6%2c152s64.91-22.14%2c91.28%2c4.24S272.15%2c223.51%2c248.12%2c247.55Z' transform='translate(-59.88 -59.29)'/%3e%3cellipse class='cls-3' cx='200.36' cy='199.79' rx='61.55' ry='67.54' transform='translate(-142.47 140.9) rotate(-45)'/%3e%3cg id='Layer_3' data-name='Layer 3'%3e%3cg class='cls-4'%3e%3cpolygon class='cls-5' points='166.25 180 236.66 279.6 236.75 279.51 279.51 236.75 279.6 236.66 180 166.25 166.25 180'/%3e%3cpolygon class='cls-5' points='113.92 100.18 43.51 0.58 43.43 0.67 0.67 43.43 0.58 43.51 100.18 113.92 113.92 100.18'/%3e%3c/g%3e%3cpolygon class='cls-6' points='180 113.92 166.25 100.18 140.09 126.34 113.92 100.18 100.18 113.92 126.34 140.09 100.18 166.25 113.92 180 140.09 153.84 166.25 180 180 166.25 153.84 140.09 180 113.92'/%3e%3c/g%3e%3cg id='Layer_3_copy' data-name='Layer 3 copy'%3e%3cg class='cls-4'%3e%3cpolygon class='cls-5' points='100.18 166.25 0.58 236.66 0.67 236.75 43.43 279.51 43.51 279.6 113.92 180 100.18 166.25'/%3e%3cpolygon class='cls-5' points='180 113.92 279.6 43.51 279.51 43.43 236.75 0.67 236.66 0.58 166.25 100.18 180 113.92'/%3e%3c/g%3e%3c/g%3e%3c/svg%3e";
+    var img$2 = "data:image/svg+xml,%3csvg id='Layer_1' data-name='Layer 1' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 280.18 280.18'%3e%3cdefs%3e%3cstyle%3e.cls-1%7bfill:%23ffce00%3bfill-opacity:0.68%3bstroke:%23ffce00%3b%7d.cls-1%2c.cls-3%2c.cls-5%2c.cls-6%7bstroke-miterlimit:10%3bstroke-width:0.75px%3b%7d.cls-2%7bfill:%23ff7900%3bfill-opacity:0.46%3b%7d.cls-3%7bfill:%231072d6%3bfill-opacity:0.57%3bstroke:%231072d6%3b%7d.cls-4%7bopacity:0.63%3b%7d.cls-5%7bfill:%23bcbcbc%3bstroke:%23666%3b%7d.cls-6%7bfill:%23fc3424%3bfill-opacity:0.4%3bstroke:%23fc3424%3b%7d%3c/style%3e%3c/defs%3e%3cpath class='cls-1' d='M109.79%2c109.23c-44.68%2c44.68-40.36%2c121.45%2c9.66%2c171.47S246.24%2c335%2c290.92%2c290.36s40.36-121.46-9.65-171.48S154.48%2c64.54%2c109.79%2c109.23ZM270.56%2c270c-34.64%2c34.64-94.15%2c31.29-132.92-7.48s-42.12-98.28-7.48-132.92%2c94.14-31.29%2c132.92%2c7.48S305.2%2c235.36%2c270.56%2c270Z' transform='translate(-59.88 -59.29)'/%3e%3cpath class='cls-2' d='M130.16%2c129.59c-34.64%2c34.64-31.29%2c94.15%2c7.48%2c132.92s98.28%2c42.12%2c132.92%2c7.48%2c31.29-94.14-7.48-132.92S164.79%2c95%2c130.16%2c129.59Zm118%2c118c-24%2c24-64.91%2c22.14-91.29-4.23S128.56%2c176.07%2c152.6%2c152s64.91-22.14%2c91.28%2c4.24S272.15%2c223.51%2c248.12%2c247.55Z' transform='translate(-59.88 -59.29)'/%3e%3cellipse class='cls-3' cx='200.36' cy='199.79' rx='61.55' ry='67.54' transform='translate(-142.47 140.9) rotate(-45)'/%3e%3cg id='Layer_3' data-name='Layer 3'%3e%3cg class='cls-4'%3e%3cpolygon class='cls-5' points='166.25 180 236.66 279.6 236.75 279.51 279.51 236.75 279.6 236.66 180 166.25 166.25 180'/%3e%3cpolygon class='cls-5' points='113.92 100.18 43.51 0.58 43.43 0.67 0.67 43.43 0.58 43.51 100.18 113.92 113.92 100.18'/%3e%3c/g%3e%3cpolygon class='cls-6' points='180 113.92 166.25 100.18 140.09 126.34 113.92 100.18 100.18 113.92 126.34 140.09 100.18 166.25 113.92 180 140.09 153.84 166.25 180 180 166.25 153.84 140.09 180 113.92'/%3e%3c/g%3e%3cg id='Layer_3_copy' data-name='Layer 3 copy'%3e%3cg class='cls-4'%3e%3cpolygon class='cls-5' points='100.18 166.25 0.58 236.66 0.67 236.75 43.43 279.51 43.51 279.6 113.92 180 100.18 166.25'/%3e%3cpolygon class='cls-5' points='180 113.92 279.6 43.51 279.51 43.43 236.75 0.67 236.66 0.58 166.25 100.18 180 113.92'/%3e%3c/g%3e%3c/g%3e%3c/svg%3e";
 
-    const img$1 = "data:image/svg+xml,%3csvg version='1.1' xmlns='http://www.w3.org/2000/svg' width='768' height='768' viewBox='0 0 768 768'%3e%3ctitle%3e%3c/title%3e%3cpath d='M352.5 288v-64.5h63v64.5h-63zM384 640.5q105 0 180.75-75.75t75.75-180.75-75.75-180.75-180.75-75.75-180.75 75.75-75.75 180.75 75.75 180.75 180.75 75.75zM384 64.5q132 0 225.75 93.75t93.75 225.75-93.75 225.75-225.75 93.75-225.75-93.75-93.75-225.75 93.75-225.75 225.75-93.75zM352.5 544.5v-192h63v192h-63z'%3e%3c/path%3e%3c/svg%3e";
+    var img$1 = "data:image/svg+xml,%3csvg version='1.1' xmlns='http://www.w3.org/2000/svg' width='768' height='768' viewBox='0 0 768 768'%3e%3ctitle%3e%3c/title%3e%3cpath d='M352.5 288v-64.5h63v64.5h-63zM384 640.5q105 0 180.75-75.75t75.75-180.75-75.75-180.75-180.75-75.75-180.75 75.75-75.75 180.75 75.75 180.75 180.75 75.75zM384 64.5q132 0 225.75 93.75t93.75 225.75-93.75 225.75-225.75 93.75-225.75-93.75-93.75-225.75 93.75-225.75 225.75-93.75zM352.5 544.5v-192h63v192h-63z'%3e%3c/path%3e%3c/svg%3e";
 
-    const img$2 = "data:image/svg+xml,%3csvg version='1.1' xmlns='http://www.w3.org/2000/svg' width='768' height='768' viewBox='0 0 768 768'%3e%3cpath d='M384 288q39 0 67.5 28.5t28.5 67.5-28.5 67.5-67.5 28.5-67.5-28.5-28.5-67.5 28.5-67.5 67.5-28.5zM384 544.5q66 0 113.25-47.25t47.25-113.25-47.25-113.25-113.25-47.25-113.25 47.25-47.25 113.25 47.25 113.25 113.25 47.25zM384 144q118.5 0 214.5 66t138 174q-42 108-138 174t-214.5 66-214.5-66-138-174q42-108 138-174t214.5-66z'%3e%3c/path%3e%3c/svg%3e";
+    var img = "data:image/svg+xml,%3csvg version='1.1' xmlns='http://www.w3.org/2000/svg' width='768' height='768' viewBox='0 0 768 768'%3e%3cpath d='M384 288q39 0 67.5 28.5t28.5 67.5-28.5 67.5-67.5 28.5-67.5-28.5-28.5-67.5 28.5-67.5 67.5-28.5zM384 544.5q66 0 113.25-47.25t47.25-113.25-47.25-113.25-113.25-47.25-113.25 47.25-47.25 113.25 47.25 113.25 113.25 47.25zM384 144q118.5 0 214.5 66t138 174q-42 108-138 174t-214.5 66-214.5-66-138-174q42-108 138-174t214.5-66z'%3e%3c/path%3e%3c/svg%3e";
 
     /**
      * @protected
@@ -663,7 +675,7 @@
                     ? this._options.language
                     : DEFAULT_LANGUAGE];
             // Merge custom translations
-            this._i18n = deepObjectAssign(this._i18n, opt_options.i18n);
+            this._i18n = deepObjectAssign(this._i18n, opt_options.i18n || {});
             this._paramsLevels = levelsParams;
             // By default, we use the properties features to show in the popup.
             // The official DJI map, makes an extra request to another API to get the data. I don't understand why.
@@ -746,14 +758,14 @@
                             : this.activeLevels.includes(level)
                                 ? true
                                 : false,
-                        source: new VectorSource__default['default']({
+                        source: new VectorSource__default["default"]({
                             attributions: '<a href="https://www.dji.com/flysafe/geo-map" rel="nofollow noopener noreferrer" target="_blank">DJI GeoZoneMap</a>'
                         }),
                         style: styleFunction
                     };
                     if (this._options.extent)
                         props['extent'] = this._options.extent;
-                    const layer = new VectorLayer__default['default'](props);
+                    const layer = new VectorLayer__default["default"](props);
                     this._map.addLayer(layer);
                     this._layers.push(layer);
                 });
@@ -780,11 +792,12 @@
                 };
                 popupContainer.append(popupCloser);
                 popupContainer.append(this.popupContent);
-                this.overlay = new Overlay__default['default']({
+                this.overlay = new Overlay__default["default"]({
                     element: popupContainer,
-                    autoPan: true,
-                    autoPanAnimation: {
-                        duration: 250
+                    autoPan: {
+                        animation: {
+                            duration: 250
+                        }
                     }
                 });
                 this._map.addOverlay(this.overlay);
@@ -860,7 +873,6 @@
              * This displays each level as a layer, with the possibility to activate or deactivate each one,
              * color legends and a drone switcher.
              *
-             * @param targetPanel If provided, the panel wil be rendered outside the viewport
              * @protected
              */
             const addMapControlFull = () => {
@@ -957,7 +969,7 @@
                     button.className =
                         'ol-dji-geozones--visibility ol-dji-geozones--btn-sm';
                     button.title = this._i18n.labels.hideGeozones;
-                    button.innerHTML = `<img src="${img$2}"/>`;
+                    button.innerHTML = `<img src="${img}"/>`;
                     button.onclick = () => {
                         this.hide();
                     };
@@ -974,7 +986,7 @@
             <main>
                 <section class="ol-dji-geozones--selectors"></section>
                 <section>
-                    <div class="ol-dji-geozones--logo" title="${this._i18n.labels.expand}"><img src="${img}"/></div>
+                    <div class="ol-dji-geozones--logo" title="${this._i18n.labels.expand}"><img src="${img$2}"/></div>
                     <span class="ol-dji-geozones--advice">${this._i18n.labels.helperZoom}</span>
                 </section>
             </main>
@@ -1016,7 +1028,7 @@
             </header>
             <main>
                 <section>
-                    <div class="ol-dji-geozones--logo" title="${this._i18n.labels.showHide}"><img src="${img}"/></div>
+                    <div class="ol-dji-geozones--logo" title="${this._i18n.labels.showHide}"><img src="${img$2}"/></div>
                 </section>
             </main>
             `;
@@ -1347,11 +1359,11 @@
                     };
                     // Only a few of "areas" come with polygons
                     if (area.polygon_points) {
-                        const featureExtra = new Feature__default['default'](Object.assign(Object.assign({}, featureProps), { geometry: new geom.Polygon(area.polygon_points).transform('EPSG:4326', this._projection) }));
+                        const featureExtra = new Feature__default["default"](Object.assign(Object.assign({}, featureProps), { geometry: new geom.Polygon(area.polygon_points).transform('EPSG:4326', this._projection) }));
                         featureExtra.setId(area.area_id + '_poly');
                         features.push(fixLevelValue(featureExtra));
                     }
-                    const feature = new Feature__default['default'](Object.assign(Object.assign({}, featureProps), { geometry: new geom.Point([area.lng, area.lat]).transform('EPSG:4326', this._projection) }));
+                    const feature = new Feature__default["default"](Object.assign(Object.assign({}, featureProps), { geometry: new geom.Point([area.lng, area.lat]).transform('EPSG:4326', this._projection) }));
                     // Store the id to avoid duplicates
                     feature.setId(area.area_id);
                     features.push(fixLevelValue(feature));
@@ -1359,7 +1371,7 @@
                         area.sub_areas.forEach((sub_area) => {
                             let subFeature;
                             if (sub_area.polygon_points) {
-                                subFeature = new Feature__default['default']({
+                                subFeature = new Feature__default["default"]({
                                     color: sub_area.color,
                                     height: sub_area.height,
                                     level: sub_area.level,
@@ -1373,7 +1385,7 @@
                                 });
                             }
                             else {
-                                subFeature = new Feature__default['default']({
+                                subFeature = new Feature__default["default"]({
                                     color: sub_area.color,
                                     height: sub_area.height,
                                     level: sub_area.level,
@@ -1831,5 +1843,5 @@
 
     return DjiGeozones;
 
-})));
+}));
 //# sourceMappingURL=ol-dji-geozones.js.map
