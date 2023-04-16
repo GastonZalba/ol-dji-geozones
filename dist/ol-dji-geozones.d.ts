@@ -1,11 +1,11 @@
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
-import Overlay from 'ol/Overlay';
-import { MultiPolygon, Geometry } from 'ol/geom';
-import { Control } from 'ol/control';
+import MultiPolygon from 'ol/geom/MultiPolygon';
+import Geometry from 'ol/geom/Geometry';
+import Control from 'ol/control/Control';
 import { Extent } from 'ol/extent';
-import { MapBrowserEvent, Map, View } from 'ol';
-import Projection from 'ol/proj/Projection';
+import { MapBrowserEvent } from 'ol';
+import Map from 'ol/Map';
 import { EventsKey } from 'ol/events';
 import './assets/scss/ol-dji-geozones.scss';
 /**
@@ -15,6 +15,7 @@ import './assets/scss/ol-dji-geozones.scss';
  *
  * Also, add a Control to select levels of interest and drone to filter the results.
  * @fires init
+ * @fires error
  * @constructor
  * @extends {ol/control/Control~Control}
  * @param opt_options DjiGeozones options, see [DjiGeozones Options](#options) for more details.
@@ -35,12 +36,22 @@ export default class DjiGeozones extends Control {
     protected _areaDownloaded: MultiPolygon;
     divControl: HTMLElement;
     popupContent: HTMLElement;
-    _map: Map;
-    _view: View;
-    _projection: Projection;
-    overlay: Overlay;
+    private _map;
+    private _view;
+    private _projection;
+    private overlay;
     constructor(opt_options?: Options);
     /**
+     * Remove the control from its current map and attach it to the new map.
+     * Pass null to just remove the control from the current map.
+     * @param map
+     * @public
+     */
+    setMap(map: Map): void;
+    /**
+     * Initialize the layers and events.
+     * This function is called once only if the control is activated.
+     *
      * @fires init
      * @private
      */
@@ -207,7 +218,7 @@ export default class DjiGeozones extends Control {
      */
     show(): void;
     /**
-     * Fucntion to display messages to the user
+     * Function to display messages to the user
      *
      * @param msg
      * @private

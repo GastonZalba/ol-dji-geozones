@@ -275,6 +275,7 @@
   margin-left: -11px;
 }
 .ol-dji-geozones--ol-popup .ol-dji-geozones--ol-popup-closer {
+  -webkit-text-decoration: none;
   text-decoration: none;
   position: absolute;
   top: 6px;
@@ -307,6 +308,7 @@
 .ol-dji-geozones--ol-popup .ol-dji-geozones--ol-popup-content a {
   color: #44a8f2;
   font-size: 12px;
+  -webkit-text-decoration: none;
   text-decoration: none;
 }
 .ol-dji-geozones--ol-popup .ol-dji-geozones--ol-popup-content hr {

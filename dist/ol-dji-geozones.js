@@ -1,15 +1,8 @@
 (function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('ol/layer/Vector'), require('ol/source/Vector'), require('ol/Feature'), require('ol/Overlay'), require('ol/proj'), require('ol/sphere'), require('ol/geom'), require('ol/style'), require('ol/control'), require('ol/color'), require('ol/geom/Polygon'), require('ol/extent'), require('ol/Observable')) :
-    typeof define === 'function' && define.amd ? define(['ol/layer/Vector', 'ol/source/Vector', 'ol/Feature', 'ol/Overlay', 'ol/proj', 'ol/sphere', 'ol/geom', 'ol/style', 'ol/control', 'ol/color', 'ol/geom/Polygon', 'ol/extent', 'ol/Observable'], factory) :
-    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.DjiGeozones = factory(global.ol.layer.Vector, global.ol.source.Vector, global.ol.Feature, global.ol.Overlay, global.ol.proj, global.ol.sphere, global.ol.geom, global.ol.style, global.ol.control, global.ol.color, global.ol.geom.Polygon, global.ol.extent, global.ol.Observable));
-})(this, (function (VectorLayer, VectorSource, Feature, Overlay, proj, sphere, geom, style, control, color, Polygon, extent, Observable) { 'use strict';
-
-    function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
-
-    var VectorLayer__default = /*#__PURE__*/_interopDefaultLegacy(VectorLayer);
-    var VectorSource__default = /*#__PURE__*/_interopDefaultLegacy(VectorSource);
-    var Feature__default = /*#__PURE__*/_interopDefaultLegacy(Feature);
-    var Overlay__default = /*#__PURE__*/_interopDefaultLegacy(Overlay);
+    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('ol/layer/Vector'), require('ol/source/Vector'), require('ol/Feature'), require('ol/Overlay'), require('ol/proj'), require('ol/sphere'), require('ol/geom/Polygon'), require('ol/geom/MultiPolygon'), require('ol/geom/Point'), require('ol/geom/Circle'), require('ol/style/Style'), require('ol/style/Fill'), require('ol/style/Stroke'), require('ol/style/Icon'), require('ol/control/Control'), require('ol/color'), require('ol/extent'), require('ol/Observable'), require('ol/events/Event')) :
+    typeof define === 'function' && define.amd ? define(['ol/layer/Vector', 'ol/source/Vector', 'ol/Feature', 'ol/Overlay', 'ol/proj', 'ol/sphere', 'ol/geom/Polygon', 'ol/geom/MultiPolygon', 'ol/geom/Point', 'ol/geom/Circle', 'ol/style/Style', 'ol/style/Fill', 'ol/style/Stroke', 'ol/style/Icon', 'ol/control/Control', 'ol/color', 'ol/extent', 'ol/Observable', 'ol/events/Event'], factory) :
+    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.DjiGeozones = factory(global.ol.layer.Vector, global.ol.source.Vector, global.ol.Feature, global.ol.Overlay, global.ol.proj, global.ol.sphere, global.ol.geom.Polygon, global.ol.geom.MultiPolygon, global.ol.geom.Point, global.ol.geom.Circle, global.ol.style.Style, global.ol.style.Fill, global.ol.style.Stroke, global.ol.style.Icon, global.ol.control.Control, global.ol.color, global.ol.extent, global.ol.Observable, global.ol.events.Event));
+})(this, (function (VectorLayer, VectorSource, Feature, Overlay, proj, sphere, Polygon, MultiPolygon, Point, Circle, Style, Fill, Stroke, Icon, Control, color, extent, Observable, BaseEvent) { 'use strict';
 
     /*! *****************************************************************************
     Copyright (c) Microsoft Corporation.
@@ -110,6 +103,14 @@
     ];
 
     var dronesList = [
+    	{
+    		id: "dji-mini-3",
+    		label: "DJI Mini 3"
+    	},
+    	{
+    		id: "dji-mavic-3-classic",
+    		label: "DJI Mini 3 Classic"
+    	},
     	{
     		id: "industry-260",
     		label: "Mavic 3E/3T"
@@ -612,8 +613,8 @@
 
     var languages = /*#__PURE__*/Object.freeze({
         __proto__: null,
-        es: es,
-        en: en
+        en: en,
+        es: es
     });
 
     var img$2 = "data:image/svg+xml,%3csvg id='Layer_1' data-name='Layer 1' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 280.18 280.18'%3e%3cdefs%3e%3cstyle%3e.cls-1%7bfill:%23ffce00%3bfill-opacity:0.68%3bstroke:%23ffce00%3b%7d.cls-1%2c.cls-3%2c.cls-5%2c.cls-6%7bstroke-miterlimit:10%3bstroke-width:0.75px%3b%7d.cls-2%7bfill:%23ff7900%3bfill-opacity:0.46%3b%7d.cls-3%7bfill:%231072d6%3bfill-opacity:0.57%3bstroke:%231072d6%3b%7d.cls-4%7bopacity:0.63%3b%7d.cls-5%7bfill:%23bcbcbc%3bstroke:%23666%3b%7d.cls-6%7bfill:%23fc3424%3bfill-opacity:0.4%3bstroke:%23fc3424%3b%7d%3c/style%3e%3c/defs%3e%3cpath class='cls-1' d='M109.79%2c109.23c-44.68%2c44.68-40.36%2c121.45%2c9.66%2c171.47S246.24%2c335%2c290.92%2c290.36s40.36-121.46-9.65-171.48S154.48%2c64.54%2c109.79%2c109.23ZM270.56%2c270c-34.64%2c34.64-94.15%2c31.29-132.92-7.48s-42.12-98.28-7.48-132.92%2c94.14-31.29%2c132.92%2c7.48S305.2%2c235.36%2c270.56%2c270Z' transform='translate(-59.88 -59.29)'/%3e%3cpath class='cls-2' d='M130.16%2c129.59c-34.64%2c34.64-31.29%2c94.15%2c7.48%2c132.92s98.28%2c42.12%2c132.92%2c7.48%2c31.29-94.14-7.48-132.92S164.79%2c95%2c130.16%2c129.59Zm118%2c118c-24%2c24-64.91%2c22.14-91.29-4.23S128.56%2c176.07%2c152.6%2c152s64.91-22.14%2c91.28%2c4.24S272.15%2c223.51%2c248.12%2c247.55Z' transform='translate(-59.88 -59.29)'/%3e%3cellipse class='cls-3' cx='200.36' cy='199.79' rx='61.55' ry='67.54' transform='translate(-142.47 140.9) rotate(-45)'/%3e%3cg id='Layer_3' data-name='Layer 3'%3e%3cg class='cls-4'%3e%3cpolygon class='cls-5' points='166.25 180 236.66 279.6 236.75 279.51 279.51 236.75 279.6 236.66 180 166.25 166.25 180'/%3e%3cpolygon class='cls-5' points='113.92 100.18 43.51 0.58 43.43 0.67 0.67 43.43 0.58 43.51 100.18 113.92 113.92 100.18'/%3e%3c/g%3e%3cpolygon class='cls-6' points='180 113.92 166.25 100.18 140.09 126.34 113.92 100.18 100.18 113.92 126.34 140.09 100.18 166.25 113.92 180 140.09 153.84 166.25 180 180 166.25 153.84 140.09 180 113.92'/%3e%3c/g%3e%3cg id='Layer_3_copy' data-name='Layer 3 copy'%3e%3cg class='cls-4'%3e%3cpolygon class='cls-5' points='100.18 166.25 0.58 236.66 0.67 236.75 43.43 279.51 43.51 279.6 113.92 180 100.18 166.25'/%3e%3cpolygon class='cls-5' points='180 113.92 279.6 43.51 279.51 43.43 236.75 0.67 236.66 0.58 166.25 100.18 180 113.92'/%3e%3c/g%3e%3c/g%3e%3c/svg%3e";
@@ -639,11 +640,12 @@
      *
      * Also, add a Control to select levels of interest and drone to filter the results.
      * @fires init
+     * @fires error
      * @constructor
      * @extends {ol/control/Control~Control}
      * @param opt_options DjiGeozones options, see [DjiGeozones Options](#options) for more details.
      */
-    class DjiGeozones extends control.Control {
+    class DjiGeozones extends Control {
         constructor(opt_options) {
             super({
                 target: opt_options.target,
@@ -687,17 +689,32 @@
             this._layers = [];
             this.divControl = null;
             this._areaDownloaded = null;
-            if (this._options.createPanel) {
-                this._createPanel(this._options.createPanel, this._options.startCollapsed);
-            }
-            if (this._options.startActive) {
-                // Add some delay to wait the control been added to the map
-                setTimeout(() => {
+        }
+        /**
+         * Remove the control from its current map and attach it to the new map.
+         * Pass null to just remove the control from the current map.
+         * @param map
+         * @public
+         */
+        setMap(map) {
+            super.setMap(map);
+            if (map) {
+                if (this._options.createPanel) {
+                    this._createPanel(this._options.createPanel, this._options.startCollapsed);
+                }
+                if (this._options.startActive) {
                     this.show();
-                }, 100);
+                }
+            }
+            else {
+                controlElement.remove();
+                this.destroy();
             }
         }
         /**
+         * Initialize the layers and events.
+         * This function is called once only if the control is activated.
+         *
          * @fires init
          * @private
          */
@@ -718,26 +735,26 @@
                  * @protected
                  */
                 const styleFunction = (feature) => {
-                    const geom$1 = feature.getGeometry();
+                    const geom = feature.getGeometry();
                     const level = feature.get('level');
                     const levelParams = this._getLevelParamsById(level);
-                    let style$1;
-                    if (geom$1 instanceof geom.Polygon || geom$1 instanceof geom.Circle) {
+                    let style;
+                    if (geom instanceof Polygon || geom instanceof Circle) {
                         const color = feature.get('color');
-                        style$1 = new style.Style({
-                            fill: new style.Fill({
+                        style = new Style({
+                            fill: new Fill({
                                 color: DjiGeozones.colorWithAlpha(color, 0.3)
                             }),
-                            stroke: new style.Stroke({
+                            stroke: new Stroke({
                                 color: color,
                                 width: 1
                             }),
                             zIndex: levelParams.zIndex
                         });
                     }
-                    else if (geom$1 instanceof geom.Point) {
-                        style$1 = new style.Style({
-                            image: new style.Icon({
+                    else if (geom instanceof Point) {
+                        style = new Style({
+                            image: new Icon({
                                 src: levelParams.markerIcon,
                                 scale: 0.35,
                                 anchor: [0.5, 0.9],
@@ -746,7 +763,7 @@
                             zIndex: levelParams.zIndex * 2
                         });
                     }
-                    return style$1;
+                    return style;
                 };
                 API_LEVELS.forEach((level) => {
                     const props = {
@@ -758,14 +775,14 @@
                             : this.activeLevels.includes(level)
                                 ? true
                                 : false,
-                        source: new VectorSource__default["default"]({
+                        source: new VectorSource({
                             attributions: '<a href="https://www.dji.com/flysafe/geo-map" rel="nofollow noopener noreferrer" target="_blank">DJI GeoZoneMap</a>'
                         }),
                         style: styleFunction
                     };
                     if (this._options.extent)
                         props['extent'] = this._options.extent;
-                    const layer = new VectorLayer__default["default"](props);
+                    const layer = new VectorLayer(props);
                     this._map.addLayer(layer);
                     this._layers.push(layer);
                 });
@@ -792,7 +809,7 @@
                 };
                 popupContainer.append(popupCloser);
                 popupContainer.append(this.popupContent);
-                this.overlay = new Overlay__default["default"]({
+                this.overlay = new Overlay({
                     element: popupContainer,
                     autoPan: {
                         animation: {
@@ -827,7 +844,8 @@
                         }
                         else {
                             // If the view is closer, don't do anything, we already had the features
-                            if (this._currentZoom > this._lastZoom)
+                            if (!this._lastZoom ||
+                                this._currentZoom > this._lastZoom)
                                 return;
                         }
                         this._getInfoFromView();
@@ -854,10 +872,10 @@
                 });
                 this._clickEvtKey = this._map.on(this._options.clickEvent, clickHandler);
             };
-            this._initialized = true;
             createVectorLayers();
             createPopUpOverlay();
             addMapEvents();
+            this._initialized = true;
             super.dispatchEvent('init');
         }
         /**
@@ -1299,14 +1317,16 @@
         _getInfoFromView(clear = false) {
             let idAreasRequest = 0;
             /**
-             * The level parameter returned by the API is wrong, so wee need to fixed using the color
+             * The level parameter returned by the API is sometimes wrong (2 != 6),
+             * so wee need to fixed using the color.
+             * Last checked: 2023-04-16
              * @param feature
              * @protected
              */
             const fixLevelValue = (feature) => {
                 const color = feature.get('color');
                 const level = Object.keys(this._paramsLevels).find((key) => this._paramsLevels[key].color === color);
-                feature.set('level', level);
+                feature.set('level', level, /* silent */ true);
                 return feature;
             };
             /**
@@ -1359,11 +1379,11 @@
                     };
                     // Only a few of "areas" come with polygons
                     if (area.polygon_points) {
-                        const featureExtra = new Feature__default["default"](Object.assign(Object.assign({}, featureProps), { geometry: new geom.Polygon(area.polygon_points).transform('EPSG:4326', this._projection) }));
+                        const featureExtra = new Feature(Object.assign(Object.assign({}, featureProps), { geometry: new Polygon(area.polygon_points).transform('EPSG:4326', this._projection) }));
                         featureExtra.setId(area.area_id + '_poly');
                         features.push(fixLevelValue(featureExtra));
                     }
-                    const feature = new Feature__default["default"](Object.assign(Object.assign({}, featureProps), { geometry: new geom.Point([area.lng, area.lat]).transform('EPSG:4326', this._projection) }));
+                    const feature = new Feature(Object.assign(Object.assign({}, featureProps), { geometry: new Point([area.lng, area.lat]).transform('EPSG:4326', this._projection) }));
                     // Store the id to avoid duplicates
                     feature.setId(area.area_id);
                     features.push(fixLevelValue(feature));
@@ -1371,7 +1391,7 @@
                         area.sub_areas.forEach((sub_area) => {
                             let subFeature;
                             if (sub_area.polygon_points) {
-                                subFeature = new Feature__default["default"]({
+                                subFeature = new Feature({
                                     color: sub_area.color,
                                     height: sub_area.height,
                                     level: sub_area.level,
@@ -1381,11 +1401,11 @@
                                     type: area.type,
                                     lng: sub_area.lng,
                                     lat: sub_area.lat,
-                                    geometry: new geom.Polygon(sub_area.polygon_points).transform('EPSG:4326', this._projection)
+                                    geometry: new Polygon(sub_area.polygon_points).transform('EPSG:4326', this._projection)
                                 });
                             }
                             else {
-                                subFeature = new Feature__default["default"]({
+                                subFeature = new Feature({
                                     color: sub_area.color,
                                     height: sub_area.height,
                                     level: sub_area.level,
@@ -1395,7 +1415,7 @@
                                     type: area.type,
                                     lng: sub_area.lng,
                                     lat: sub_area.lat,
-                                    geometry: new geom.Circle([sub_area.lng, sub_area.lat], sub_area.radius / 100000).transform('EPSG:4326', this._projection)
+                                    geometry: new Circle([sub_area.lng, sub_area.lat], sub_area.radius / 100000).transform('EPSG:4326', this._projection)
                                 });
                             }
                             subFeature.setId(sub_area.area_id);
@@ -1448,15 +1468,17 @@
                     }
                     const data = yield this._getApiGeoData('areas', viewLatLng);
                     if (!data)
-                        throw new Error();
+                        return;
                     if (clear)
                         clearFeatures();
                     const features = apiResponseToFeatures(data);
-                    addFeaturesToEachLevel(features);
+                    if (features)
+                        addFeaturesToEachLevel(features);
                     this._showLoading(false);
                     // console.log(data);
                 }
                 catch (err) {
+                    this.dispatchEvent(new ErrorEvent(err));
                     if (err.message)
                         console.error(err);
                     this._showLoading(false);
@@ -1488,7 +1510,10 @@
                         search_radius: searchRadius
                     };
                     Object.keys(queryObj).forEach((key) => url.searchParams.append(key, queryObj[key]));
-                    const response = yield fetch(this._options.urlProxy + encodeURIComponent(url.toString()));
+                    const finalUrl = this._options.urlProxy
+                        ? this._options.urlProxy + encodeURIComponent(url.toString())
+                        : url.toString();
+                    const response = yield fetch(finalUrl);
                     if (!response.ok)
                         throw new Error('HTTP-Error: ' + response.status);
                     return yield response.json();
@@ -1512,7 +1537,7 @@
                         this._areaDownloaded.appendPolygon(polygon);
                     }
                     else {
-                        this._areaDownloaded = new geom.MultiPolygon([
+                        this._areaDownloaded = new MultiPolygon([
                             polygon.getCoordinates()
                         ]);
                     }
@@ -1790,7 +1815,7 @@
             }
         }
         /**
-         * Fucntion to display messages to the user
+         * Function to display messages to the user
          *
          * @param msg
          * @private
@@ -1815,6 +1840,16 @@
         static colorWithAlpha(color$1, alpha = 1) {
             const [r, g, b] = Array.from(color.asArray(color$1));
             return color.asString([r, g, b, alpha]);
+        }
+    }
+    /**
+     * Custom Event to pass error in the dispatchEvent
+     */
+    class ErrorEvent extends BaseEvent {
+        constructor(error) {
+            super('error');
+            this.message = error.message;
+            this.stack = error.stack;
         }
     }
     /**
