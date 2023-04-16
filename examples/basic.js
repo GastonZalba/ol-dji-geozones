@@ -1,5 +1,5 @@
 (function () {
-  
+
   var map = new ol.Map({
     layers: [
       new ol.layer.Tile({
@@ -40,4 +40,8 @@
   var djiGeozones = new DjiGeozones(opt_options);
   map.addControl(djiGeozones);
 
+  djiGeozones.on('error', (err) => {
+    alert('An error ocurred: ' + err.message);
+    console.log(err)
+  });
 })();

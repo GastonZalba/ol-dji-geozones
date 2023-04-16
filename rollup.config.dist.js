@@ -1,10 +1,9 @@
-import pkg from './package.json';
 import babel from '@rollup/plugin-babel';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import json from "@rollup/plugin-json";
 import image from '@rollup/plugin-image';
-import { terser } from "rollup-plugin-terser";
+import terser from '@rollup/plugin-terser';
 import typescript from '@rollup/plugin-typescript';
 import del from 'rollup-plugin-delete'
 import serve from 'rollup-plugin-serve';
@@ -12,22 +11,18 @@ import livereload from 'rollup-plugin-livereload';
 import postcss from 'rollup-plugin-postcss';
 import path from 'path';
 
-let globals = {
-    'ol/Map': 'ol.Map',
-    'ol/source/Vector': 'ol.source.Vector',
-    'ol/layer/Vector': 'ol.layer.Vector',
-    'ol/geom': 'ol.geom',
-    'ol/geom/Polygon': 'ol.geom.Polygon',
-    'ol/Feature': 'ol.Feature',
-    'ol/Overlay': 'ol.Overlay',
-    'ol/style': 'ol.style',
-    'ol/control': 'ol.control',
-    'ol/proj': 'ol.proj',
-    'ol/sphere': 'ol.sphere',
-    'ol/color': 'ol.color',
-    'ol/extent': 'ol.extent',
-    'ol/Observable': 'ol.Observable'
-};
+const globals = (id) => {
+
+    const globals = {}
+
+    if (/ol(\\|\/)/.test(id)) {
+        return id.replace(/\//g, '.').replace('.js', '');
+    } else if (id in globals) {
+        return globals[id];
+    }
+
+    return id;
+}
 
 export default function (commandOptions) {
 
@@ -35,14 +30,14 @@ export default function (commandOptions) {
         input: 'src/ol-dji-geozones.ts',
         output: [
             {
-                dir: 'dist',
+                file: 'dist/ol-dji-geozones.js',
                 format: 'umd',
                 name: 'DjiGeozones',
                 globals: globals,
                 sourcemap: true
             },
             !commandOptions.dev && {
-                file: pkg.browser,
+                file: 'dist/ol-dji-geozones.min.js',
                 format: 'umd',
                 plugins: [terser()],
                 name: 'DjiGeozones',
@@ -92,7 +87,7 @@ export default function (commandOptions) {
                 inject: commandOptions.dev,
                 extract: commandOptions.dev ? false : path.resolve('dist/ol-dji-geozones.css'),
                 config: {
-                    path: './postcss.config.js',
+                    path: './postcss.config.cjs',
                     ctx: {
                         isDev: commandOptions.dev ? true : false
                     }
@@ -133,7 +128,7 @@ export default function (commandOptions) {
                     extract: true,
                     minimize: true,
                     config: {
-                        path: './postcss.config.js',
+                        path: './postcss.config.cjs',
                         ctx: {
                             isDev: commandOptions.dev ? true : false
                         }

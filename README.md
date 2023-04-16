@@ -67,8 +67,11 @@ opt_options.urlProxy = 'https://api.allorigins.win/raw?url=';
 
 const djiGeozones = new DjiGeozones(opt_options);
 
-map.addControl(djiGeozones);
+map.addControl(djiGeozones); // or djiGeozones.setMap(map)
+```
 
+### Methods
+```js
 // Instance methods
 // This methods clean the loaded features and fires a new API request.
 djiGeozones.drone = 'spark';
@@ -87,6 +90,12 @@ djiGeozones.show(); // Show the GeoZones and the map Control
 
 let layers = djiGeozones.layers; // array of ol/layer/Vector~VectorLayer instances
 let layer = djiGeozones.getLayerByLevel(7); // returns an ol/layer/Vector~VectorLayer instance with the specefic level
+```
+
+### Events
+```js
+djiGeozones.once(`init`, () => console.log('Library is loaded'))
+djiGeozones.on(`error`, () => console.log('An error ocurred'))
 ```
 
 ## [DJI API](https://www-api.dji.com/api/geo/areas) - What we know
@@ -115,13 +124,13 @@ See [CHANGELOG](./CHANGELOG.md) for details of changes in each release.
 Load `ol-dji-geozones.js` after OpenLayers. Dji Geozones is available as `DjiGeozones`.
 
 ```HTML
-<script src="https://unpkg.com/ol-dji-geozones@2.0.2"></script>
+<script src="https://unpkg.com/ol-dji-geozones@2.1.0"></script>
 ```
 
 #### CSS
 
 ```HTML
-<link rel="stylesheet" href="https://unpkg.com/ol-dji-geozones@2.0.2/dist/ol-dji-geozones.min.css" />
+<link rel="stylesheet" href="https://unpkg.com/ol-dji-geozones@2.1.0/dist/ol-dji-geozones.min.css" />
 ```
 
 ### Parcel, Webpack, etc.
@@ -159,35 +168,39 @@ TypeScript types are shipped with the project in the dist directory and should b
 
 -   [DjiGeozones](#djigeozones)
     -   [Parameters](#parameters)
-    -   [setPanelVisible](#setpanelvisible)
+    -   [setMap](#setmap)
         -   [Parameters](#parameters-1)
-    -   [setPanelCollapsed](#setpanelcollapsed)
+    -   [setPanelVisible](#setpanelvisible)
         -   [Parameters](#parameters-2)
+    -   [setPanelCollapsed](#setpanelcollapsed)
+        -   [Parameters](#parameters-3)
     -   [layers](#layers)
     -   [getLayerByLevel](#getlayerbylevel)
-        -   [Parameters](#parameters-3)
-    -   [drone](#drone)
         -   [Parameters](#parameters-4)
+    -   [drone](#drone)
+        -   [Parameters](#parameters-5)
     -   [drone](#drone-1)
     -   [zonesMode](#zonesmode)
-        -   [Parameters](#parameters-5)
+        -   [Parameters](#parameters-6)
     -   [zonesMode](#zonesmode-1)
     -   [country](#country)
-        -   [Parameters](#parameters-6)
+        -   [Parameters](#parameters-7)
     -   [country](#country-1)
     -   [getLevelById](#getlevelbyid)
-        -   [Parameters](#parameters-7)
-    -   [activeLevels](#activelevels)
         -   [Parameters](#parameters-8)
-    -   [addLevels](#addlevels)
+    -   [activeLevels](#activelevels)
         -   [Parameters](#parameters-9)
-    -   [removeLevels](#removelevels)
+    -   [addLevels](#addlevels)
         -   [Parameters](#parameters-10)
+    -   [removeLevels](#removelevels)
+        -   [Parameters](#parameters-11)
     -   [destroy](#destroy)
     -   [hide](#hide)
     -   [show](#show)
+-   [ErrorEvent](#errorevent)
+    -   [Parameters](#parameters-12)
 -   [deepObjectAssign](#deepobjectassign)
-    -   [Parameters](#parameters-11)
+    -   [Parameters](#parameters-13)
 -   [ApiReqArguments](#apireqarguments)
     -   [level](#level)
     -   [drone](#drone-2)
@@ -215,7 +228,7 @@ TypeScript types are shipped with the project in the dist directory and should b
     -   [language](#language)
     -   [i18n](#i18n-1)
     -   [alert](#alert)
-        -   [Parameters](#parameters-12)
+        -   [Parameters](#parameters-14)
 
 ### DjiGeozones
 
@@ -230,6 +243,17 @@ Also, add a Control to select levels of interest and drone to filter the results
 #### Parameters
 
 -   `opt_options` **[Options](#options)?** DjiGeozones options, see [DjiGeozones Options](#options) for more details.
+
+#### setMap
+
+Remove the control from its current map and attach it to the new map.
+Pass null to just remove the control from the current map.
+
+##### Parameters
+
+-   `map` **[Map](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Map)**&#x20;
+
+Returns **void**&#x20;
 
 #### setPanelVisible
 
@@ -382,6 +406,16 @@ Returns **void**&#x20;
 Show the geoZones and the Control
 
 Returns **void**&#x20;
+
+### ErrorEvent
+
+**Extends BaseEvent**
+
+Custom Event to pass error in the dispatchEvent
+
+#### Parameters
+
+-   `error` **[Error](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Error)**&#x20;
 
 ### deepObjectAssign
 
@@ -630,7 +664,7 @@ Returns **void**&#x20;
 -   Add test to check inexpected changes on the API response.
 -   Add customizable proxy function
 -   Improve scss (add variables)
--   Add events
+-   Add more events
 
 ## License
 

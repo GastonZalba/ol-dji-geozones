@@ -85,3 +85,11 @@
 ## v2.0.2
 * Fixed unnecesary request when the geozones are hidden and the map is dragged
 * Fix outdated terser with "overrides"
+
+## v2.1.0
+* Added "error" event
+* Added new drones
+* Removed "browser" attribute from package.json
+* Added "type" module attribute to package.json
+* Removed index.js
+* Updated dependencies

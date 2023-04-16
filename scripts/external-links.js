@@ -1,6 +1,4 @@
-'use strict';
-
-const fs = require('fs');
+import fs from 'fs';
 
 const findReplace = [,
     [new RegExp('\\bPluggableMap\\b', 'g'), '[PluggableMap](https://openlayers.org/en/latest/apidoc/module-ol_PluggableMap-PluggableMap.html)']

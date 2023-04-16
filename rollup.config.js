@@ -7,11 +7,11 @@ import path from 'path';
 import postcss from 'rollup-plugin-postcss';
 import copy from 'rollup-plugin-copy';
 
-module.exports = {
+export default {
     input: 'src/ol-dji-geozones.ts',
     output: [
         {
-            dir: 'lib',
+            file: 'lib/ol-dji-geozones.js',
             format: 'es',
             sourcemap: true
         }
@@ -43,7 +43,7 @@ module.exports = {
             extensions: ['.css', '.sass', '.scss'],
             extract: path.resolve('lib/style/css/ol-dji-geozones.css'),
             config: {
-                path: './postcss.config.js',
+                path: './postcss.config.cjs',
                 ctx: {
                     isDev: false
                 }

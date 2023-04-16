@@ -1,5 +1,13 @@
 [
     {
+        "id": "dji-mini-3",
+        "label": "DJI Mini 3"
+    },
+    {
+        "id": "dji-mavic-3-classic",
+        "label": "DJI Mini 3 Classic"
+    },
+    {
         "id": "industry-260",
         "label": "Mavic 3E/3T"
     },

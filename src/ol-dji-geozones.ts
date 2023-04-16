@@ -4,9 +4,18 @@ import Feature, { FeatureLike } from 'ol/Feature';
 import Overlay from 'ol/Overlay';
 import { transform, transformExtent } from 'ol/proj';
 import { getDistance } from 'ol/sphere';
-import { Polygon, MultiPolygon, Point, Circle, Geometry } from 'ol/geom';
-import { Style, Fill, Stroke, Icon } from 'ol/style';
-import { Control } from 'ol/control';
+import Polygon from 'ol/geom/Polygon';
+import MultiPolygon from 'ol/geom/MultiPolygon';
+import Point from 'ol/geom/Point';
+import Circle from 'ol/geom/Circle';
+import Geometry from 'ol/geom/Geometry';
+
+import Style from 'ol/style/Style';
+import Fill from 'ol/style/Fill';
+import Stroke from 'ol/style/Stroke';
+import Icon from 'ol/style/Icon';
+
+import Control from 'ol/control/Control';
 import { asArray, asString } from 'ol/color';
 import { fromExtent } from 'ol/geom/Polygon';
 import {
@@ -17,7 +26,10 @@ import {
     getBottomLeft,
     Extent
 } from 'ol/extent';
-import { MapBrowserEvent, Map, View } from 'ol';
+import { MapBrowserEvent } from 'ol';
+import Map from 'ol/Map';
+import View from 'ol/View';
+
 import { Coordinate } from 'ol/coordinate';
 import Projection from 'ol/proj/Projection';
 import { EventsKey } from 'ol/events';
@@ -36,6 +48,7 @@ import visibilitySvg from './assets/images/visibility.svg';
 
 // Css
 import './assets/scss/ol-dji-geozones.scss';
+import BaseEvent from 'ol/events/Event';
 
 /**
  * @protected
@@ -58,6 +71,7 @@ const controlElement = document.createElement('div');
  *
  * Also, add a Control to select levels of interest and drone to filter the results.
  * @fires init
+ * @fires error
  * @constructor
  * @extends {ol/control/Control~Control}
  * @param opt_options DjiGeozones options, see [DjiGeozones Options](#options) for more details.
@@ -86,10 +100,10 @@ export default class DjiGeozones extends Control {
     public popupContent: HTMLElement;
 
     // Ol
-    public _map: Map;
-    public _view: View;
-    public _projection: Projection;
-    public overlay: Overlay;
+    private _map: Map;
+    private _view: View;
+    private _projection: Projection;
+    private overlay: Overlay;
 
     constructor(opt_options?: Options) {
         super({
@@ -146,23 +160,37 @@ export default class DjiGeozones extends Control {
         this._layers = [];
         this.divControl = null;
         this._areaDownloaded = null;
+    }
 
-        if (this._options.createPanel) {
-            this._createPanel(
-                this._options.createPanel,
-                this._options.startCollapsed
-            );
-        }
+    /**
+     * Remove the control from its current map and attach it to the new map.
+     * Pass null to just remove the control from the current map.
+     * @param map
+     * @public
+     */
+    setMap(map: Map): void {
+        super.setMap(map);
+        if (map) {
+            if (this._options.createPanel) {
+                this._createPanel(
+                    this._options.createPanel,
+                    this._options.startCollapsed
+                );
+            }
 
-        if (this._options.startActive) {
-            // Add some delay to wait the control been added to the map
-            setTimeout(() => {
+            if (this._options.startActive) {
                 this.show();
-            }, 100);
+            }
+        } else {
+            controlElement.remove();
+            this.destroy();
         }
     }
 
     /**
+     * Initialize the layers and events.
+     * This function is called once only if the control is activated.
+     *
      * @fires init
      * @private
      */
@@ -306,7 +334,11 @@ export default class DjiGeozones extends Control {
                         }
                     } else {
                         // If the view is closer, don't do anything, we already had the features
-                        if (this._currentZoom > this._lastZoom) return;
+                        if (
+                            !this._lastZoom ||
+                            this._currentZoom > this._lastZoom
+                        )
+                            return;
                     }
 
                     this._getInfoFromView();
@@ -341,11 +373,11 @@ export default class DjiGeozones extends Control {
             );
         };
 
-        this._initialized = true;
-
         createVectorLayers();
         createPopUpOverlay();
         addMapEvents();
+
+        this._initialized = true;
 
         super.dispatchEvent('init');
     }
@@ -948,7 +980,9 @@ export default class DjiGeozones extends Control {
         let idAreasRequest = 0;
 
         /**
-         * The level parameter returned by the API is wrong, so wee need to fixed using the color
+         * The level parameter returned by the API is sometimes wrong (2 != 6),
+         * so wee need to fixed using the color.
+         * Last checked: 2023-04-16
          * @param feature
          * @protected
          */
@@ -957,7 +991,7 @@ export default class DjiGeozones extends Control {
             const level = Object.keys(this._paramsLevels).find(
                 (key) => this._paramsLevels[key].color === color
             );
-            feature.set('level', level);
+            feature.set('level', level, /* silent */ true);
             return feature;
         };
 
@@ -966,7 +1000,7 @@ export default class DjiGeozones extends Control {
          * @param djiJson
          * @protected
          */
-        const apiResponseToFeatures = (djiJson) => {
+        const apiResponseToFeatures = (djiJson): false | Feature[] => {
             /**
              *
              * @param id
@@ -985,7 +1019,7 @@ export default class DjiGeozones extends Control {
 
             if (!areas || !areas.length) return false;
 
-            const features = [];
+            const features: Feature[] = [];
 
             for (const area of areas) {
                 // If the feature already exists, continue
@@ -1091,7 +1125,7 @@ export default class DjiGeozones extends Control {
          * @param features
          * @protected
          */
-        const addFeaturesToEachLevel = (features) => {
+        const addFeaturesToEachLevel = (features: Feature[]) => {
             if (!features) return;
 
             features.forEach((feature) => {
@@ -1140,18 +1174,20 @@ export default class DjiGeozones extends Control {
 
                 const data = await this._getApiGeoData('areas', viewLatLng);
 
-                if (!data) throw new Error();
+                if (!data) return;
 
                 if (clear) clearFeatures();
 
                 const features = apiResponseToFeatures(data);
 
-                addFeaturesToEachLevel(features);
+                if (features) addFeaturesToEachLevel(features);
 
                 this._showLoading(false);
 
                 // console.log(data);
             } catch (err) {
+                this.dispatchEvent(new ErrorEvent(err));
+
                 if (err.message) console.error(err);
                 this._showLoading(false);
             }
@@ -1196,9 +1232,11 @@ export default class DjiGeozones extends Control {
                 url.searchParams.append(key, queryObj[key])
             );
 
-            const response = await fetch(
-                this._options.urlProxy + encodeURIComponent(url.toString())
-            );
+            const finalUrl = this._options.urlProxy
+                ? this._options.urlProxy + encodeURIComponent(url.toString())
+                : url.toString();
+
+            const response = await fetch(finalUrl);
 
             if (!response.ok) throw new Error('HTTP-Error: ' + response.status);
 
@@ -1321,6 +1359,7 @@ export default class DjiGeozones extends Control {
             this.divControl.classList.remove('ol-dji-geozones--ctrl-collapsed');
         }
     }
+
     /**
      * Get all the layers
      * @public
@@ -1555,7 +1594,7 @@ export default class DjiGeozones extends Control {
     }
 
     /**
-     * Fucntion to display messages to the user
+     * Function to display messages to the user
      *
      * @param msg
      * @private
@@ -1580,6 +1619,20 @@ export default class DjiGeozones extends Control {
     static colorWithAlpha(color: string, alpha = 1): string {
         const [r, g, b] = Array.from(asArray(color));
         return asString([r, g, b, alpha]);
+    }
+}
+
+/**
+ * Custom Event to pass error in the dispatchEvent
+ */
+class ErrorEvent extends BaseEvent {
+    message: Error['message'];
+    stack: Error['stack'];
+
+    constructor(error: Error) {
+        super('error');
+        this.message = error.message;
+        this.stack = error.stack;
     }
 }
 
