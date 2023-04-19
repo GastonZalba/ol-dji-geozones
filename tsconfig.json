@@ -4,8 +4,7 @@
     "allowJs": true,
     "baseUrl": "./",
     "outDir": "./tmp-dist",
-    "target": "es6",
-    "module": "es6",
+    "target": "ESNext",
     "lib": [
       "esnext",
       "dom"

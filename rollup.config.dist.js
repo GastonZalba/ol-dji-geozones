@@ -57,9 +57,12 @@ export default function (commandOptions) {
             json(),
             resolve(),
             babel({
-                babelrc: false,
+                plugins: ["@babel/plugin-transform-runtime"],
                 babelHelpers: 'runtime',
-                exclude: 'node_modules/**',
+                include: ['src/**/*'],
+                extensions: [
+                    '.js', '.jsx', '.ts', '.tsx',
+                ],
                 presets: [
                     [
                         '@babel/preset-env',
@@ -75,9 +78,6 @@ export default function (commandOptions) {
                             }
                         }
                     ]
-                ],
-                plugins: [
-                    "@babel/plugin-transform-runtime"
                 ]
             }),
             commonjs(),

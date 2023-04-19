@@ -9,6 +9,7 @@ import MultiPolygon from 'ol/geom/MultiPolygon';
 import Point from 'ol/geom/Point';
 import Circle from 'ol/geom/Circle';
 import Geometry from 'ol/geom/Geometry';
+import BaseEvent from 'ol/events/Event';
 
 import Style from 'ol/style/Style';
 import Fill from 'ol/style/Fill';
@@ -48,7 +49,6 @@ import visibilitySvg from './assets/images/visibility.svg';
 
 // Css
 import './assets/scss/ol-dji-geozones.scss';
-import BaseEvent from 'ol/events/Event';
 
 /**
  * @protected

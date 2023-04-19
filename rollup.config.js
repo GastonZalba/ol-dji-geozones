@@ -1,4 +1,3 @@
-import babel from '@rollup/plugin-babel';
 import json from "@rollup/plugin-json";
 import image from '@rollup/plugin-image';
 import typescript from '@rollup/plugin-typescript';
@@ -25,20 +24,6 @@ export default {
         }),
         json(),
         image(),
-        babel({            
-            presets: [
-                [
-                    "@babel/preset-env",
-                    {
-                        "targets": {
-                            "esmodules": true
-                        }
-                    }
-                ]
-                ],
-            babelHelpers: 'bundled',
-            exclude: ["node_modules/**", "src/assets/**"]
-        }),
         postcss({
             extensions: ['.css', '.sass', '.scss'],
             extract: path.resolve('lib/style/css/ol-dji-geozones.css'),

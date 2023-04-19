@@ -93,3 +93,6 @@
 * Added "type" module attribute to package.json
 * Removed index.js
 * Updated dependencies
+
+## v2.1.1
+* Improved rollup and ts configs
