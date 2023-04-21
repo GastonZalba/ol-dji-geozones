@@ -1,8 +1,13 @@
+/*!
+ * ol-dji-geozones - v2.2.0
+ * https://github.com/GastonZalba/ol-dji-geozones#readme
+ * Built: Fri Apr 21 2023 18:56:40 GMT-0300 (Argentina Standard Time)
+*/
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('ol/layer/Vector'), require('ol/source/Vector'), require('ol/Feature'), require('ol/Overlay'), require('ol/proj'), require('ol/sphere'), require('ol/geom/Polygon'), require('ol/geom/MultiPolygon'), require('ol/geom/Point'), require('ol/geom/Circle'), require('ol/events/Event'), require('ol/style/Style'), require('ol/style/Fill'), require('ol/style/Stroke'), require('ol/style/Icon'), require('ol/control/Control'), require('ol/color'), require('ol/extent'), require('ol/Observable')) :
-  typeof define === 'function' && define.amd ? define(['ol/layer/Vector', 'ol/source/Vector', 'ol/Feature', 'ol/Overlay', 'ol/proj', 'ol/sphere', 'ol/geom/Polygon', 'ol/geom/MultiPolygon', 'ol/geom/Point', 'ol/geom/Circle', 'ol/events/Event', 'ol/style/Style', 'ol/style/Fill', 'ol/style/Stroke', 'ol/style/Icon', 'ol/control/Control', 'ol/color', 'ol/extent', 'ol/Observable'], factory) :
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('ol/layer/Vector.js'), require('ol/source/Vector.js'), require('ol/Feature.js'), require('ol/Overlay.js'), require('ol/proj.js'), require('ol/sphere.js'), require('ol/geom/Polygon.js'), require('ol/geom/MultiPolygon.js'), require('ol/geom/Point.js'), require('ol/geom/Circle.js'), require('ol/events/Event.js'), require('ol/style/Style.js'), require('ol/style/Fill.js'), require('ol/style/Stroke.js'), require('ol/style/Icon.js'), require('ol/control/Control.js'), require('ol/color.js'), require('ol/extent.js'), require('ol/Observable.js')) :
+  typeof define === 'function' && define.amd ? define(['ol/layer/Vector.js', 'ol/source/Vector.js', 'ol/Feature.js', 'ol/Overlay.js', 'ol/proj.js', 'ol/sphere.js', 'ol/geom/Polygon.js', 'ol/geom/MultiPolygon.js', 'ol/geom/Point.js', 'ol/geom/Circle.js', 'ol/events/Event.js', 'ol/style/Style.js', 'ol/style/Fill.js', 'ol/style/Stroke.js', 'ol/style/Icon.js', 'ol/control/Control.js', 'ol/color.js', 'ol/extent.js', 'ol/Observable.js'], factory) :
   (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.DjiGeozones = factory(global.ol.layer.Vector, global.ol.source.Vector, global.ol.Feature, global.ol.Overlay, global.ol.proj, global.ol.sphere, global.ol.geom.Polygon, global.ol.geom.MultiPolygon, global.ol.geom.Point, global.ol.geom.Circle, global.ol.events.Event, global.ol.style.Style, global.ol.style.Fill, global.ol.style.Stroke, global.ol.style.Icon, global.ol.control.Control, global.ol.color, global.ol.extent, global.ol.Observable));
-})(this, (function (VectorLayer, VectorSource, Feature, Overlay, proj, sphere, Polygon, MultiPolygon, Point, Circle, BaseEvent, Style, Fill, Stroke, Icon, Control, color, extent, Observable) { 'use strict';
+})(this, (function (VectorLayer, VectorSource, Feature, Overlay, proj_js, sphere_js, Polygon, MultiPolygon, Point, Circle, BaseEvent, Style, Fill, Stroke, Icon, Control, color_js, extent_js, Observable_js) { 'use strict';
 
   function _typeof$1(obj) {
     "@babel/helpers - typeof";
@@ -156,13 +161,6 @@
     return Constructor;
   }
 
-  function _assertThisInitialized(self) {
-    if (self === void 0) {
-      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-    }
-    return self;
-  }
-
   function _getPrototypeOf(o) {
     _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function _getPrototypeOf(o) {
       return o.__proto__ || Object.getPrototypeOf(o);
@@ -220,6 +218,13 @@
     if (superClass) _setPrototypeOf(subClass, superClass);
   }
 
+  function _assertThisInitialized(self) {
+    if (self === void 0) {
+      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    }
+    return self;
+  }
+
   function _possibleConstructorReturn(self, call) {
     if (call && (_typeof$1(call) === "object" || typeof call === "function")) {
       return call;
@@ -227,21 +232,6 @@
       throw new TypeError("Derived constructors may only return object or undefined");
     }
     return _assertThisInitialized(self);
-  }
-
-  function _defineProperty(obj, key, value) {
-    key = _toPropertyKey(key);
-    if (key in obj) {
-      Object.defineProperty(obj, key, {
-        value: value,
-        enumerable: true,
-        configurable: true,
-        writable: true
-      });
-    } else {
-      obj[key] = value;
-    }
-    return obj;
   }
 
   function getDefaultExportFromCjs (x) {
@@ -1109,8 +1099,6 @@
 
   var img = "data:image/svg+xml,%3csvg version='1.1' xmlns='http://www.w3.org/2000/svg' width='768' height='768' viewBox='0 0 768 768'%3e%3cpath d='M384 288q39 0 67.5 28.5t28.5 67.5-28.5 67.5-67.5 28.5-67.5-28.5-28.5-67.5 28.5-67.5 67.5-28.5zM384 544.5q66 0 113.25-47.25t47.25-113.25-47.25-113.25-113.25-47.25-113.25 47.25-47.25 113.25 47.25 113.25 113.25 47.25zM384 144q118.5 0 214.5 66t138 174q-42 108-138 174t-214.5 66-214.5-66-138-174q42-108 138-174t214.5-66z'%3e%3c/path%3e%3c/svg%3e";
 
-  function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-  function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
   function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
   function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
   function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
@@ -1149,28 +1137,9 @@
         element: controlElement
       });
       // Default options
-      _defineProperty(_assertThisInitialized(_this), "_options", void 0);
-      _defineProperty(_assertThisInitialized(_this), "_i18n", void 0);
-      _defineProperty(_assertThisInitialized(_this), "_paramsLevels", void 0);
-      _defineProperty(_assertThisInitialized(_this), "_useApiForPopUp", void 0);
-      _defineProperty(_assertThisInitialized(_this), "_isVisible", void 0);
-      _defineProperty(_assertThisInitialized(_this), "_hideGeozones", void 0);
-      _defineProperty(_assertThisInitialized(_this), "_currentZoom", void 0);
-      _defineProperty(_assertThisInitialized(_this), "_lastZoom", void 0);
-      _defineProperty(_assertThisInitialized(_this), "_initialized", void 0);
-      _defineProperty(_assertThisInitialized(_this), "_moveendEvtKey", void 0);
-      _defineProperty(_assertThisInitialized(_this), "_clickEvtKey", void 0);
-      _defineProperty(_assertThisInitialized(_this), "_layers", void 0);
-      _defineProperty(_assertThisInitialized(_this), "_areaDownloaded", void 0);
-      _defineProperty(_assertThisInitialized(_this), "divControl", void 0);
-      _defineProperty(_assertThisInitialized(_this), "popupContent", void 0);
-      // Ol
-      _defineProperty(_assertThisInitialized(_this), "_map", void 0);
-      _defineProperty(_assertThisInitialized(_this), "_view", void 0);
-      _defineProperty(_assertThisInitialized(_this), "_projection", void 0);
-      _defineProperty(_assertThisInitialized(_this), "overlay", void 0);
       var defaults = {
         urlProxy: '',
+        buffer: 10000,
         drone: 'spark',
         zonesMode: 'total',
         country: 'US',
@@ -1636,7 +1605,7 @@
                                     }
                                     return _context.abrupt("return");
                                   case 2:
-                                    center4326 = proj.transform(coordinate, _this5._projection, 'EPSG:4326');
+                                    center4326 = proj_js.transform(coordinate, _this5._projection, 'EPSG:4326');
                                     clickLatLng = {
                                       lat: center4326[1],
                                       lng: center4326[0]
@@ -1712,7 +1681,7 @@
                     };
                     var closePopUp = function closePopUp() {
                       infoTooltip.classList.remove('ol-dji-geozones--active-tooltip');
-                      Observable.unByKey(evtKey);
+                      Observable_js.unByKey(evtKey);
                       container.append(infoTooltip);
                     };
                     var infoTooltip = document.createElement('span');
@@ -1911,13 +1880,13 @@
               };
               // Only a few of "areas" come with polygons
               if (area.polygon_points) {
-                var featureExtra = new Feature(_objectSpread(_objectSpread({}, featureProps), {}, {
+                var featureExtra = new Feature(Object.assign(Object.assign({}, featureProps), {
                   geometry: new Polygon(area.polygon_points).transform('EPSG:4326', _this6._projection)
                 }));
                 featureExtra.setId(area.area_id + '_poly');
                 features.push(fixLevelValue(featureExtra));
               }
-              var feature = new Feature(_objectSpread(_objectSpread({}, featureProps), {}, {
+              var feature = new Feature(Object.assign(Object.assign({}, featureProps), {
                 geometry: new Point([area.lng, area.lat]).transform('EPSG:4326', _this6._projection)
               }));
               // Store the id to avoid duplicates
@@ -2009,7 +1978,7 @@
                 _context4.prev = 2;
                 _this6._showLoading(true);
                 center = _this6._view.getCenter();
-                center4326 = proj.transform(center, _this6._projection, 'EPSG:4326');
+                center4326 = proj_js.transform(center, _this6._projection, 'EPSG:4326');
                 viewLatLng = {
                   lat: center4326[1],
                   lng: center4326[0]
@@ -2132,34 +2101,42 @@
                 }();
                 getAreas = /*#__PURE__*/function () {
                   var _ref10 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee7(centerLatLng, searchRadius) {
-                    var extent$1, polygon, data;
+                    var extent, polygon, data;
                     return _regeneratorRuntime.wrap(function _callee7$(_context7) {
                       while (1) switch (_context7.prev = _context7.next) {
                         case 0:
-                          extent$1 = _this7._view.calculateExtent();
-                          polygon = Polygon.fromExtent(extent$1);
+                          extent = _this7._view.calculateExtent();
+                          if (_this7._options.buffer) {
+                            // Convert the extent to meters
+                            extent = proj_js.transform(extent, _this7._projection, 'EPSG:3857');
+                            // Apply buffer in meters
+                            extent = _this7._options.buffer ? extent_js.buffer(extent, _this7._options.buffer) : extent;
+                            // Restore extent in map projection
+                            extent = proj_js.transform(extent, 'EPSG:3857', _this7._projection);
+                          }
+                          polygon = Polygon.fromExtent(extent);
                           if (!_this7._areaDownloaded) {
-                            _context7.next = 8;
+                            _context7.next = 9;
                             break;
                           }
-                          if (!(_this7._areaDownloaded.intersectsCoordinate(extent.getCenter(extent$1)) && _this7._areaDownloaded.intersectsCoordinate(extent.getBottomLeft(extent$1)) && _this7._areaDownloaded.intersectsCoordinate(extent.getTopRight(extent$1)) && _this7._areaDownloaded.intersectsCoordinate(extent.getBottomRight(extent$1)) && _this7._areaDownloaded.intersectsCoordinate(extent.getTopLeft(extent$1)))) {
-                            _context7.next = 5;
+                          if (!(_this7._areaDownloaded.intersectsCoordinate(extent_js.getCenter(extent)) && _this7._areaDownloaded.intersectsCoordinate(extent_js.getBottomLeft(extent)) && _this7._areaDownloaded.intersectsCoordinate(extent_js.getTopRight(extent)) && _this7._areaDownloaded.intersectsCoordinate(extent_js.getBottomRight(extent)) && _this7._areaDownloaded.intersectsCoordinate(extent_js.getTopLeft(extent)))) {
+                            _context7.next = 6;
                             break;
                           }
                           return _context7.abrupt("return");
-                        case 5:
+                        case 6:
                           _this7._areaDownloaded.appendPolygon(polygon);
-                          _context7.next = 9;
+                          _context7.next = 10;
                           break;
-                        case 8:
-                          _this7._areaDownloaded = new MultiPolygon([polygon.getCoordinates()]);
                         case 9:
-                          _context7.next = 11;
+                          _this7._areaDownloaded = new MultiPolygon([polygon.getCoordinates()]);
+                        case 10:
+                          _context7.next = 12;
                           return apiRequest('areas', centerLatLng, searchRadius);
-                        case 11:
+                        case 12:
                           data = _context7.sent;
                           return _context7.abrupt("return", data);
-                        case 13:
+                        case 14:
                         case "end":
                           return _context7.stop();
                       }
@@ -2175,9 +2152,9 @@
                   var center = [lng, lat];
                   var size = _this7._map.getSize();
                   var extent = _this7._view.calculateExtent(size);
-                  extent = proj.transformExtent(extent, _this7._projection, 'EPSG:4326');
+                  extent = proj_js.transformExtent(extent, _this7._projection, 'EPSG:4326');
                   var posSW = [extent[0], extent[1]];
-                  var centerToSW = sphere.getDistance(center, posSW);
+                  var centerToSW = sphere_js.getDistance(center, posSW) + _this7._options.buffer;
                   return parseInt(String(centerToSW));
                 };
                 if (this._isVisible) {
@@ -2401,7 +2378,7 @@
         var texts = this._i18n.levels.find(function (lev) {
           return lev.id == id;
         });
-        return _objectSpread(_objectSpread({}, params), texts);
+        return Object.assign(Object.assign({}, params), texts);
       }
       /**
        * Replace the active levels with this values and refresh the view
@@ -2479,8 +2456,8 @@
         this.layers.forEach(function (layer) {
           _this11._map.removeLayer(layer);
         });
-        Observable.unByKey(this._clickEvtKey);
-        Observable.unByKey(this._moveendEvtKey);
+        Observable_js.unByKey(this._clickEvtKey);
+        Observable_js.unByKey(this._moveendEvtKey);
       }
       /**
        * Hide the geoZones and the Control
@@ -2547,14 +2524,14 @@
        */
     }], [{
       key: "colorWithAlpha",
-      value: function colorWithAlpha(color$1) {
+      value: function colorWithAlpha(color) {
         var alpha = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
-        var _Array$from = Array.from(color.asArray(color$1)),
+        var _Array$from = Array.from(color_js.asArray(color)),
           _Array$from2 = _slicedToArray(_Array$from, 3),
           r = _Array$from2[0],
           g = _Array$from2[1],
           b = _Array$from2[2];
-        return color.asString([r, g, b, alpha]);
+        return color_js.asString([r, g, b, alpha]);
       }
     }]);
     return DjiGeozones;
@@ -2566,8 +2543,6 @@
       var _this12;
       _classCallCheck(this, ErrorEvent);
       _this12 = _super2.call(this, 'error');
-      _defineProperty(_assertThisInitialized(_this12), "message", void 0);
-      _defineProperty(_assertThisInitialized(_this12), "stack", void 0);
       _this12.message = error.message;
       _this12.stack = error.stack;
       return _this12;

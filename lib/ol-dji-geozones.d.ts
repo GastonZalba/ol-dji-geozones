@@ -1,12 +1,12 @@
-import VectorLayer from 'ol/layer/Vector';
-import VectorSource from 'ol/source/Vector';
-import MultiPolygon from 'ol/geom/MultiPolygon';
-import Geometry from 'ol/geom/Geometry';
-import Control from 'ol/control/Control';
-import { Extent } from 'ol/extent';
-import { MapBrowserEvent } from 'ol';
-import Map from 'ol/Map';
-import { EventsKey } from 'ol/events';
+import VectorLayer from 'ol/layer/Vector.js';
+import VectorSource from 'ol/source/Vector.js';
+import MultiPolygon from 'ol/geom/MultiPolygon.js';
+import Geometry from 'ol/geom/Geometry.js';
+import Control from 'ol/control/Control.js';
+import { Extent } from 'ol/extent.js';
+import MapBrowserEvent from 'ol/MapBrowserEvent.js';
+import Map from 'ol/Map.js';
+import { EventsKey } from 'ol/events.js';
 import './assets/scss/ol-dji-geozones.scss';
 /**
  * OpenLayers Dji Geozones, creates multiples VectorLayers to
@@ -328,6 +328,7 @@ export interface i18n {
  * ```javascript
  * {
  *   urlProxy: '',
+ *   buffer: 10000, // meters
  *   drone: 'spark', // See parameter in the DJI API section
  *   zonesMode: 'total', // See parameter in the DJI API section
  *   country: 'US', // See parameter in the DJI API section
@@ -353,6 +354,12 @@ export interface Options {
      * Url/endpoint from a Reverse Proxy to avoid CORS restrictions
      */
     urlProxy?: string;
+    /**
+     * Current map radius is increased by the provided value (in meters) and used to request the areas.
+     * Very useful for the highest zoom levels, to allow geozones near by being displayed.
+     * A value of 0 will only search geozones (the centroid of these) that are inside the current view extent.
+     */
+    buffer?: number;
     drone?: string;
     /**
      * zonesMode to be used in the API request
