@@ -39,6 +39,7 @@ All the examples are configured using a free Proxy. If you notice some lag or sl
 // Default options
 let opt_options = {
     urlProxy: '',
+    buffer: 10000, // to increase search zone (in meters)
     drone: 'spark', // See drone parameter in the DJI API section
     zonesMode: 'total', // See drone parameter in the DJI API section
     country: 'US', // See country parameter in the DJI API section
@@ -71,6 +72,7 @@ map.addControl(djiGeozones); // or djiGeozones.setMap(map)
 ```
 
 ### Methods
+
 ```js
 // Instance methods
 // This methods clean the loaded features and fires a new API request.
@@ -93,9 +95,10 @@ let layer = djiGeozones.getLayerByLevel(7); // returns an ol/layer/Vector~Vector
 ```
 
 ### Events
+
 ```js
-djiGeozones.once(`init`, () => console.log('Library is loaded'))
-djiGeozones.on(`error`, () => console.log('An error ocurred'))
+djiGeozones.once(`init`, () => console.log('Library is loaded'));
+djiGeozones.on(`error`, () => console.log('An error ocurred'));
 ```
 
 ## [DJI API](https://www-api.dji.com/api/geo/areas) - What we know
@@ -124,13 +127,13 @@ See [CHANGELOG](./CHANGELOG.md) for details of changes in each release.
 Load `ol-dji-geozones.js` after OpenLayers. Dji Geozones is available as `DjiGeozones`.
 
 ```HTML
-<script src="https://unpkg.com/ol-dji-geozones@2.1.1"></script>
+<script src="https://unpkg.com/ol-dji-geozones@2.2.0"></script>
 ```
 
 #### CSS
 
 ```HTML
-<link rel="stylesheet" href="https://unpkg.com/ol-dji-geozones@2.1.1/dist/ol-dji-geozones.min.css" />
+<link rel="stylesheet" href="https://unpkg.com/ol-dji-geozones@2.2.0/dist/ol-dji-geozones.min.css" />
 ```
 
 ### Parcel, Webpack, etc.
@@ -212,6 +215,7 @@ TypeScript types are shipped with the project in the dist directory and should b
 -   [i18n](#i18n)
 -   [Options](#options)
     -   [urlProxy](#urlproxy)
+    -   [buffer](#buffer)
     -   [zonesMode](#zonesmode-2)
     -   [country](#country-3)
     -   [displayLevels](#displaylevels)
@@ -525,6 +529,7 @@ Default values:
 ```javascript
 {
   urlProxy: '',
+  buffer: 10000, // meters
   drone: 'spark', // See parameter in the DJI API section
   zonesMode: 'total', // See parameter in the DJI API section
   country: 'US', // See parameter in the DJI API section
@@ -550,6 +555,14 @@ Default values:
 Url/endpoint from a Reverse Proxy to avoid CORS restrictions
 
 Type: [string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)
+
+#### buffer
+
+Current map radius is increased by the provided value (in meters) and used to request the areas.
+Very useful for the highest zoom levels, to allow geozones near by being displayed.
+A value of 0 will only search geozones (the centroid of these) that are inside the current view extent.
+
+Type: [number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)
 
 #### zonesMode
 

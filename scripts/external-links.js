@@ -1,7 +1,7 @@
 import fs from 'fs';
 
 const findReplace = [,
-    [new RegExp('\\bPluggableMap\\b', 'g'), '[PluggableMap](https://openlayers.org/en/latest/apidoc/module-ol_PluggableMap-PluggableMap.html)']
+    [new RegExp('\\bMap\\b', 'g'), '[Map](https://openlayers.org/en/latest/apidoc/module-ol_Map-Map.html)']
 ];
 
 const paramRegex = /^-\s+`[a-zA-Z0-9]+` \*\*/;

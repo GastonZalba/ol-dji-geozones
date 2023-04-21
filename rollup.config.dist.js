@@ -10,6 +10,17 @@ import serve from 'rollup-plugin-serve';
 import livereload from 'rollup-plugin-livereload';
 import postcss from 'rollup-plugin-postcss';
 import path from 'path';
+import banner2 from 'rollup-plugin-banner2'
+import { readFileSync } from 'fs';
+const pkg = JSON.parse(readFileSync('./package.json', 'utf8'));
+
+const banner =
+`/*!
+ * ${pkg.name} - v${pkg.version}
+ * ${pkg.homepage}
+ * Built: ${new Date()}
+*/
+`;
 
 const globals = (id) => {
 
@@ -46,6 +57,7 @@ export default function (commandOptions) {
             }
         ],
         plugins: [
+            banner2(() => banner),
             del({ targets: 'dist/*' }),
             typescript(
                 {

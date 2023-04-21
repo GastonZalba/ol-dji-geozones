@@ -1,24 +1,24 @@
-import VectorLayer from 'ol/layer/Vector';
-import VectorSource from 'ol/source/Vector';
-import Feature, { FeatureLike } from 'ol/Feature';
-import Overlay from 'ol/Overlay';
-import { transform, transformExtent } from 'ol/proj';
-import { getDistance } from 'ol/sphere';
-import Polygon from 'ol/geom/Polygon';
-import MultiPolygon from 'ol/geom/MultiPolygon';
-import Point from 'ol/geom/Point';
-import Circle from 'ol/geom/Circle';
-import Geometry from 'ol/geom/Geometry';
-import BaseEvent from 'ol/events/Event';
+import VectorLayer from 'ol/layer/Vector.js';
+import VectorSource from 'ol/source/Vector.js';
+import Feature, { FeatureLike } from 'ol/Feature.js';
+import Overlay from 'ol/Overlay.js';
+import { transform, transformExtent } from 'ol/proj.js';
+import { getDistance } from 'ol/sphere.js';
+import Polygon from 'ol/geom/Polygon.js';
+import MultiPolygon from 'ol/geom/MultiPolygon.js';
+import Point from 'ol/geom/Point.js';
+import Circle from 'ol/geom/Circle.js';
+import Geometry from 'ol/geom/Geometry.js';
+import BaseEvent from 'ol/events/Event.js';
 
-import Style from 'ol/style/Style';
-import Fill from 'ol/style/Fill';
-import Stroke from 'ol/style/Stroke';
-import Icon from 'ol/style/Icon';
+import Style from 'ol/style/Style.js';
+import Fill from 'ol/style/Fill.js';
+import Stroke from 'ol/style/Stroke.js';
+import Icon from 'ol/style/Icon.js';
 
-import Control from 'ol/control/Control';
-import { asArray, asString } from 'ol/color';
-import { fromExtent } from 'ol/geom/Polygon';
+import Control from 'ol/control/Control.js';
+import { asArray, asString } from 'ol/color.js';
+import { fromExtent } from 'ol/geom/Polygon.js';
 import {
     getTopRight,
     getTopLeft,
@@ -26,21 +26,22 @@ import {
     getCenter,
     getBottomLeft,
     Extent
-} from 'ol/extent';
-import { MapBrowserEvent } from 'ol';
-import Map from 'ol/Map';
-import View from 'ol/View';
+} from 'ol/extent.js';
+import MapBrowserEvent from 'ol/MapBrowserEvent.js';
+import Map from 'ol/Map.js';
+import View from 'ol/View.js';
+import { buffer } from 'ol/extent.js';
 
-import { Coordinate } from 'ol/coordinate';
-import Projection from 'ol/proj/Projection';
-import { EventsKey } from 'ol/events';
-import { unByKey } from 'ol/Observable';
+import { Coordinate } from 'ol/coordinate.js';
+import Projection from 'ol/proj/Projection.js';
+import { EventsKey } from 'ol/events.js';
+import { unByKey } from 'ol/Observable.js';
 
 // Import configuration values
 import levelsParams from './assets/_levels-params.json';
 import dronesList from './assets/_drones.json';
 
-import * as languages from './components/i18n/index';
+import * as languages from './components/i18n';
 
 // Images
 import geozoneSvg from './assets/images/geozone.svg';
@@ -112,8 +113,9 @@ export default class DjiGeozones extends Control {
         });
 
         // Default options
-        const defaults = {
+        const defaults: Options = {
             urlProxy: '',
+            buffer: 10000, // meters
             drone: 'spark',
             zonesMode: 'total',
             country: 'US',
@@ -1255,7 +1257,21 @@ export default class DjiGeozones extends Control {
             centerLatLng: { lat: number; lng: number },
             searchRadius: number
         ) => {
-            const extent = this._view.calculateExtent();
+            let extent = this._view.calculateExtent();
+
+            if (this._options.buffer) {
+                // Convert the extent to meters
+                extent = transform(extent, this._projection, 'EPSG:3857');
+
+                // Apply buffer in meters
+                extent = this._options.buffer
+                    ? buffer(extent, this._options.buffer)
+                    : extent;
+
+                // Restore extent in map projection
+                extent = transform(extent, 'EPSG:3857', this._projection);
+            }
+
             const polygon = fromExtent(extent);
 
             if (this._areaDownloaded) {
@@ -1298,7 +1314,8 @@ export default class DjiGeozones extends Control {
             let extent = this._view.calculateExtent(size);
             extent = transformExtent(extent, this._projection, 'EPSG:4326');
             const posSW = [extent[0], extent[1]];
-            const centerToSW = getDistance(center, posSW);
+            const centerToSW =
+                getDistance(center, posSW) + this._options.buffer;
             return parseInt(String(centerToSW));
         };
 
@@ -1840,6 +1857,7 @@ export interface i18n {
  * ```javascript
  * {
  *   urlProxy: '',
+ *   buffer: 10000, // meters
  *   drone: 'spark', // See parameter in the DJI API section
  *   zonesMode: 'total', // See parameter in the DJI API section
  *   country: 'US', // See parameter in the DJI API section
@@ -1865,6 +1883,12 @@ export interface Options {
      * Url/endpoint from a Reverse Proxy to avoid CORS restrictions
      */
     urlProxy?: string;
+    /**
+     * Current map radius is increased by the provided value (in meters) and used to request the areas.
+     * Very useful for the highest zoom levels, to allow geozones near by being displayed.
+     * A value of 0 will only search geozones (the centroid of these) that are inside the current view extent.
+     */
+    buffer?: number;
     /*
      * Drone id to be used as default in the API request
      */
