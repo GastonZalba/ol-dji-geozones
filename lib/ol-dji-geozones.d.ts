@@ -2,11 +2,15 @@ import VectorLayer from 'ol/layer/Vector.js';
 import VectorSource from 'ol/source/Vector.js';
 import MultiPolygon from 'ol/geom/MultiPolygon.js';
 import Geometry from 'ol/geom/Geometry.js';
+import BaseEvent from 'ol/events/Event.js';
 import Control from 'ol/control/Control.js';
 import { Extent } from 'ol/extent.js';
 import MapBrowserEvent from 'ol/MapBrowserEvent.js';
 import Map from 'ol/Map.js';
 import { EventsKey } from 'ol/events.js';
+import { CombinedOnSignature, EventTypes, OnSignature } from 'ol/Observable.js';
+import { ObjectEvent } from 'ol/Object.js';
+import { Types as ObjectEventTypes } from 'ol/ObjectEventType.js';
 import './assets/scss/ol-dji-geozones.scss';
 /**
  * OpenLayers Dji Geozones, creates multiples VectorLayers to
@@ -30,6 +34,7 @@ export default class DjiGeozones extends Control {
     protected _currentZoom: number;
     protected _lastZoom: number;
     protected _initialized: boolean;
+    protected _listeners: boolean;
     protected _moveendEvtKey: EventsKey | Array<EventsKey>;
     protected _clickEvtKey: EventsKey | Array<EventsKey>;
     protected _layers: Array<VectorLayer<VectorSource<Geometry>>>;
@@ -39,7 +44,10 @@ export default class DjiGeozones extends Control {
     private _map;
     private _view;
     private _projection;
-    private overlay;
+    private _overlay;
+    on: OnSignature<'change', BaseEvent, EventsKey> & OnSignature<'error', ErrorEvent, EventsKey> & OnSignature<ObjectEventTypes, ObjectEvent, EventsKey> & CombinedOnSignature<ObjectEventTypes | EventTypes, EventsKey>;
+    once: OnSignature<'change', BaseEvent, EventsKey> & OnSignature<'error', ErrorEvent, EventsKey> & OnSignature<ObjectEventTypes, ObjectEvent, EventsKey> & CombinedOnSignature<ObjectEventTypes | EventTypes, EventsKey>;
+    un: OnSignature<'change', BaseEvent, void> & OnSignature<'error', ErrorEvent, EventsKey> & OnSignature<ObjectEventTypes, ObjectEvent, void> & CombinedOnSignature<ObjectEventTypes | EventTypes, void>;
     constructor(opt_options?: Options);
     /**
      * Remove the control from its current map and attach it to the new map.
@@ -86,6 +94,7 @@ export default class DjiGeozones extends Control {
      * @protected
      */
     _getInfoFromView(clear?: boolean): void;
+    _onError: (err: ErrorEvent) => void;
     /**
      * Controller for the API rquests.
      * @param typeApiRequest
@@ -203,7 +212,7 @@ export default class DjiGeozones extends Control {
      */
     removeLevels(levels: Array<number> | number, refresh?: boolean): void;
     /**
-     * Removes the control, layers and events from the map
+     * Removes the control, layers, overlays and events from the map
      * @public
      */
     destroy(): void;
@@ -217,6 +226,14 @@ export default class DjiGeozones extends Control {
      * @public
      */
     show(): void;
+    /**
+     * @protected
+     */
+    _removeListeners(): void;
+    /**
+     * @protected
+     */
+    _addListeners(): void;
     /**
      * Function to display messages to the user
      *
@@ -233,6 +250,14 @@ export default class DjiGeozones extends Control {
      * @protected
      */
     static colorWithAlpha(color: string, alpha?: number): string;
+}
+/**
+ * Custom Event to pass error in the dispatchEvent
+ */
+declare class ErrorEvent extends BaseEvent {
+    message: Error['message'];
+    stack: Error['stack'];
+    constructor(error: Error);
 }
 /**
  * **_[interface]_** - Dji Api Response

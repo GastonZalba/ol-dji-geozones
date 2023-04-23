@@ -1,7 +1,7 @@
 /*!
- * ol-dji-geozones - v2.2.0
+ * ol-dji-geozones - v2.2.1
  * https://github.com/GastonZalba/ol-dji-geozones#readme
- * Built: Fri Apr 21 2023 18:56:40 GMT-0300 (Argentina Standard Time)
+ * Built: Sun Apr 23 2023 13:20:39 GMT-0300 (Argentina Standard Time)
 */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('ol/layer/Vector.js'), require('ol/source/Vector.js'), require('ol/Feature.js'), require('ol/Overlay.js'), require('ol/proj.js'), require('ol/sphere.js'), require('ol/geom/Polygon.js'), require('ol/geom/MultiPolygon.js'), require('ol/geom/Point.js'), require('ol/geom/Circle.js'), require('ol/events/Event.js'), require('ol/style/Style.js'), require('ol/style/Fill.js'), require('ol/style/Stroke.js'), require('ol/style/Icon.js'), require('ol/control/Control.js'), require('ol/color.js'), require('ol/extent.js'), require('ol/Observable.js')) :
@@ -1136,8 +1136,11 @@
         target: opt_options.target,
         element: controlElement
       });
-      // Default options
-      var defaults = {
+      _this._onError = function (err) {
+        _this.hide();
+        if (err.message) console.error(err);
+      };
+      _this._options = Object.assign({
         urlProxy: '',
         buffer: 10000,
         drone: 'spark',
@@ -1155,8 +1158,7 @@
         clickEvent: 'singleclick',
         language: DEFAULT_LANGUAGE,
         alert: null
-      };
-      _this._options = deepObjectAssign(defaults, opt_options);
+      }, opt_options || {});
       // If language selector is provided and translation exists...
       _this._i18n = languages[_this._options.language in languages ? _this._options.language : DEFAULT_LANGUAGE];
       // Merge custom translations
@@ -1172,6 +1174,7 @@
       _this._layers = [];
       _this.divControl = null;
       _this._areaDownloaded = null;
+      _this.on('error', _this._onError);
       return _this;
     }
     /**
@@ -1192,8 +1195,10 @@
             this.show();
           }
         } else {
-          controlElement.remove();
-          this.destroy();
+          if (_get(_getPrototypeOf(DjiGeozones.prototype), "getMap", this).call(this)) {
+            controlElement.remove();
+            this.destroy();
+          }
         }
       }
       /**
@@ -1285,13 +1290,13 @@
           popupCloser.className = 'ol-dji-geozones--ol-popup-closer';
           popupCloser.href = '#';
           popupCloser.onclick = function () {
-            _this2.overlay.setPosition(undefined);
+            _this2._overlay.setPosition(undefined);
             popupCloser.blur();
             return false;
           };
           popupContainer.append(popupCloser);
           popupContainer.append(_this2.popupContent);
-          _this2.overlay = new Overlay({
+          _this2._overlay = new Overlay({
             element: popupContainer,
             autoPan: {
               animation: {
@@ -1299,54 +1304,10 @@
               }
             }
           });
-          _this2._map.addOverlay(_this2.overlay);
-        };
-        /**
-         * @protected
-         */
-        var addMapEvents = function addMapEvents() {
-          var handleZoomEnd = function handleZoomEnd() {
-            if (_this2._currentZoom < MIN_ZOOM) {
-              // Hide the layer and disable the control
-              if (_this2._isVisible) {
-                _this2._setLayersVisible(false);
-                _this2._isVisible = false;
-                _this2._setControlEnabled(false);
-              }
-            } else {
-              // Show the layers and enable the control
-              if (!_this2._isVisible) {
-                _this2._setLayersVisible(true);
-                _this2._isVisible = true;
-                _this2._setControlEnabled(true);
-                if (_this2.divControl) {
-                  _this2.divControl.classList.remove(HIDDEN_CLASS);
-                }
-              } else {
-                // If the view is closer, don't do anything, we already had the features
-                if (!_this2._lastZoom || _this2._currentZoom > _this2._lastZoom) return;
-              }
-              _this2._getInfoFromView();
-            }
-          };
-          var handleDragEnd = function handleDragEnd() {
-            if (!_this2._isVisible || _this2._hideGeozones) return;
-            _this2._getInfoFromView();
-          };
-          var clickHandler = function clickHandler(evt) {
-            var type = _this2._useApiForPopUp ? 'useApiForPopUp' : 'useFeaturesForPopUp';
-            _this2._getPointInfoFromClick(evt, type);
-          };
-          _this2._moveendEvtKey = _this2._map.on('moveend', function () {
-            _this2._currentZoom = _this2._view.getZoom();
-            if (_this2._currentZoom !== _this2._lastZoom) handleZoomEnd();else handleDragEnd();
-            _this2._lastZoom = _this2._currentZoom;
-          });
-          _this2._clickEvtKey = _this2._map.on(_this2._options.clickEvent, clickHandler);
+          _this2._map.addOverlay(_this2._overlay);
         };
         createVectorLayers();
         createPopUpOverlay();
-        addMapEvents();
         this._initialized = true;
         _get(_getPrototypeOf(DjiGeozones.prototype), "dispatchEvent", this).call(this, 'init');
       }
@@ -1737,14 +1698,14 @@
                       _this5.popupContent.append(document.createElement('HR'));
                     }
                   });
-                  _this5.overlay.setPosition(coordinates);
+                  _this5._overlay.setPosition(coordinates);
                 };
                 _context3.prev = 5;
                 if (this._isVisible) {
                   _context3.next = 9;
                   break;
                 }
-                this.overlay.setPosition(undefined);
+                this._overlay.setPosition(undefined);
                 return _context3.abrupt("return");
               case 9:
                 opt_options = {
@@ -1761,7 +1722,7 @@
                   break;
                 }
                 this.popupContent.innerHTML = this._options.loadingElement.toString();
-                this.overlay.setPosition(evt.coordinate);
+                this._overlay.setPosition(evt.coordinate);
                 _context3.next = 16;
                 return getInfoFromApiLatLng(evt.coordinate);
               case 16:
@@ -1775,7 +1736,7 @@
                   data = getInfoFromFeatures(features);
                 }
               case 21:
-                if (data && data.length) showGeozoneDataInPopUp(data, evt.coordinate);else this.overlay.setPosition(undefined);
+                if (data && data.length) showGeozoneDataInPopUp(data, evt.coordinate);else this._overlay.setPosition(undefined);
                 _context3.next = 27;
                 break;
               case 24:
@@ -1991,29 +1952,24 @@
               case 10:
                 data = _context4.sent;
                 if (data) {
-                  _context4.next = 13;
-                  break;
+                  if (clear) clearFeatures();
+                  features = apiResponseToFeatures(data);
+                  if (features) addFeaturesToEachLevel(features);
+                  // console.log(data);
                 }
-                return _context4.abrupt("return");
-              case 13:
-                if (clear) clearFeatures();
-                features = apiResponseToFeatures(data);
-                if (features) addFeaturesToEachLevel(features);
-                _this6._showLoading(false);
-                // console.log(data);
-                _context4.next = 24;
+                _context4.next = 17;
                 break;
-              case 19:
-                _context4.prev = 19;
+              case 14:
+                _context4.prev = 14;
                 _context4.t0 = _context4["catch"](2);
                 _this6.dispatchEvent(new ErrorEvent(_context4.t0));
-                if (_context4.t0.message) console.error(_context4.t0);
+              case 17:
                 _this6._showLoading(false);
-              case 24:
+              case 18:
               case "end":
                 return _context4.stop();
             }
-          }, _callee4, null, [[2, 19]]);
+          }, _callee4, null, [[2, 14]]);
         })), 300);
       }
       /**
@@ -2446,7 +2402,7 @@
         }
       }
       /**
-       * Removes the control, layers and events from the map
+       * Removes the control, layers, overlays and events from the map
        * @public
        */
     }, {
@@ -2456,8 +2412,8 @@
         this.layers.forEach(function (layer) {
           _this11._map.removeLayer(layer);
         });
-        Observable_js.unByKey(this._clickEvtKey);
-        Observable_js.unByKey(this._moveendEvtKey);
+        this._map.removeOverlay(this._overlay);
+        this._removeListeners();
       }
       /**
        * Hide the geoZones and the Control
@@ -2469,6 +2425,7 @@
         this._hideGeozones = true;
         this._setLayersVisible(false);
         this._setControlEnabled(false);
+        this._removeListeners();
         if (this.divControl) {
           this.divControl.classList.add(HIDDEN_CLASS);
         }
@@ -2482,6 +2439,9 @@
       value: function show() {
         if (!this._initialized) {
           this._initialize();
+        }
+        if (!this._listeners) {
+          this._addListeners();
         }
         this._hideGeozones = false;
         this._isVisible = this._view.getZoom() >= MIN_ZOOM;
@@ -2497,6 +2457,62 @@
           this._alert(this._i18n.labels.helperZoom);
           this._showLoading(false);
         }
+      }
+      /**
+       * @protected
+       */
+    }, {
+      key: "_removeListeners",
+      value: function _removeListeners() {
+        Observable_js.unByKey(this._clickEvtKey);
+        Observable_js.unByKey(this._moveendEvtKey);
+        this._listeners = false;
+      }
+      /**
+       * @protected
+       */
+    }, {
+      key: "_addListeners",
+      value: function _addListeners() {
+        var _this12 = this;
+        var handleZoomEnd = function handleZoomEnd() {
+          if (_this12._currentZoom < MIN_ZOOM) {
+            // Hide the layer and disable the control
+            if (_this12._isVisible) {
+              _this12._setLayersVisible(false);
+              _this12._isVisible = false;
+              _this12._setControlEnabled(false);
+            }
+          } else {
+            // Show the layers and enable the control
+            if (!_this12._isVisible) {
+              _this12._setLayersVisible(true);
+              _this12._isVisible = true;
+              _this12._setControlEnabled(true);
+              if (_this12.divControl) {
+                _this12.divControl.classList.remove(HIDDEN_CLASS);
+              }
+            } else {
+              // If the view is closer, don't do anything, we already had the features
+              if (!_this12._lastZoom || _this12._currentZoom > _this12._lastZoom) return;
+            }
+            _this12._getInfoFromView();
+          }
+        };
+        var handleDragEnd = function handleDragEnd() {
+          if (!_this12._isVisible || _this12._hideGeozones) return;
+          _this12._getInfoFromView();
+        };
+        this._moveendEvtKey = this._map.on('moveend', function () {
+          _this12._currentZoom = _this12._view.getZoom();
+          if (_this12._currentZoom !== _this12._lastZoom) handleZoomEnd();else handleDragEnd();
+          _this12._lastZoom = _this12._currentZoom;
+        });
+        this._clickEvtKey = this._map.on(this._options.clickEvent, function (evt) {
+          var type = _this12._useApiForPopUp ? 'useApiForPopUp' : 'useFeaturesForPopUp';
+          _this12._getPointInfoFromClick(evt, type);
+        });
+        this._listeners = true;
       }
       /**
        * Function to display messages to the user
@@ -2540,12 +2556,12 @@
     _inherits(ErrorEvent, _BaseEvent);
     var _super2 = _createSuper(ErrorEvent);
     function ErrorEvent(error) {
-      var _this12;
+      var _this13;
       _classCallCheck(this, ErrorEvent);
-      _this12 = _super2.call(this, 'error');
-      _this12.message = error.message;
-      _this12.stack = error.stack;
-      return _this12;
+      _this13 = _super2.call(this, 'error');
+      _this13.message = error.message;
+      _this13.stack = error.stack;
+      return _this13;
     }
     return _createClass(ErrorEvent);
   }(BaseEvent);

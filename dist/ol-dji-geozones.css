@@ -155,6 +155,7 @@
 .ol-dji-geozones.ol-control .ol-dji-geozones--logo img {
   vertical-align: middle;
   width: 100%;
+  pointer-events: none;
 }
 
 .ol-dji-geozones--light .ol-dji-geozones--ol-popup-content {
