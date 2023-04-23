@@ -103,3 +103,10 @@
 * Lib is builded with es2017 target (downgraded from esnext)
 * Removed babel deps
 * Added header to dist files
+
+## v2.2.1
+* Improved error handling and listeners cleaning afterwards
+* Added type support to the customized `ErrorEvent`
+* Fixed potential bug displaying incorrect loading state
+* Added style `pointer-events: none` to control icon img
+* Added version on README examples urls

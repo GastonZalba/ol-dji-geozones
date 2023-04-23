@@ -37,6 +37,10 @@ import Projection from 'ol/proj/Projection.js';
 import { EventsKey } from 'ol/events.js';
 import { unByKey } from 'ol/Observable.js';
 
+import { CombinedOnSignature, EventTypes, OnSignature } from 'ol/Observable.js';
+import { ObjectEvent } from 'ol/Object.js';
+import { Types as ObjectEventTypes } from 'ol/ObjectEventType.js';
+
 // Import configuration values
 import levelsParams from './assets/_levels-params.json';
 import dronesList from './assets/_drones.json';
@@ -91,6 +95,7 @@ export default class DjiGeozones extends Control {
     protected _lastZoom: number;
     protected _initialized: boolean;
 
+    protected _listeners: boolean;
     protected _moveendEvtKey: EventsKey | Array<EventsKey>;
     protected _clickEvtKey: EventsKey | Array<EventsKey>;
 
@@ -104,7 +109,22 @@ export default class DjiGeozones extends Control {
     private _map: Map;
     private _view: View;
     private _projection: Projection;
-    private overlay: Overlay;
+    private _overlay: Overlay;
+
+    declare on: OnSignature<'change', BaseEvent, EventsKey> &
+        OnSignature<'error', ErrorEvent, EventsKey> &
+        OnSignature<ObjectEventTypes, ObjectEvent, EventsKey> &
+        CombinedOnSignature<ObjectEventTypes | EventTypes, EventsKey>;
+
+    declare once: OnSignature<'change', BaseEvent, EventsKey> &
+        OnSignature<'error', ErrorEvent, EventsKey> &
+        OnSignature<ObjectEventTypes, ObjectEvent, EventsKey> &
+        CombinedOnSignature<ObjectEventTypes | EventTypes, EventsKey>;
+
+    declare un: OnSignature<'change', BaseEvent, void> &
+        OnSignature<'error', ErrorEvent, EventsKey> &
+        OnSignature<ObjectEventTypes, ObjectEvent, void> &
+        CombinedOnSignature<ObjectEventTypes | EventTypes, void>;
 
     constructor(opt_options?: Options) {
         super({
@@ -112,8 +132,7 @@ export default class DjiGeozones extends Control {
             element: controlElement
         });
 
-        // Default options
-        const defaults: Options = {
+        this._options = {
             urlProxy: '',
             buffer: 10000, // meters
             drone: 'spark',
@@ -131,10 +150,10 @@ export default class DjiGeozones extends Control {
                 '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>',
             clickEvent: 'singleclick',
             language: DEFAULT_LANGUAGE,
-            alert: null
+            alert: null,
+            // Merge custom options
+            ...(opt_options || {})
         };
-
-        this._options = deepObjectAssign(defaults, opt_options);
 
         // If language selector is provided and translation exists...
         this._i18n =
@@ -162,6 +181,8 @@ export default class DjiGeozones extends Control {
         this._layers = [];
         this.divControl = null;
         this._areaDownloaded = null;
+
+        this.on('error', this._onError);
     }
 
     /**
@@ -184,8 +205,10 @@ export default class DjiGeozones extends Control {
                 this.show();
             }
         } else {
-            controlElement.remove();
-            this.destroy();
+            if (super.getMap()) {
+                controlElement.remove();
+                this.destroy();
+            }
         }
     }
 
@@ -292,7 +315,7 @@ export default class DjiGeozones extends Control {
             popupCloser.className = 'ol-dji-geozones--ol-popup-closer';
             popupCloser.href = '#';
             popupCloser.onclick = () => {
-                this.overlay.setPosition(undefined);
+                this._overlay.setPosition(undefined);
                 popupCloser.blur();
                 return false;
             };
@@ -300,7 +323,7 @@ export default class DjiGeozones extends Control {
             popupContainer.append(popupCloser);
             popupContainer.append(this.popupContent);
 
-            this.overlay = new Overlay({
+            this._overlay = new Overlay({
                 element: popupContainer,
                 autoPan: {
                     animation: {
@@ -309,75 +332,11 @@ export default class DjiGeozones extends Control {
                 }
             });
 
-            this._map.addOverlay(this.overlay);
-        };
-
-        /**
-         * @protected
-         */
-        const addMapEvents = (): void => {
-            const handleZoomEnd = (): void => {
-                if (this._currentZoom < MIN_ZOOM) {
-                    // Hide the layer and disable the control
-                    if (this._isVisible) {
-                        this._setLayersVisible(false);
-                        this._isVisible = false;
-                        this._setControlEnabled(false);
-                    }
-                } else {
-                    // Show the layers and enable the control
-                    if (!this._isVisible) {
-                        this._setLayersVisible(true);
-                        this._isVisible = true;
-                        this._setControlEnabled(true);
-
-                        if (this.divControl) {
-                            this.divControl.classList.remove(HIDDEN_CLASS);
-                        }
-                    } else {
-                        // If the view is closer, don't do anything, we already had the features
-                        if (
-                            !this._lastZoom ||
-                            this._currentZoom > this._lastZoom
-                        )
-                            return;
-                    }
-
-                    this._getInfoFromView();
-                }
-            };
-
-            const handleDragEnd = (): void => {
-                if (!this._isVisible || this._hideGeozones) return;
-                this._getInfoFromView();
-            };
-
-            const clickHandler = (evt: MapBrowserEvent<UIEvent>): void => {
-                const type = this._useApiForPopUp
-                    ? 'useApiForPopUp'
-                    : 'useFeaturesForPopUp';
-
-                this._getPointInfoFromClick(evt, type);
-            };
-
-            this._moveendEvtKey = this._map.on('moveend', (): void => {
-                this._currentZoom = this._view.getZoom();
-
-                if (this._currentZoom !== this._lastZoom) handleZoomEnd();
-                else handleDragEnd();
-
-                this._lastZoom = this._currentZoom;
-            });
-
-            this._clickEvtKey = this._map.on(
-                this._options.clickEvent,
-                clickHandler
-            );
+            this._map.addOverlay(this._overlay);
         };
 
         createVectorLayers();
         createPopUpOverlay();
-        addMapEvents();
 
         this._initialized = true;
 
@@ -927,12 +886,12 @@ export default class DjiGeozones extends Control {
                 }
             });
 
-            this.overlay.setPosition(coordinates);
+            this._overlay.setPosition(coordinates);
         };
 
         try {
             if (!this._isVisible) {
-                this.overlay.setPosition(undefined);
+                this._overlay.setPosition(undefined);
                 return;
             }
 
@@ -948,7 +907,7 @@ export default class DjiGeozones extends Control {
                 if (this._map.hasFeatureAtPixel(evt.pixel, opt_options)) {
                     this.popupContent.innerHTML =
                         this._options.loadingElement.toString();
-                    this.overlay.setPosition(evt.coordinate);
+                    this._overlay.setPosition(evt.coordinate);
 
                     data = await getInfoFromApiLatLng(evt.coordinate);
                 }
@@ -967,7 +926,7 @@ export default class DjiGeozones extends Control {
 
             if (data && data.length)
                 showGeozoneDataInPopUp(data, evt.coordinate);
-            else this.overlay.setPosition(undefined);
+            else this._overlay.setPosition(undefined);
         } catch (err) {
             console.log(err);
         }
@@ -1176,25 +1135,27 @@ export default class DjiGeozones extends Control {
 
                 const data = await this._getApiGeoData('areas', viewLatLng);
 
-                if (!data) return;
+                if (data) {
+                    if (clear) clearFeatures();
 
-                if (clear) clearFeatures();
+                    const features = apiResponseToFeatures(data);
 
-                const features = apiResponseToFeatures(data);
+                    if (features) addFeaturesToEachLevel(features);
 
-                if (features) addFeaturesToEachLevel(features);
-
-                this._showLoading(false);
-
-                // console.log(data);
+                    // console.log(data);
+                }
             } catch (err) {
                 this.dispatchEvent(new ErrorEvent(err));
-
-                if (err.message) console.error(err);
-                this._showLoading(false);
             }
+
+            this._showLoading(false);
         }, 300);
     }
+
+    _onError = (err: ErrorEvent) => {
+        this.hide();
+        if (err.message) console.error(err);
+    };
 
     /**
      * Controller for the API rquests.
@@ -1557,15 +1518,17 @@ export default class DjiGeozones extends Control {
     }
 
     /**
-     * Removes the control, layers and events from the map
+     * Removes the control, layers, overlays and events from the map
      * @public
      */
     destroy(): void {
         this.layers.forEach((layer) => {
             this._map.removeLayer(layer);
         });
-        unByKey(this._clickEvtKey);
-        unByKey(this._moveendEvtKey);
+
+        this._map.removeOverlay(this._overlay);
+
+        this._removeListeners();
     }
 
     /**
@@ -1576,6 +1539,8 @@ export default class DjiGeozones extends Control {
         this._hideGeozones = true;
         this._setLayersVisible(false);
         this._setControlEnabled(false);
+
+        this._removeListeners();
 
         if (this.divControl) {
             this.divControl.classList.add(HIDDEN_CLASS);
@@ -1589,6 +1554,10 @@ export default class DjiGeozones extends Control {
     show(): void {
         if (!this._initialized) {
             this._initialize();
+        }
+
+        if (!this._listeners) {
+            this._addListeners();
         }
 
         this._hideGeozones = false;
@@ -1608,6 +1577,75 @@ export default class DjiGeozones extends Control {
             this._alert(this._i18n.labels.helperZoom);
             this._showLoading(false);
         }
+    }
+
+    /**
+     * @protected
+     */
+    _removeListeners() {
+        unByKey(this._clickEvtKey);
+        unByKey(this._moveendEvtKey);
+        this._listeners = false;
+    }
+
+    /**
+     * @protected
+     */
+    _addListeners(): void {
+        const handleZoomEnd = (): void => {
+            if (this._currentZoom < MIN_ZOOM) {
+                // Hide the layer and disable the control
+                if (this._isVisible) {
+                    this._setLayersVisible(false);
+                    this._isVisible = false;
+                    this._setControlEnabled(false);
+                }
+            } else {
+                // Show the layers and enable the control
+                if (!this._isVisible) {
+                    this._setLayersVisible(true);
+                    this._isVisible = true;
+                    this._setControlEnabled(true);
+
+                    if (this.divControl) {
+                        this.divControl.classList.remove(HIDDEN_CLASS);
+                    }
+                } else {
+                    // If the view is closer, don't do anything, we already had the features
+                    if (!this._lastZoom || this._currentZoom > this._lastZoom)
+                        return;
+                }
+
+                this._getInfoFromView();
+            }
+        };
+
+        const handleDragEnd = (): void => {
+            if (!this._isVisible || this._hideGeozones) return;
+            this._getInfoFromView();
+        };
+
+        this._moveendEvtKey = this._map.on('moveend', (): void => {
+            this._currentZoom = this._view.getZoom();
+
+            if (this._currentZoom !== this._lastZoom) handleZoomEnd();
+            else handleDragEnd();
+
+            this._lastZoom = this._currentZoom;
+        });
+
+        this._clickEvtKey = this._map.on(
+            this._options.clickEvent,
+            (evt: MapBrowserEvent<UIEvent>): void => {
+                const type = this._useApiForPopUp
+                    ? 'useApiForPopUp'
+                    : 'useFeaturesForPopUp';
+
+                this._getPointInfoFromClick(evt, type);
+            }
+        );
+
+        this._listeners = true;
     }
 
     /**
@@ -1676,7 +1714,6 @@ const deepObjectAssign = (target, ...sources) => {
     });
     return target;
 };
-
 /**
  * **_[interface]_** - Dji Api Response
  * @protected

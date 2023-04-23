@@ -30,8 +30,8 @@ Nowadays, DJI doesn't offer any API documentation, so future support and access 
 All the examples are configured using a free Proxy. If you notice some lag or slow performance, try one of your own.
 
 -   Basic usage: create an OpenLayers map instance, and pass that map and options to the DjiGeozones constructor.
-    -   [Full Panel](https://raw.githack.com/GastonZalba/ol-dji-geozones/master/examples/basic.html)
-    -   [Compact Panel](https://raw.githack.com/GastonZalba/ol-dji-geozones/master/examples/basic_compact.html)
+    -   [Full Panel](https://raw.githack.com/GastonZalba/ol-dji-geozones/v2.2.1/examples/basic.html)
+    -   [Compact Panel](https://raw.githack.com/GastonZalba/ol-dji-geozones/v2.2.1/examples/basic_compact.html)
 
 ## Usage
 
@@ -127,13 +127,13 @@ See [CHANGELOG](./CHANGELOG.md) for details of changes in each release.
 Load `ol-dji-geozones.js` after OpenLayers. Dji Geozones is available as `DjiGeozones`.
 
 ```HTML
-<script src="https://unpkg.com/ol-dji-geozones@2.2.0"></script>
+<script src="https://unpkg.com/ol-dji-geozones@2.2.1"></script>
 ```
 
 #### CSS
 
 ```HTML
-<link rel="stylesheet" href="https://unpkg.com/ol-dji-geozones@2.2.0/dist/ol-dji-geozones.min.css" />
+<link rel="stylesheet" href="https://unpkg.com/ol-dji-geozones@2.2.1/dist/ol-dji-geozones.min.css" />
 ```
 
 ### Parcel, Webpack, etc.
@@ -395,7 +395,7 @@ Returns **void**&#x20;
 
 #### destroy
 
-Removes the control, layers and events from the map
+Removes the control, layers, overlays and events from the map
 
 Returns **void**&#x20;
 
