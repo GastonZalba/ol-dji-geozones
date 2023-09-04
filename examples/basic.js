@@ -25,6 +25,7 @@
     buffer: 10000,
     drone: 'mavic-2',
     country: 'AR',
+    showGeozoneIcons: false,
     displayLevels: [2, 6, 1, 0, 3, 4, 7],
     activeLevels: [0, 1, 2, 3, 4, 6, 7],
     createPanel: 'full',

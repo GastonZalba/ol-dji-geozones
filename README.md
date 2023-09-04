@@ -16,11 +16,12 @@ Displays DJI Geo Zones on an OpenLayers map. Also, you can add a Control Panel w
 
 The data is obtained directly from an undocumented DJI [API](https://www-api.dji.com/api/geo/areas). The official DJI Fly Safe Geo Zone Map that use the same data can be found [here](https://www.dji.com/flysafe/geo-map), and more information [here](https://www.dji.com/flysafe/introduction).
 
-Tested with OpenLayers version 5, 6 and 7.
+Tested with OpenLayers version 5, 6, 7 and 8.
 
 ### DISCLAIMER
 
-Nowadays, DJI doesn't offer any API documentation, so future support and access to the data is uncertain. Furthermore, the API endpoint has CORS restrictions, so all browsers requests must be proxied.
+Nowadays, DJI doesn't offer any API documentation, so future support and access to the data is uncertain. Furthermore, the API endpoint has CORS restrictions and the header `Content-Security-Policy:
+frame-ancestors 'self' http://*.dji.com https://*.dji.com`, so all browsers requests must be proxied.
 
 <img src="screenshots/example-1.jpg" alt="Light mode">
 <img src="screenshots/example-2.jpg" alt="Dark mode">
@@ -43,6 +44,7 @@ let opt_options = {
     drone: 'spark', // See drone parameter in the DJI API section
     zonesMode: 'total', // See drone parameter in the DJI API section
     country: 'US', // See country parameter in the DJI API section
+    showGeozoneIcons: true, // Display geozones icons
     displayLevels: [2, 6, 1, 0, 3, 4, 7], // Order is kept in the Control Panel
     activeLevels: [2, 6, 1, 0, 3, 4, 7],
     createPanel: 'full', // Create or not the control

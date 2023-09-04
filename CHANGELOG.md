@@ -110,3 +110,10 @@
 * Fixed potential bug displaying incorrect loading state
 * Added style `pointer-events: none` to control icon img
 * Added version on README examples urls
+
+## v2.2.2
+* Added new drones
+* Added attrbiute `showGeozoneIcons` to display/hide geozone icons
+* Fixed bug on geozones returning 99 as `type` in some drones
+* Minimal addition to the README
+* Updated to Ol8

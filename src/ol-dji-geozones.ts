@@ -102,6 +102,8 @@ export default class DjiGeozones extends Control {
     protected _layers: Array<VectorLayer<VectorSource<Geometry>>>;
     protected _areaDownloaded: MultiPolygon;
 
+    protected _featuresIdList: Set<string> = new Set();
+
     public divControl: HTMLElement;
     public popupContent: HTMLElement;
 
@@ -138,6 +140,7 @@ export default class DjiGeozones extends Control {
             drone: 'spark',
             zonesMode: 'total',
             country: 'US',
+            showGeozoneIcons: true,
             displayLevels: [2, 6, 1, 0, 3, 4, 7],
             activeLevels: [2, 6, 1, 0, 3, 4, 7],
             createPanel: 'full',
@@ -271,7 +274,13 @@ export default class DjiGeozones extends Control {
             };
 
             API_LEVELS.forEach((level) => {
+                const source = new VectorSource({
+                    attributions:
+                        '<a href="https://www.dji.com/flysafe/geo-map" rel="nofollow noopener noreferrer" target="_blank">DJI GeoZoneMap</a>'
+                });
+
                 const props = {
+                    source,
                     name: 'ol-dji-geozones',
                     level: level,
                     zIndex: this._getLevelParamsById(level).zIndex * 2,
@@ -280,10 +289,6 @@ export default class DjiGeozones extends Control {
                         : this.activeLevels.includes(level)
                         ? true
                         : false,
-                    source: new VectorSource({
-                        attributions:
-                            '<a href="https://www.dji.com/flysafe/geo-map" rel="nofollow noopener noreferrer" target="_blank">DJI GeoZoneMap</a>'
-                    }),
                     style: styleFunction
                 };
 
@@ -291,6 +296,11 @@ export default class DjiGeozones extends Control {
                     props['extent'] = this._options.extent;
 
                 const layer = new VectorLayer(props);
+
+                source.on('removefeature', ({ feature }) => {
+                    const featureId = feature.getId() || feature.get('areaId');
+                    this._featuresIdList.delete(String(featureId));
+                });
 
                 this._map.addLayer(layer);
                 this._layers.push(layer);
@@ -813,6 +823,8 @@ export default class DjiGeozones extends Control {
                 const levelValues = this.getLevelById(level);
                 const lbl = this._i18n.labels;
 
+                const typeName = this._getGeozoneTypeById(type)?.name;
+
                 const html = `
                     <div class="ol-dji-geozones--marker">
                         <img src="${levelValues.markerCircle}">
@@ -822,9 +834,13 @@ export default class DjiGeozones extends Control {
                         <p class="ol-dji-geozones--level">${lbl.level}: ${
                     levelValues.name
                 } </p>
-                        <p class="ol-dji-geozones--type">${lbl.type}: ${
-                    this._getGeozoneTypeById(type).name
-                }</p>
+                    ${
+                        typeName
+                            ? `<p class="ol-dji-geozones--type">
+                        ${lbl.type}: ${typeName}
+                    </p>`
+                            : ''
+                    }                     
                         ${
                             begin_at
                                 ? `<p class="ol-dji-geozones--start_time">${lbl.startTime}: ${begin_at}</p>`
@@ -962,20 +978,6 @@ export default class DjiGeozones extends Control {
          * @protected
          */
         const apiResponseToFeatures = (djiJson): false | Feature[] => {
-            /**
-             *
-             * @param id
-             * @protected
-             */
-            const getFeatureById = (id: string): Feature<Geometry> => {
-                let feature: Feature<Geometry>;
-                for (const layer of this.layers) {
-                    feature = layer.getSource().getFeatureById(id);
-                    if (feature) break;
-                }
-                return feature;
-            };
-
             const areas = djiJson.areas;
 
             if (!areas || !areas.length) return false;
@@ -984,7 +986,7 @@ export default class DjiGeozones extends Control {
 
             for (const area of areas) {
                 // If the feature already exists, continue
-                if (getFeatureById(area.area_id)) {
+                if (this._featuresIdList.has(String(area.area_id))) {
                     continue;
                 }
 
@@ -1019,21 +1021,24 @@ export default class DjiGeozones extends Control {
                     });
 
                     featureExtra.setId(area.area_id + '_poly');
-
                     features.push(fixLevelValue(featureExtra));
                 }
 
-                const feature = new Feature({
-                    ...featureProps,
-                    geometry: new Point([area.lng, area.lat]).transform(
-                        'EPSG:4326',
-                        this._projection
-                    )
-                });
+                this._featuresIdList.add(String(area.area_id));
 
-                // Store the id to avoid duplicates
-                feature.setId(area.area_id);
-                features.push(fixLevelValue(feature));
+                if (this._options.showGeozoneIcons) {
+                    const feature = new Feature({
+                        ...featureProps,
+                        geometry: new Point([area.lng, area.lat]).transform(
+                            'EPSG:4326',
+                            this._projection
+                        )
+                    });
+
+                    // Store the id to avoid duplicates
+                    feature.setId(area.area_id);
+                    features.push(fixLevelValue(feature));
+                }
 
                 if (area.sub_areas) {
                     area.sub_areas.forEach((sub_area) => {
@@ -1072,7 +1077,7 @@ export default class DjiGeozones extends Control {
                             });
                         }
 
-                        subFeature.setId(sub_area.area_id);
+                        subFeature.set('areaId', area.area_id);
                         features.push(fixLevelValue(subFeature));
                     });
                 }
@@ -1898,6 +1903,7 @@ export interface i18n {
  *   drone: 'spark', // See parameter in the DJI API section
  *   zonesMode: 'total', // See parameter in the DJI API section
  *   country: 'US', // See parameter in the DJI API section
+ *   showGeozoneIcons: true, // Display geozones icons
  *   displayLevels: [2, 6, 1, 0, 3, 4, 7],
  *   activeLevels: [2, 6, 1, 0, 3, 4, 7],
  *   createPanel: 'full',
@@ -1938,6 +1944,10 @@ export interface Options {
      * Country identifier to be used in the API request
      */
     country?: string;
+    /**
+     * Display geozones icons
+     */
+    showGeozoneIcons?: boolean;
     /**
      * Geozone Levels to be shown in the control panel
      */

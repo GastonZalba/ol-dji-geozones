@@ -1,5 +1,25 @@
 [
     {
+        "id": "dji-flycart-30",
+        "label": "DJI FlyCart 30"
+    },
+    {
+        "id": "dji-air-3",
+        "label": "DJI Air 3"
+    },
+    {
+        "id": "m350-rtk",
+        "label": "M350 RTK"
+    },
+    {
+        "id": "dji-mavic-3-pro",
+        "label": "DJI Mavic 3 Pro"
+    },
+    {
+        "id": "inspire-3",
+        "label": "Inspire 3"
+    },
+    {
         "id": "dji-mini-3",
         "label": "DJI Mini 3"
     },
