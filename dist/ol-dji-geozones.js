@@ -1,7 +1,7 @@
 /*!
- * ol-dji-geozones - v2.2.1
+ * ol-dji-geozones - v2.2.2
  * https://github.com/GastonZalba/ol-dji-geozones#readme
- * Built: Sun Apr 23 2023 13:20:39 GMT-0300 (Argentina Standard Time)
+ * Built: Mon Sep 04 2023 13:11:59 GMT-0300 (hora estándar de Argentina)
 */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('ol/layer/Vector.js'), require('ol/source/Vector.js'), require('ol/Feature.js'), require('ol/Overlay.js'), require('ol/proj.js'), require('ol/sphere.js'), require('ol/geom/Polygon.js'), require('ol/geom/MultiPolygon.js'), require('ol/geom/Point.js'), require('ol/geom/Circle.js'), require('ol/events/Event.js'), require('ol/style/Style.js'), require('ol/style/Fill.js'), require('ol/style/Stroke.js'), require('ol/style/Icon.js'), require('ol/control/Control.js'), require('ol/color.js'), require('ol/extent.js'), require('ol/Observable.js')) :
@@ -658,6 +658,26 @@
 
   var dronesList = [
   	{
+  		id: "dji-flycart-30",
+  		label: "DJI FlyCart 30"
+  	},
+  	{
+  		id: "dji-air-3",
+  		label: "DJI Air 3"
+  	},
+  	{
+  		id: "m350-rtk",
+  		label: "M350 RTK"
+  	},
+  	{
+  		id: "dji-mavic-3-pro",
+  		label: "DJI Mavic 3 Pro"
+  	},
+  	{
+  		id: "inspire-3",
+  		label: "Inspire 3"
+  	},
+  	{
   		id: "dji-mini-3",
   		label: "DJI Mini 3"
   	},
@@ -1136,6 +1156,7 @@
         target: opt_options.target,
         element: controlElement
       });
+      _this._featuresIdList = new Set();
       _this._onError = function (err) {
         _this.hide();
         if (err.message) console.error(err);
@@ -1146,6 +1167,7 @@
         drone: 'spark',
         zonesMode: 'total',
         country: 'US',
+        showGeozoneIcons: true,
         displayLevels: [2, 6, 1, 0, 3, 4, 7],
         activeLevels: [2, 6, 1, 0, 3, 4, 7],
         createPanel: 'full',
@@ -1258,18 +1280,24 @@
             return style;
           };
           API_LEVELS.forEach(function (level) {
+            var source = new VectorSource({
+              attributions: '<a href="https://www.dji.com/flysafe/geo-map" rel="nofollow noopener noreferrer" target="_blank">DJI GeoZoneMap</a>'
+            });
             var props = {
+              source: source,
               name: 'ol-dji-geozones',
               level: level,
               zIndex: _this2._getLevelParamsById(level).zIndex * 2,
               visible: _this2._hideGeozones ? false : _this2.activeLevels.includes(level) ? true : false,
-              source: new VectorSource({
-                attributions: '<a href="https://www.dji.com/flysafe/geo-map" rel="nofollow noopener noreferrer" target="_blank">DJI GeoZoneMap</a>'
-              }),
               style: styleFunction
             };
             if (_this2._options.extent) props['extent'] = _this2._options.extent;
             var layer = new VectorLayer(props);
+            source.on('removefeature', function (_ref) {
+              var feature = _ref.feature;
+              var featureId = feature.getId() || feature.get('areaId');
+              _this2._featuresIdList.delete(String(featureId));
+            });
             _this2._map.addLayer(layer);
             _this2._layers.push(layer);
           });
@@ -1331,8 +1359,8 @@
          */
         var addMapControlFull = function addMapControlFull() {
           var createDroneSelector = function createDroneSelector() {
-            var handleChange = function handleChange(_ref) {
-              var target = _ref.target;
+            var handleChange = function handleChange(_ref2) {
+              var target = _ref2.target;
               _this3.drone = target.value || target.options[target.selectedIndex].value;
               _this3._getInfoFromView( /* clear = */true);
             };
@@ -1351,8 +1379,8 @@
             return droneSelector;
           };
           var createLevelSelector = function createLevelSelector() {
-            var handleClick = function handleClick(_ref2) {
-              var target = _ref2.target;
+            var handleClick = function handleClick(_ref3) {
+              var target = _ref3.target;
               var level = Number(target.value);
               if (target.checked) {
                 _this3.addLevels(level);
@@ -1385,10 +1413,10 @@
               if (disabled) checkbox.disabled = true;
               return checkbox;
             };
-            var createLevelItem = function createLevelItem(value, _ref3) {
-              var name = _ref3.name,
-                desc = _ref3.desc,
-                color = _ref3.color;
+            var createLevelItem = function createLevelItem(value, _ref4) {
+              var name = _ref4.name,
+                desc = _ref4.desc,
+                color = _ref4.color;
               var disabled = !_this3._isVisible;
               var id = 'level' + value;
               var divContainer = document.createElement('div');
@@ -1546,7 +1574,7 @@
                 infoKeys = ['name', 'level', 'type', 'height', 'shape', 'start_at', 'end_at', 'url', 'address', 'description'];
                 idInfoRequest = 0;
                 getInfoFromApiLatLng = /*#__PURE__*/function () {
-                  var _ref4 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee2(coordinate) {
+                  var _ref5 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee2(coordinate) {
                     var request;
                     return _regeneratorRuntime.wrap(function _callee2$(_context2) {
                       while (1) switch (_context2.prev = _context2.next) {
@@ -1604,7 +1632,7 @@
                     }, _callee2);
                   }));
                   return function getInfoFromApiLatLng(_x3) {
-                    return _ref4.apply(this, arguments);
+                    return _ref5.apply(this, arguments);
                   };
                 }();
                 /**
@@ -1668,6 +1696,7 @@
                     return container;
                   };
                   var parseDataToHtml = function parseDataToHtml(responseApiArea) {
+                    var _a;
                     var name = responseApiArea.name,
                       level = responseApiArea.level,
                       type = responseApiArea.type,
@@ -1679,7 +1708,8 @@
                       url = responseApiArea.url;
                     var levelValues = _this5.getLevelById(level);
                     var lbl = _this5._i18n.labels;
-                    var html = "\n                    <div class=\"ol-dji-geozones--marker\">\n                        <img src=\"".concat(levelValues.markerCircle, "\">\n                    </div>\n                    <div class=\"ol-dji-geozones--main\">\n                        <h3 class=\"ol-dji-geozones--title\">").concat(name, "</h3>\n                        <p class=\"ol-dji-geozones--level\">").concat(lbl.level, ": ").concat(levelValues.name, " </p>\n                        <p class=\"ol-dji-geozones--type\">").concat(lbl.type, ": ").concat(_this5._getGeozoneTypeById(type).name, "</p>\n                        ").concat(begin_at ? "<p class=\"ol-dji-geozones--start_time\">".concat(lbl.startTime, ": ").concat(begin_at, "</p>") : '', "\n                        ").concat(end_at ? "<p class=\"ol-dji-geozones--end_time\">".concat(lbl.endTime, ": ").concat(end_at, "</p><p class=\"ol-dji-geozones--time_tips\">").concat(lbl.timeTips, "</p>") : '', "         \n                        ").concat(height ? "<p class=\"ol-dji-geozones--height\">".concat(lbl.maxAltitude, " (m): ").concat(height, "</p>") : '', " \n                        ").concat(address ? "<p class=\"ol-dji-geozones--address\">".concat(lbl.address, ": ").concat(address, "</p>") : '', "\n                        ").concat(description ? "<p class=\"ol-dji-geozones--desc\">".concat(lbl.tips, ": ").concat(description, "</p>") : '', "\n                        ").concat(url ? "<p class=\"ol-dji-geozones--url\">".concat(lbl.link, ": <a href=\"").concat(url, "\">").concat(lbl.learnMore, "</a></p>") : '', "\n                </div>");
+                    var typeName = (_a = _this5._getGeozoneTypeById(type)) === null || _a === void 0 ? void 0 : _a.name;
+                    var html = "\n                    <div class=\"ol-dji-geozones--marker\">\n                        <img src=\"".concat(levelValues.markerCircle, "\">\n                    </div>\n                    <div class=\"ol-dji-geozones--main\">\n                        <h3 class=\"ol-dji-geozones--title\">").concat(name, "</h3>\n                        <p class=\"ol-dji-geozones--level\">").concat(lbl.level, ": ").concat(levelValues.name, " </p>\n                    ").concat(typeName ? "<p class=\"ol-dji-geozones--type\">\n                        ".concat(lbl.type, ": ").concat(typeName, "\n                    </p>") : '', "                     \n                        ").concat(begin_at ? "<p class=\"ol-dji-geozones--start_time\">".concat(lbl.startTime, ": ").concat(begin_at, "</p>") : '', "\n                        ").concat(end_at ? "<p class=\"ol-dji-geozones--end_time\">".concat(lbl.endTime, ": ").concat(end_at, "</p><p class=\"ol-dji-geozones--time_tips\">").concat(lbl.timeTips, "</p>") : '', "         \n                        ").concat(height ? "<p class=\"ol-dji-geozones--height\">".concat(lbl.maxAltitude, " (m): ").concat(height, "</p>") : '', " \n                        ").concat(address ? "<p class=\"ol-dji-geozones--address\">".concat(lbl.address, ": ").concat(address, "</p>") : '', "\n                        ").concat(description ? "<p class=\"ol-dji-geozones--desc\">".concat(lbl.tips, ": ").concat(description, "</p>") : '', "\n                        ").concat(url ? "<p class=\"ol-dji-geozones--url\">".concat(lbl.link, ": <a href=\"").concat(url, "\">").concat(lbl.learnMore, "</a></p>") : '', "\n                </div>");
                     var item = document.createElement('div');
                     item.className = 'ol-dji-geozones--item';
                     item.innerHTML = html;
@@ -1786,38 +1816,16 @@
          * @protected
          */
         var apiResponseToFeatures = function apiResponseToFeatures(djiJson) {
-          /**
-           *
-           * @param id
-           * @protected
-           */
-          var getFeatureById = function getFeatureById(id) {
-            var feature;
-            var _iterator2 = _createForOfIteratorHelper(_this6.layers),
-              _step2;
-            try {
-              for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-                var layer = _step2.value;
-                feature = layer.getSource().getFeatureById(id);
-                if (feature) break;
-              }
-            } catch (err) {
-              _iterator2.e(err);
-            } finally {
-              _iterator2.f();
-            }
-            return feature;
-          };
           var areas = djiJson.areas;
           if (!areas || !areas.length) return false;
           var features = [];
-          var _iterator3 = _createForOfIteratorHelper(areas),
-            _step3;
+          var _iterator2 = _createForOfIteratorHelper(areas),
+            _step2;
           try {
             var _loop = function _loop() {
-              var area = _step3.value;
+              var area = _step2.value;
               // If the feature already exists, continue
-              if (getFeatureById(area.area_id)) {
+              if (_this6._featuresIdList.has(String(area.area_id))) {
                 return "continue";
               }
               var featureProps = {
@@ -1847,12 +1855,15 @@
                 featureExtra.setId(area.area_id + '_poly');
                 features.push(fixLevelValue(featureExtra));
               }
-              var feature = new Feature(Object.assign(Object.assign({}, featureProps), {
-                geometry: new Point([area.lng, area.lat]).transform('EPSG:4326', _this6._projection)
-              }));
-              // Store the id to avoid duplicates
-              feature.setId(area.area_id);
-              features.push(fixLevelValue(feature));
+              _this6._featuresIdList.add(String(area.area_id));
+              if (_this6._options.showGeozoneIcons) {
+                var feature = new Feature(Object.assign(Object.assign({}, featureProps), {
+                  geometry: new Point([area.lng, area.lat]).transform('EPSG:4326', _this6._projection)
+                }));
+                // Store the id to avoid duplicates
+                feature.setId(area.area_id);
+                features.push(fixLevelValue(feature));
+              }
               if (area.sub_areas) {
                 area.sub_areas.forEach(function (sub_area) {
                   var subFeature;
@@ -1883,19 +1894,19 @@
                       geometry: new Circle([sub_area.lng, sub_area.lat], sub_area.radius / 100000).transform('EPSG:4326', _this6._projection)
                     });
                   }
-                  subFeature.setId(sub_area.area_id);
+                  subFeature.set('areaId', area.area_id);
                   features.push(fixLevelValue(subFeature));
                 });
               }
             };
-            for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+            for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
               var _ret = _loop();
               if (_ret === "continue") continue;
             }
           } catch (err) {
-            _iterator3.e(err);
+            _iterator2.e(err);
           } finally {
-            _iterator3.f();
+            _iterator2.f();
           }
           return features;
         };
@@ -1988,12 +1999,12 @@
             while (1) switch (_context8.prev = _context8.next) {
               case 0:
                 apiRequest = /*#__PURE__*/function () {
-                  var _ref8 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee5(typeApiRequest, _ref7, searchRadius) {
+                  var _ref9 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee5(typeApiRequest, _ref8, searchRadius) {
                     var lng, lat, api_endpoint, url, queryObj, finalUrl, response;
                     return _regeneratorRuntime.wrap(function _callee5$(_context5) {
                       while (1) switch (_context5.prev = _context5.next) {
                         case 0:
-                          lng = _ref7.lng, lat = _ref7.lat;
+                          lng = _ref8.lng, lat = _ref8.lat;
                           api_endpoint = typeApiRequest === 'areas' ? API_AREAS_ENDPOINT : API_INFO_ENDPOINT; // If not proxy is passed, make a direct request
                           // Maybe in the future the api will has updated CORS restrictions
                           url = new URL(api_endpoint);
@@ -2031,11 +2042,11 @@
                     }, _callee5);
                   }));
                   return function apiRequest(_x6, _x7, _x8) {
-                    return _ref8.apply(this, arguments);
+                    return _ref9.apply(this, arguments);
                   };
                 }();
                 getPointInfo = /*#__PURE__*/function () {
-                  var _ref9 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee6(latLng, searchRadius) {
+                  var _ref10 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee6(latLng, searchRadius) {
                     var data;
                     return _regeneratorRuntime.wrap(function _callee6$(_context6) {
                       while (1) switch (_context6.prev = _context6.next) {
@@ -2052,11 +2063,11 @@
                     }, _callee6);
                   }));
                   return function getPointInfo(_x9, _x10) {
-                    return _ref9.apply(this, arguments);
+                    return _ref10.apply(this, arguments);
                   };
                 }();
                 getAreas = /*#__PURE__*/function () {
-                  var _ref10 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee7(centerLatLng, searchRadius) {
+                  var _ref11 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee7(centerLatLng, searchRadius) {
                     var extent, polygon, data;
                     return _regeneratorRuntime.wrap(function _callee7$(_context7) {
                       while (1) switch (_context7.prev = _context7.next) {
@@ -2099,12 +2110,12 @@
                     }, _callee7);
                   }));
                   return function getAreas(_x11, _x12) {
-                    return _ref10.apply(this, arguments);
+                    return _ref11.apply(this, arguments);
                   };
                 }();
-                getMapRadius = function getMapRadius(_ref11) {
-                  var lng = _ref11.lng,
-                    lat = _ref11.lat;
+                getMapRadius = function getMapRadius(_ref12) {
+                  var lng = _ref12.lng,
+                    lat = _ref12.lat;
                   var center = [lng, lat];
                   var size = _this7._map.getSize();
                   var extent = _this7._view.calculateExtent(size);
@@ -2211,20 +2222,20 @@
       key: "getLayerByLevel",
       value: function getLayerByLevel(level) {
         var find;
-        var _iterator4 = _createForOfIteratorHelper(this.layers),
-          _step4;
+        var _iterator3 = _createForOfIteratorHelper(this.layers),
+          _step3;
         try {
-          for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
-            var layer = _step4.value;
+          for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+            var layer = _step3.value;
             if (layer.get('level') != undefined && layer.get('level') == level) {
               find = layer;
               break;
             }
           }
         } catch (err) {
-          _iterator4.e(err);
+          _iterator3.e(err);
         } finally {
-          _iterator4.f();
+          _iterator3.f();
         }
         return find;
       }

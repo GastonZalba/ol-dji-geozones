@@ -39,6 +39,7 @@ export default class DjiGeozones extends Control {
     protected _clickEvtKey: EventsKey | Array<EventsKey>;
     protected _layers: Array<VectorLayer<VectorSource<Geometry>>>;
     protected _areaDownloaded: MultiPolygon;
+    protected _featuresIdList: Set<string>;
     divControl: HTMLElement;
     popupContent: HTMLElement;
     private _map;
@@ -357,6 +358,7 @@ export interface i18n {
  *   drone: 'spark', // See parameter in the DJI API section
  *   zonesMode: 'total', // See parameter in the DJI API section
  *   country: 'US', // See parameter in the DJI API section
+ *   showGeozoneIcons: true, // Display geozones icons
  *   displayLevels: [2, 6, 1, 0, 3, 4, 7],
  *   activeLevels: [2, 6, 1, 0, 3, 4, 7],
  *   createPanel: 'full',
@@ -394,6 +396,10 @@ export interface Options {
      * Country identifier to be used in the API request
      */
     country?: string;
+    /**
+     * Display geozones icons
+     */
+    showGeozoneIcons?: boolean;
     /**
      * Geozone Levels to be shown in the control panel
      */
