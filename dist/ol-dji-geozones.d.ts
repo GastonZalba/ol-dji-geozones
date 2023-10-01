@@ -465,4 +465,3 @@ export interface Options {
     alert?(msg: string): void;
 }
 export {};
-//# sourceMappingURL=ol-dji-geozones.d.ts.map

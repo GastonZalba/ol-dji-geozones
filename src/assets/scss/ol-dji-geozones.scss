@@ -350,7 +350,11 @@
         padding: 10px 10px 15px;
         pointer-events: auto;
         font-size: 12px;
-        font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+        font:
+            12px/20px 'Helvetica Neue',
+            Arial,
+            Helvetica,
+            sans-serif;
         max-height: 300px;
         overflow-x: hidden;
         overflow-y: auto;

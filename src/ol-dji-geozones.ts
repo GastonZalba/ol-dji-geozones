@@ -832,8 +832,8 @@ export default class DjiGeozones extends Control {
                     <div class="ol-dji-geozones--main">
                         <h3 class="ol-dji-geozones--title">${name}</h3>
                         <p class="ol-dji-geozones--level">${lbl.level}: ${
-                    levelValues.name
-                } </p>
+                            levelValues.name
+                        } </p>
                     ${
                         typeName
                             ? `<p class="ol-dji-geozones--type">
