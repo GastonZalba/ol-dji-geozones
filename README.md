@@ -31,8 +31,8 @@ frame-ancestors 'self' http://*.dji.com https://*.dji.com`, so all browsers requ
 All the examples are configured using a free Proxy. If you notice some lag or slow performance, try one of your own.
 
 -   Basic usage: create an OpenLayers map instance, and pass that map and options to the DjiGeozones constructor.
-    -   [Full Panel](https://raw.githack.com/GastonZalba/ol-dji-geozones/v2.2.2/examples/basic.html)
-    -   [Compact Panel](https://raw.githack.com/GastonZalba/ol-dji-geozones/v2.2.2/examples/basic_compact.html)
+    -   [Full Panel](https://raw.githack.com/GastonZalba/ol-dji-geozones/v2.2.3/examples/basic.html)
+    -   [Compact Panel](https://raw.githack.com/GastonZalba/ol-dji-geozones/v2.2.3/examples/basic_compact.html)
 
 ## Usage
 
@@ -129,13 +129,13 @@ See [CHANGELOG](./CHANGELOG.md) for details of changes in each release.
 Load `ol-dji-geozones.js` after OpenLayers. Dji Geozones is available as `DjiGeozones`.
 
 ```HTML
-<script src="https://unpkg.com/ol-dji-geozones@2.2.2"></script>
+<script src="https://unpkg.com/ol-dji-geozones@2.2.3"></script>
 ```
 
 #### CSS
 
 ```HTML
-<link rel="stylesheet" href="https://unpkg.com/ol-dji-geozones@2.2.2/dist/ol-dji-geozones.min.css" />
+<link rel="stylesheet" href="https://unpkg.com/ol-dji-geozones@2.2.3/dist/ol-dji-geozones.min.css" />
 ```
 
 ### Parcel, Webpack, etc.

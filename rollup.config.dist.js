@@ -1,4 +1,3 @@
-import babel from '@rollup/plugin-babel';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import json from "@rollup/plugin-json";
@@ -37,7 +36,7 @@ const globals = (id) => {
 
 export default function (commandOptions) {
 
-    const outputs = [{
+    return [{
         input: 'src/ol-dji-geozones.ts',
         output: [
             {
@@ -68,30 +67,6 @@ export default function (commandOptions) {
             ),
             json(),
             resolve(),
-            babel({
-                plugins: ["@babel/plugin-transform-runtime"],
-                babelHelpers: 'runtime',
-                include: ['src/**/*'],
-                extensions: [
-                    '.js', '.jsx', '.ts', '.tsx',
-                ],
-                presets: [
-                    [
-                        '@babel/preset-env',
-                        {
-                            targets: {
-                                browsers: [
-                                    "Chrome >= 52",
-                                    "FireFox >= 44",
-                                    "Safari >= 7",
-                                    "Explorer 11",
-                                    "last 4 Edge versions"
-                                ]
-                            }
-                        }
-                    ]
-                ]
-            }),
             commonjs(),
             image(),
             postcss({
@@ -129,11 +104,9 @@ export default function (commandOptions) {
             // console.log('id', id);
             return /ol\//.test(id);
         }
-    }];
-
-    // Minified css
-    if (!commandOptions.dev)
-        outputs.push({
+    }, 
+    ...(!commandOptions.dev ?
+        [{
             input: path.resolve('dist/ol-dji-geozones.css'),
             plugins: [
                 postcss({
@@ -154,7 +127,8 @@ export default function (commandOptions) {
                 if (warning.code === 'FILE_NAME_CONFLICT') return
                 warn(warning)
             }
-        });
+        }] : []
+        )
+    ]  
 
-    return outputs;
 }

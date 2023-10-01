@@ -1,0 +1,12 @@
+{
+    "editor.detectIndentation": false,
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "files.eol": "\r\n",
+    "files.autoSave": "afterDelay",
+    "files.autoSaveDelay": 1000,
+    "javascript.preferences.importModuleSpecifierEnding": "js",
+    "typescript.preferences.importModuleSpecifierEnding": "js",
+    "typescript.preferences.importModuleSpecifier": "relative",
+    "javascript.preferences.importModuleSpecifier": "relative"
+}

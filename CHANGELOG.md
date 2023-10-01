@@ -117,3 +117,6 @@
 * Fixed bug on geozones returning 99 as `type` in some drones
 * Minimal addition to the README
 * Updated to Ol8
+
+## v2.2.3
+* Updated dev dependencies and removed babel
