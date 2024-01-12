@@ -120,3 +120,6 @@
 
 ## v2.2.3
 * Updated dev dependencies and removed babel
+
+## v2.2.4
+* Added option `encodeURIRequest`

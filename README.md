@@ -217,9 +217,11 @@ TypeScript types are shipped with the project in the dist directory and should b
 -   [i18n](#i18n)
 -   [Options](#options)
     -   [urlProxy](#urlproxy)
+    -   [encodeURIRequest](#encodeurirequest)
     -   [buffer](#buffer)
     -   [zonesMode](#zonesmode-2)
     -   [country](#country-3)
+    -   [showGeozoneIcons](#showgeozoneicons)
     -   [displayLevels](#displaylevels)
     -   [activeLevels](#activelevels-1)
     -   [dronesToDisplay](#dronestodisplay)
@@ -531,10 +533,12 @@ Default values:
 ```javascript
 {
   urlProxy: '',
+  encodeURIRequest: true,
   buffer: 10000, // meters
   drone: 'spark', // See parameter in the DJI API section
   zonesMode: 'total', // See parameter in the DJI API section
   country: 'US', // See parameter in the DJI API section
+  showGeozoneIcons: true, // Display geozones icons
   displayLevels: [2, 6, 1, 0, 3, 4, 7],
   activeLevels: [2, 6, 1, 0, 3, 4, 7],
   createPanel: 'full',
@@ -558,6 +562,12 @@ Url/endpoint from a Reverse Proxy to avoid CORS restrictions
 
 Type: [string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)
 
+#### encodeURIRequest
+
+To encode or not the outgoing request (depending on proxy)
+
+Type: [boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
+
 #### buffer
 
 Current map radius is increased by the provided value (in meters) and used to request the areas.
@@ -577,6 +587,12 @@ Type: [string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Globa
 Country identifier to be used in the API request
 
 Type: [string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)
+
+#### showGeozoneIcons
+
+Display geozones icons
+
+Type: [boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
 
 #### displayLevels
 
