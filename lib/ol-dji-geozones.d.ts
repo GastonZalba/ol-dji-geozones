@@ -354,6 +354,7 @@ export interface i18n {
  * ```javascript
  * {
  *   urlProxy: '',
+ *   encodeURIRequest: true,
  *   buffer: 10000, // meters
  *   drone: 'spark', // See parameter in the DJI API section
  *   zonesMode: 'total', // See parameter in the DJI API section
@@ -381,6 +382,10 @@ export interface Options {
      * Url/endpoint from a Reverse Proxy to avoid CORS restrictions
      */
     urlProxy?: string;
+    /**
+     * To encode or not the outgoing request (depending on proxy)
+     */
+    encodeURIRequest?: boolean;
     /**
      * Current map radius is increased by the provided value (in meters) and used to request the areas.
      * Very useful for the highest zoom levels, to allow geozones near by being displayed.

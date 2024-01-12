@@ -1,6 +1,6 @@
 {
   "name": "ol-dji-geozones",
-  "version": "2.2.3",
+  "version": "2.2.4",
   "description": "Displays DJI Geo Zones on an OpenLayers map.",
   "main": "dist/ol-dji-geozones.js",
   "module": "lib/ol-dji-geozones.js",

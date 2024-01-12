@@ -1,7 +1,7 @@
 /*!
- * ol-dji-geozones - v2.2.3
+ * ol-dji-geozones - v2.2.4
  * https://github.com/GastonZalba/ol-dji-geozones#readme
- * Built: Sat Sep 30 2023 22:56:05 GMT-0300 (Argentina Standard Time)
+ * Built: Fri Jan 12 2024 12:59:41 GMT-0300 (hora estándar de Argentina)
 */
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('ol/layer/Vector.js'), require('ol/source/Vector.js'), require('ol/Feature.js'), require('ol/Overlay.js'), require('ol/proj.js'), require('ol/sphere.js'), require('ol/geom/Polygon.js'), require('ol/geom/MultiPolygon.js'), require('ol/geom/Point.js'), require('ol/geom/Circle.js'), require('ol/events/Event.js'), require('ol/style/Style.js'), require('ol/style/Fill.js'), require('ol/style/Stroke.js'), require('ol/style/Icon.js'), require('ol/control/Control.js'), require('ol/color.js'), require('ol/extent.js'), require('ol/Observable.js')) :
@@ -657,7 +657,7 @@
                 if (err.message)
                     console.error(err);
             };
-            this._options = Object.assign({ urlProxy: '', buffer: 10000, drone: 'spark', zonesMode: 'total', country: 'US', showGeozoneIcons: true, displayLevels: [2, 6, 1, 0, 3, 4, 7], activeLevels: [2, 6, 1, 0, 3, 4, 7], createPanel: 'full', target: null, startCollapsed: false, startActive: true, dronesToDisplay: dronesList, extent: null, loadingElement: '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>', clickEvent: 'singleclick', language: DEFAULT_LANGUAGE, alert: null }, (opt_options || {}));
+            this._options = Object.assign({ urlProxy: '', encodeURIRequest: true, buffer: 10000, drone: 'spark', zonesMode: 'total', country: 'US', showGeozoneIcons: true, displayLevels: [2, 6, 1, 0, 3, 4, 7], activeLevels: [2, 6, 1, 0, 3, 4, 7], createPanel: 'full', target: null, startCollapsed: false, startActive: true, dronesToDisplay: dronesList, extent: null, loadingElement: '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>', clickEvent: 'singleclick', language: DEFAULT_LANGUAGE, alert: null }, (opt_options || {}));
             // If language selector is provided and translation exists...
             this._i18n =
                 languages[this._options.language in languages
@@ -1429,7 +1429,7 @@
                     : API_INFO_ENDPOINT;
                 // If not proxy is passed, make a direct request
                 // Maybe in the future the api will has updated CORS restrictions
-                const url = new URL(api_endpoint);
+                let url = api_endpoint + '?';
                 const queryObj = {
                     drone: this.drone,
                     zones_mode: this.zonesMode,
@@ -1439,10 +1439,13 @@
                     lat: lat,
                     search_radius: searchRadius
                 };
-                Object.keys(queryObj).forEach((key) => url.searchParams.append(key, queryObj[key]));
+                Object.keys(queryObj).forEach((key) => (url += `${key}=${queryObj[key]}&`));
+                const urlRequest = this._options.encodeURIRequest === false
+                    ? url
+                    : encodeURIComponent(url);
                 const finalUrl = this._options.urlProxy
-                    ? this._options.urlProxy + encodeURIComponent(url.toString())
-                    : url.toString();
+                    ? this._options.urlProxy + urlRequest
+                    : urlRequest;
                 const response = await fetch(finalUrl);
                 if (!response.ok)
                     throw new Error('HTTP-Error: ' + response.status);
