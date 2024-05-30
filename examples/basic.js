@@ -22,6 +22,7 @@
     // In this example, allOrigins is a free and open source javascript (use it only for testing) 
     // For production deploy a custom instance or use yor own proxy.
     urlProxy: 'https://api.allorigins.win/raw?url=',
+    encodeURIRequest: true,
     buffer: 10000,
     drone: 'mavic-2',
     country: 'AR',

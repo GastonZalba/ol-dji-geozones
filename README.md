@@ -217,6 +217,7 @@ TypeScript types are shipped with the project in the dist directory and should b
 -   [i18n](#i18n)
 -   [Options](#options)
     -   [urlProxy](#urlproxy)
+    -   [encodeURIRequest](#encodeurirequest)
     -   [buffer](#buffer)
     -   [zonesMode](#zonesmode-2)
     -   [country](#country-3)
@@ -532,6 +533,7 @@ Default values:
 ```javascript
 {
   urlProxy: '',
+  encodeURIRequest: true,
   buffer: 10000, // meters
   drone: 'spark', // See parameter in the DJI API section
   zonesMode: 'total', // See parameter in the DJI API section
@@ -559,6 +561,12 @@ Default values:
 Url/endpoint from a Reverse Proxy to avoid CORS restrictions
 
 Type: [string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)
+
+#### encodeURIRequest
+
+To encode or not the outgoing request (depending on proxy)
+
+Type: [boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
 
 #### buffer
 

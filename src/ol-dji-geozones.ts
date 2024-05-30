@@ -136,6 +136,7 @@ export default class DjiGeozones extends Control {
 
         this._options = {
             urlProxy: '',
+            encodeURIRequest: true,
             buffer: 10000, // meters
             drone: 'spark',
             zonesMode: 'total',
@@ -832,8 +833,8 @@ export default class DjiGeozones extends Control {
                     <div class="ol-dji-geozones--main">
                         <h3 class="ol-dji-geozones--title">${name}</h3>
                         <p class="ol-dji-geozones--level">${lbl.level}: ${
-                            levelValues.name
-                        } </p>
+                    levelValues.name
+                } </p>
                     ${
                         typeName
                             ? `<p class="ol-dji-geozones--type">
@@ -1184,7 +1185,7 @@ export default class DjiGeozones extends Control {
 
             // If not proxy is passed, make a direct request
             // Maybe in the future the api will has updated CORS restrictions
-            const url = new URL(api_endpoint);
+            let url = api_endpoint + '?';
 
             const queryObj: ApiReqArguments = {
                 drone: this.drone,
@@ -1196,13 +1197,18 @@ export default class DjiGeozones extends Control {
                 search_radius: searchRadius
             };
 
-            Object.keys(queryObj).forEach((key) =>
-                url.searchParams.append(key, queryObj[key])
+            Object.keys(queryObj).forEach(
+                (key) => (url += `${key}=${queryObj[key]}&`)
             );
 
+            const urlRequest =
+                this._options.encodeURIRequest === false
+                    ? url
+                    : encodeURIComponent(url);
+
             const finalUrl = this._options.urlProxy
-                ? this._options.urlProxy + encodeURIComponent(url.toString())
-                : url.toString();
+                ? this._options.urlProxy + urlRequest
+                : urlRequest;
 
             const response = await fetch(finalUrl);
 
@@ -1760,7 +1766,7 @@ interface ApiReqArguments {
      * - `8` - Approved Zones for Light UAVs(China) **Only valid for China**
      * - `9` - Densely Populated Area **NOT SUPPORTED - This level exists in the oficial Geo Zone Map, but this data is not provided by the api. On the other hand, now days this level is apparently valid only for Japan and China**
      */
-    level: Array<number>;
+    level: number[];
 
     /**
      * - `dji-mavic-3` (Mavic 3)
@@ -1899,6 +1905,7 @@ export interface i18n {
  * ```javascript
  * {
  *   urlProxy: '',
+ *   encodeURIRequest: true,
  *   buffer: 10000, // meters
  *   drone: 'spark', // See parameter in the DJI API section
  *   zonesMode: 'total', // See parameter in the DJI API section
@@ -1926,6 +1933,10 @@ export interface Options {
      * Url/endpoint from a Reverse Proxy to avoid CORS restrictions
      */
     urlProxy?: string;
+    /**
+     * To encode or not the outgoing request (depending on proxy)
+     */
+    encodeURIRequest?: boolean;
     /**
      * Current map radius is increased by the provided value (in meters) and used to request the areas.
      * Very useful for the highest zoom levels, to allow geozones near by being displayed.

@@ -121,7 +121,12 @@
 ## v2.2.3
 * Updated dev dependencies and removed babel
 
+## v2.2.4
+* Added option `encodeURIRequest`
+
 ## v2.3.0
 * Updated to Ol9 (types)
 * Updated drone list
 * Force css style in the drone select to be 100% width
+* Updated dependencies
+
