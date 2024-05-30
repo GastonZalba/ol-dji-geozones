@@ -31,8 +31,8 @@ export default {
         del({ targets: 'lib/*' }),
         typescript({
             outDir: './lib',
-            declarationDir: './lib',
-            outputToFilesystem: true
+            outputToFilesystem: true,
+            incremental: false
         }),
         json(),
         image(),

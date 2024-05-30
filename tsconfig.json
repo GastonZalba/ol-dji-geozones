@@ -11,7 +11,6 @@
       "resolveJsonModule": true,
       "esModuleInterop": true,
       "moduleResolution": "node",
-      "declarationDir": "dist",
       "skipLibCheck": true
   },
   "include": ["./src"]

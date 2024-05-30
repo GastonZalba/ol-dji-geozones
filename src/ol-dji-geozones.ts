@@ -99,7 +99,7 @@ export default class DjiGeozones extends Control {
     protected _moveendEvtKey: EventsKey | Array<EventsKey>;
     protected _clickEvtKey: EventsKey | Array<EventsKey>;
 
-    protected _layers: Array<VectorLayer<VectorSource<Geometry>>>;
+    protected _layers: Array<VectorLayer<Feature>>;
     protected _areaDownloaded: MultiPolygon;
 
     protected _featuresIdList: Set<string> = new Set();
@@ -912,7 +912,7 @@ export default class DjiGeozones extends Control {
             }
 
             const opt_options = {
-                layerFilter: (layer: VectorLayer<VectorSource<Geometry>>) =>
+                layerFilter: (layer: VectorLayer<Feature>) =>
                     layer.get('name') === 'ol-dji-geozones'
             };
 
@@ -1347,7 +1347,7 @@ export default class DjiGeozones extends Control {
      * Get all the layers
      * @public
      */
-    get layers(): Array<VectorLayer<VectorSource<Geometry>>> {
+    get layers(): Array<VectorLayer<Feature>> {
         return this._layers;
     }
 
@@ -1356,8 +1356,8 @@ export default class DjiGeozones extends Control {
      * @param level
      * @public
      */
-    getLayerByLevel(level: number): VectorLayer<VectorSource<Geometry>> {
-        let find: VectorLayer<VectorSource<Geometry>>;
+    getLayerByLevel(level: number): VectorLayer<Feature> {
+        let find: VectorLayer<Feature>;
         for (const layer of this.layers) {
             if (
                 layer.get('level') != undefined &&
@@ -1958,6 +1958,7 @@ export interface Options {
     activeLevels?: Array<number>;
     /**
      * Use a custom drone list to show in the select. If not provided, we use all the available drones
+     * The models are extracted from https://flysafe-api.dji.com/dji/drones
      * See [drone](#drone-2) for the complete list.
      */
     dronesToDisplay?: Array<Drone>;

@@ -16,7 +16,7 @@ Displays DJI Geo Zones on an OpenLayers map. Also, you can add a Control Panel w
 
 The data is obtained directly from an undocumented DJI [API](https://www-api.dji.com/api/geo/areas). The official DJI Fly Safe Geo Zone Map that use the same data can be found [here](https://www.dji.com/flysafe/geo-map), and more information [here](https://www.dji.com/flysafe/introduction).
 
-Tested with OpenLayers version 5, 6, 7 and 8.
+Tested with OpenLayers version 5, 6, 7, 8 and 9.
 
 ### DISCLAIMER
 
@@ -31,8 +31,8 @@ frame-ancestors 'self' http://*.dji.com https://*.dji.com`, so all browsers requ
 All the examples are configured using a free Proxy. If you notice some lag or slow performance, try one of your own.
 
 -   Basic usage: create an OpenLayers map instance, and pass that map and options to the DjiGeozones constructor.
-    -   [Full Panel](https://raw.githack.com/GastonZalba/ol-dji-geozones/v2.2.3/examples/basic.html)
-    -   [Compact Panel](https://raw.githack.com/GastonZalba/ol-dji-geozones/v2.2.3/examples/basic_compact.html)
+    -   [Full Panel](https://raw.githack.com/GastonZalba/ol-dji-geozones/v2.3.0/examples/basic.html)
+    -   [Compact Panel](https://raw.githack.com/GastonZalba/ol-dji-geozones/v2.3.0/examples/basic_compact.html)
 
 ## Usage
 
@@ -129,13 +129,13 @@ See [CHANGELOG](./CHANGELOG.md) for details of changes in each release.
 Load `ol-dji-geozones.js` after OpenLayers. Dji Geozones is available as `DjiGeozones`.
 
 ```HTML
-<script src="https://unpkg.com/ol-dji-geozones@2.2.3"></script>
+<script src="https://unpkg.com/ol-dji-geozones@2.3.0"></script>
 ```
 
 #### CSS
 
 ```HTML
-<link rel="stylesheet" href="https://unpkg.com/ol-dji-geozones@2.2.3/dist/ol-dji-geozones.min.css" />
+<link rel="stylesheet" href="https://unpkg.com/ol-dji-geozones@2.3.0/dist/ol-dji-geozones.min.css" />
 ```
 
 ### Parcel, Webpack, etc.
@@ -220,6 +220,7 @@ TypeScript types are shipped with the project in the dist directory and should b
     -   [buffer](#buffer)
     -   [zonesMode](#zonesmode-2)
     -   [country](#country-3)
+    -   [showGeozoneIcons](#showgeozoneicons)
     -   [displayLevels](#displaylevels)
     -   [activeLevels](#activelevels-1)
     -   [dronesToDisplay](#dronestodisplay)
@@ -285,9 +286,9 @@ Returns **void**&#x20;
 
 Get all the layers
 
-Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)\<VectorLayer\<VectorSource\<Geometry>>>
+Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)\<VectorLayer\<Feature>>
 
-Returns **[Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)\<VectorLayer\<VectorSource\<Geometry>>>**&#x20;
+Returns **[Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)\<VectorLayer\<Feature>>**&#x20;
 
 #### getLayerByLevel
 
@@ -297,7 +298,7 @@ Get the layer acordding the level
 
 -   `level` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)**&#x20;
 
-Returns **VectorLayer\<VectorSource\<Geometry>>**&#x20;
+Returns **VectorLayer\<Feature>**&#x20;
 
 #### drone
 
@@ -535,6 +536,7 @@ Default values:
   drone: 'spark', // See parameter in the DJI API section
   zonesMode: 'total', // See parameter in the DJI API section
   country: 'US', // See parameter in the DJI API section
+  showGeozoneIcons: true, // Display geozones icons
   displayLevels: [2, 6, 1, 0, 3, 4, 7],
   activeLevels: [2, 6, 1, 0, 3, 4, 7],
   createPanel: 'full',
@@ -578,6 +580,12 @@ Country identifier to be used in the API request
 
 Type: [string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)
 
+#### showGeozoneIcons
+
+Display geozones icons
+
+Type: [boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
+
 #### displayLevels
 
 Geozone Levels to be shown in the control panel
@@ -593,6 +601,7 @@ Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global
 #### dronesToDisplay
 
 Use a custom drone list to show in the select. If not provided, we use all the available drones
+The models are extracted from <https://flysafe-api.dji.com/dji/drones>
 See [drone](#drone-2) for the complete list.
 
 Type: [Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)\<Drone>

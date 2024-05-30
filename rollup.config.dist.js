@@ -61,8 +61,8 @@ export default function (commandOptions) {
             typescript(
                 {
                     outDir: './dist',
-                    declarationDir: './dist',
-                    outputToFilesystem: true
+                    outputToFilesystem: true,
+                    incremental: true
                 }
             ),
             json(),
