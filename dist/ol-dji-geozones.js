@@ -1,7 +1,7 @@
 /*!
- * ol-dji-geozones - v2.2.3
+ * ol-dji-geozones - v2.3.0
  * https://github.com/GastonZalba/ol-dji-geozones#readme
- * Built: Sat Sep 30 2023 22:56:05 GMT-0300 (Argentina Standard Time)
+ * Built: Thu May 30 2024 15:12:29 GMT-0300 (Argentina Standard Time)
 */
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('ol/layer/Vector.js'), require('ol/source/Vector.js'), require('ol/Feature.js'), require('ol/Overlay.js'), require('ol/proj.js'), require('ol/sphere.js'), require('ol/geom/Polygon.js'), require('ol/geom/MultiPolygon.js'), require('ol/geom/Point.js'), require('ol/geom/Circle.js'), require('ol/events/Event.js'), require('ol/style/Style.js'), require('ol/style/Fill.js'), require('ol/style/Stroke.js'), require('ol/style/Icon.js'), require('ol/control/Control.js'), require('ol/color.js'), require('ol/extent.js'), require('ol/Observable.js')) :
@@ -84,164 +84,192 @@
 
     var dronesList = [
     	{
-    		id: "dji-flycart-30",
-    		label: "DJI FlyCart 30"
+    		label: "DJI Avata 2",
+    		id: "dji-avata-2"
     	},
     	{
-    		id: "dji-air-3",
-    		label: "DJI Air 3"
+    		label: "DJI Mini 4 Pro",
+    		id: "dji-mini-4-pro"
     	},
     	{
-    		id: "m350-rtk",
-    		label: "M350 RTK"
+    		label: "DJI FlyCart 30",
+    		id: "dji-flycart-30"
     	},
     	{
-    		id: "dji-mavic-3-pro",
-    		label: "DJI Mavic 3 Pro"
+    		label: "DJI Air 3",
+    		id: "dji-air-3"
     	},
     	{
-    		id: "inspire-3",
-    		label: "Inspire 3"
+    		label: "M350 RTK",
+    		id: "m350-rtk"
     	},
     	{
-    		id: "dji-mini-3",
-    		label: "DJI Mini 3"
+    		label: "DJI Mavic 3 Pro",
+    		id: "dji-mavic-3-pro"
     	},
     	{
-    		id: "dji-mavic-3-classic",
-    		label: "DJI Mini 3 Classic"
+    		label: "Inspire 3",
+    		id: "inspire-3"
     	},
     	{
-    		id: "industry-260",
-    		label: "Mavic 3E/3T"
+    		label: "DJI Mini 3",
+    		id: "dji-mini-3"
     	},
     	{
-    		id: "dji-avata",
-    		label: "Avata"
+    		label: "DJI Mavic 3 Classic",
+    		id: "dji-mavic-3-classic"
     	},
     	{
-    		id: "dji-mini-3-pro",
-    		label: "Mini 3 Pro"
+    		label: "DJI Mavic 3E/3T/3M",
+    		id: "industry-260"
     	},
     	{
-    		id: "dji-mavic-3",
-    		label: "Mavic 3"
+    		label: "DJI Avata",
+    		id: "dji-avata"
     	},
     	{
-    		id: "dji-mini-se",
-    		label: "Mavic Mini SE"
+    		label: "DJI Mini 3 Pro",
+    		id: "dji-mini-3-pro"
     	},
     	{
-    		id: "dji-air-2s",
-    		label: "Air 2s"
+    		label: "DJI Mavic 3",
+    		id: "dji-mavic-3"
     	},
     	{
-    		id: "dji-fpv",
-    		label: "FPV"
+    		label: "DJI Mini SE",
+    		id: "dji-mini-se"
     	},
     	{
-    		id: "mavic-mini-2",
-    		label: "Mavic Mini 2"
+    		label: "DJI Air 2S",
+    		id: "dji-air-2s"
     	},
     	{
-    		id: "mavic-mini",
-    		label: "Mavic Mini"
+    		label: "DJI FPV",
+    		id: "dji-fpv"
     	},
     	{
-    		id: "mavic-2-enterprise",
-    		label: "Mavic 2 Enterprise"
+    		label: "DJI Mini 2/DJI Mini 2 SE",
+    		id: "dji-mini-2"
     	},
     	{
-    		id: "mavic-2",
-    		label: "Mavic 2"
+    		label: "Mavic Mini",
+    		id: "mavic-mini"
     	},
     	{
-    		id: "mavic-air",
-    		label: "Mavic Air"
+    		label: "Mavic 2 Enterprise",
+    		id: "mavic-2-enterprise"
     	},
     	{
-    		id: "mavic-air-2",
-    		label: "Mavic Air 2"
+    		label: "Mavic 2",
+    		id: "mavic-2"
     	},
     	{
-    		id: "mavic-pro",
-    		label: "Mavic Pro"
+    		label: "Mavic Air",
+    		id: "mavic-air"
     	},
     	{
-    		id: "spark",
-    		label: "Spark"
+    		label: "Mavic Air 2",
+    		id: "mavic-air-2"
     	},
     	{
-    		id: "phantom-4-pro",
-    		label: "Phantom 4 Pro"
+    		label: "Mavic Pro",
+    		id: "mavic-pro"
     	},
     	{
-    		id: "phantom-4-advanced",
-    		label: "Phantom 4 Advanced"
+    		label: "Spark",
+    		id: "spark"
     	},
     	{
-    		id: "phantom-4",
-    		label: "Phantom 4"
+    		label: "Phantom 4 Pro",
+    		id: "phantom-4-pro"
     	},
     	{
-    		id: "phantom-4-rtk",
-    		label: "Phantom 4 RTK"
+    		label: "Phantom 4 Pro V2/V2+",
+    		id: "phantom-4-pro-v2"
     	},
     	{
-    		id: "phantom-4-multispectral",
-    		label: "Phantom 4 Multispectral"
+    		label: "Phantom 4 Advanced",
+    		id: "phantom-4-advanced"
     	},
     	{
-    		id: "phantom-3-pro",
-    		label: "Phantom 3 Pro"
+    		label: "Phantom 4",
+    		id: "phantom-4"
     	},
     	{
-    		id: "phantom-3-advanced",
-    		label: "Phantom 3 Advanced"
+    		label: "Phantom 4 RTK",
+    		id: "phantom-4-rtk"
     	},
     	{
-    		id: "phantom-3-standard",
-    		label: "Phantom 3 Standard"
+    		label: "Phantom 4 Multispectral",
+    		id: "phantom-4-multispectral"
     	},
     	{
-    		id: "phantom-3-4K",
-    		label: "Phantom 3 4K"
+    		label: "Phantom 3 Pro",
+    		id: "phantom-3-pro"
     	},
     	{
-    		id: "phantom-3-se",
-    		label: "Phantom 3 SE"
+    		label: "Phantom 3 Advanced",
+    		id: "phantom-3-advanced"
     	},
     	{
-    		id: "inspire-2",
-    		label: "Inspire 2"
+    		label: "Phantom 3 Standard",
+    		id: "phantom-3-standard"
     	},
     	{
-    		id: "inspire-1-series",
-    		label: "Inspire 1 Series"
+    		label: "Phantom 3 4K",
+    		id: "phantom-3-4K"
     	},
     	{
-    		id: "m200-series",
-    		label: "M200 Series"
+    		label: "Phantom 3 SE",
+    		id: "phantom-3-se"
     	},
     	{
-    		id: "m300-series",
-    		label: "M300 Series"
+    		label: "Inspire 2",
+    		id: "inspire-2"
     	},
     	{
-    		id: "m600-series",
-    		label: "M600 Series"
+    		label: "Inspire 1 Series",
+    		id: "inspire-1-series"
     	},
     	{
-    		id: "m100",
-    		label: "M100"
+    		label: "DJI Matrice 3D/3TD",
+    		id: "dji-matrice-3d-3td"
     	},
     	{
-    		id: "mg1p",
-    		label: "MG 1S/1A/1P/1P RTK/T10/T16/T20/T30"
+    		label: "M30 Series",
+    		id: "m30-series"
     	},
     	{
-    		id: "dji-mini-2",
-    		label: "DJI Mini 2"
+    		label: "M100",
+    		id: "m100"
+    	},
+    	{
+    		label: "M200 Series",
+    		id: "m200-series"
+    	},
+    	{
+    		label: "M300 Series",
+    		id: "m300-series"
+    	},
+    	{
+    		label: "M600 Series",
+    		id: "m600-series"
+    	},
+    	{
+    		label: "DJI Mini 4K",
+    		id: "dji-mini-4k"
+    	},
+    	{
+    		label: "MG 1S/1A/1P/1P RTK/T16/T20",
+    		id: "mg1p"
+    	},
+    	{
+    		label: "T10/T20P/T25/T30/T40/T50",
+    		id: "mg-new"
+    	},
+    	{
+    		label: "T60/T25p",
+    		id: "mg-new-t60"
     	}
     ];
 
@@ -657,7 +685,7 @@
                 if (err.message)
                     console.error(err);
             };
-            this._options = Object.assign({ urlProxy: '', buffer: 10000, drone: 'spark', zonesMode: 'total', country: 'US', showGeozoneIcons: true, displayLevels: [2, 6, 1, 0, 3, 4, 7], activeLevels: [2, 6, 1, 0, 3, 4, 7], createPanel: 'full', target: null, startCollapsed: false, startActive: true, dronesToDisplay: dronesList, extent: null, loadingElement: '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>', clickEvent: 'singleclick', language: DEFAULT_LANGUAGE, alert: null }, (opt_options || {}));
+            this._options = Object.assign({ urlProxy: '', encodeURIRequest: true, buffer: 10000, drone: 'spark', zonesMode: 'total', country: 'US', showGeozoneIcons: true, displayLevels: [2, 6, 1, 0, 3, 4, 7], activeLevels: [2, 6, 1, 0, 3, 4, 7], createPanel: 'full', target: null, startCollapsed: false, startActive: true, dronesToDisplay: dronesList, extent: null, loadingElement: '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>', clickEvent: 'singleclick', language: DEFAULT_LANGUAGE, alert: null }, (opt_options || {}));
             // If language selector is provided and translation exists...
             this._i18n =
                 languages[this._options.language in languages
@@ -1429,7 +1457,7 @@
                     : API_INFO_ENDPOINT;
                 // If not proxy is passed, make a direct request
                 // Maybe in the future the api will has updated CORS restrictions
-                const url = new URL(api_endpoint);
+                let url = api_endpoint + '?';
                 const queryObj = {
                     drone: this.drone,
                     zones_mode: this.zonesMode,
@@ -1439,10 +1467,13 @@
                     lat: lat,
                     search_radius: searchRadius
                 };
-                Object.keys(queryObj).forEach((key) => url.searchParams.append(key, queryObj[key]));
+                Object.keys(queryObj).forEach((key) => (url += `${key}=${queryObj[key]}&`));
+                const urlRequest = this._options.encodeURIRequest === false
+                    ? url
+                    : encodeURIComponent(url);
                 const finalUrl = this._options.urlProxy
-                    ? this._options.urlProxy + encodeURIComponent(url.toString())
-                    : url.toString();
+                    ? this._options.urlProxy + urlRequest
+                    : urlRequest;
                 const response = await fetch(finalUrl);
                 if (!response.ok)
                     throw new Error('HTTP-Error: ' + response.status);

@@ -1,7 +1,6 @@
 import VectorLayer from 'ol/layer/Vector.js';
-import VectorSource from 'ol/source/Vector.js';
+import Feature from 'ol/Feature.js';
 import MultiPolygon from 'ol/geom/MultiPolygon.js';
-import Geometry from 'ol/geom/Geometry.js';
 import BaseEvent from 'ol/events/Event.js';
 import Control from 'ol/control/Control.js';
 import { Extent } from 'ol/extent.js';
@@ -37,7 +36,7 @@ export default class DjiGeozones extends Control {
     protected _listeners: boolean;
     protected _moveendEvtKey: EventsKey | Array<EventsKey>;
     protected _clickEvtKey: EventsKey | Array<EventsKey>;
-    protected _layers: Array<VectorLayer<VectorSource<Geometry>>>;
+    protected _layers: Array<VectorLayer<Feature>>;
     protected _areaDownloaded: MultiPolygon;
     protected _featuresIdList: Set<string>;
     divControl: HTMLElement;
@@ -128,13 +127,13 @@ export default class DjiGeozones extends Control {
      * Get all the layers
      * @public
      */
-    get layers(): Array<VectorLayer<VectorSource<Geometry>>>;
+    get layers(): Array<VectorLayer<Feature>>;
     /**
      * Get the layer acordding the level
      * @param level
      * @public
      */
-    getLayerByLevel(level: number): VectorLayer<VectorSource<Geometry>>;
+    getLayerByLevel(level: number): VectorLayer<Feature>;
     /**
      * Get the geozone type (airport, heliport, etc) by id
      * @param id
@@ -354,6 +353,7 @@ export interface i18n {
  * ```javascript
  * {
  *   urlProxy: '',
+ *   encodeURIRequest: true,
  *   buffer: 10000, // meters
  *   drone: 'spark', // See parameter in the DJI API section
  *   zonesMode: 'total', // See parameter in the DJI API section
@@ -381,6 +381,10 @@ export interface Options {
      * Url/endpoint from a Reverse Proxy to avoid CORS restrictions
      */
     urlProxy?: string;
+    /**
+     * To encode or not the outgoing request (depending on proxy)
+     */
+    encodeURIRequest?: boolean;
     /**
      * Current map radius is increased by the provided value (in meters) and used to request the areas.
      * Very useful for the highest zoom levels, to allow geozones near by being displayed.
@@ -410,6 +414,7 @@ export interface Options {
     activeLevels?: Array<number>;
     /**
      * Use a custom drone list to show in the select. If not provided, we use all the available drones
+     * The models are extracted from https://flysafe-api.dji.com/dji/drones
      * See [drone](#drone-2) for the complete list.
      */
     dronesToDisplay?: Array<Drone>;
